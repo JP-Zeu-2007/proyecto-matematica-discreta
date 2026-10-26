@@ -39,27 +39,32 @@
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
   <!-- Aquí irá todo el HTML (Header, Paneles, etc.) -->
-  <header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
-
-      <!--EDICION DE LOGO PARA QUE SEA HORIZONTAL-->
-      <div class="flex items-center space-x-4">
-           <!-- Logo horizontal de la UMG -->
-                <img src="assets/logo-umg.png" alt="Logo UMG" class="h-12 w-auto object-contain">
-                 <!-- Texto del proyecto -->
-              <div class="border-l-2 border-umgGold pl-4">
-            <h1 class="font-bold text-lg leading-tight text-white">Matemática Discreta - Proyecto Final</h1>
-          <p class="text-xs text-amber-300 font-medium">Visualización de Grafos y Algoritmos</p>
-        </div>
+<header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold sticky top-0 z-40">
+  <!-- Quitamos el max-w-7xl y el px-4 para que el logo pegue a la izquierda -->
+  <div class="w-full flex flex-col sm:flex-row justify-between items-center">
+    
+    <!-- Bloque del Logo (Izquierda) -->
+    <div class="flex items-center">
+      <!-- Logo más grande, pegado a la esquina, con fondo blanco para que resalte -->
+      <div class="bg-white h-full py-2 px-4 rounded-r-xl">
+        <img src="assets/logo-umg.png" alt="Logo UMG" class="h-16 w-auto object-contain">
       </div>
-      <div class="flex gap-2 text-xs">
-        <button id="btn-toggle-names" onclick="toggleShowNames()" class="px-3 py-2 bg-umgGold text-umgNavy font-bold rounded-lg hover:bg-amber-400 transition">
-          <i class="fa-solid fa-eye mr-1"></i><span id="btn-toggle-names-label">Ocultar Nombres</span>
-        </button>
+      <!-- Texto del proyecto separado del logo -->
+      <div class="pl-4">
+        <h1 class="font-bold text-lg leading-tight text-white">Matemática Discreta - Proyecto Final</h1>
+        <p class="text-xs text-amber-300 font-medium">Visualización de Grafos y Algoritmos</p>
       </div>
     </div>
-  </header>
 
+    <!-- Botón de la Derecha -->
+    <div class="flex gap-2 text-xs pr-4 pb-2 sm:pb-0">
+      <button id="btn-toggle-names" onclick="toggleShowNames()" class="px-3 py-2 bg-umgGold text-umgNavy font-bold rounded-lg hover:bg-amber-400 transition">
+        <i class="fa-solid fa-eye mr-1"></i><span id="btn-toggle-names-label">Ocultar Nombres</span>
+      </button>
+    </div>
+
+  </div>
+</header>
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
     
     <!-- Panel Izquierdo -->
