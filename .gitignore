@@ -1,0 +1,15 @@
+# Archivos de sistema (Windows/Mac)
+.DS_Store
+Thumbs.db
+
+# Archivos de VS Code
+.vscode/
+*.code-workspace
+
+# Archivos de dependencias (por si acaso)
+node_modules/
+package-lock.json
+
+# Archivos temporales
+*.log
+*.tmp
