@@ -11,25 +11,50 @@ let showNames = true;
 let ctxTarget = null; 
 let isAnimating = false;
 
-// Nuevas variables para Pesos e Historial
+// Variables para Pesos e Historial
 let isWeighted = false;
 let currentUnit = 'km';
 let customUnitText = '';
 let savedGraphs = JSON.parse(localStorage.getItem('umg_grafos_history')) || [];
-let currentGraphId = null; // ID del grafo que se está editando actualmente
+let currentGraphId = null;
 
 // 2. INICIALIZACIÓN
 window.onload = function() {
   actualizarSelectHistorial();
-  // Si hay grafos guardados, cargamos el último; si no, empezamos en blanco
   if (savedGraphs.length > 0) {
+    // Cargar el último grafo guardado automáticamente
     cargarGrafoHistorial(savedGraphs[savedGraphs.length - 1].id);
   } else {
     render();
   }
+
+  // Inicializar el evento del selector de unidades
+  const unitSelect = document.getElementById('unit-select');
+  if(unitSelect) {
+    unitSelect.addEventListener('change', function() {
+      currentUnit = this.value;
+      if (currentUnit === 'custom') {
+        const custom = prompt("Escribe la unidad personalizada (ej. galones, nudos):");
+        customUnitText = custom || 'u';
+      }
+      render();
+    });
+  }
 };
 
-// 3. PERSISTENCIA E HISTORIAL
+// 3. GENERACIÓN DE CÓDIGO ÚNICO (¡ESTA ERA LA QUE FALTABA!)
+function generateUniqueCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; 
+  let code, attempts = 0;
+  do { 
+    code = '#'; 
+    for (let i = 0; i < 4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length)); 
+    attempts++; 
+  } while (vertices.some(v => v.code === code) && attempts < 500);
+  return code;
+}
+
+// 4. PERSISTENCIA E HISTORIAL
 function actualizarSelectHistorial() {
   const select = document.getElementById('history-select');
   select.innerHTML = '<option value="">-- Seleccionar un grafo guardado --</option>';
@@ -52,10 +77,10 @@ function guardarGrafoActual() {
   if (!nombre) return;
 
   const nuevoGrafo = {
-    id: currentGraphId || Date.now().toString(), // Si ya existía, conserva su ID
+    id: currentGraphId || Date.now().toString(), 
     name: nombre,
     date: new Date().toISOString(),
-    vertices: JSON.parse(JSON.stringify(vertices)), // Copia profunda
+    vertices: JSON.parse(JSON.stringify(vertices)),
     edges: JSON.parse(JSON.stringify(edges)),
     isDirected: isDirected,
     isWeighted: isWeighted,
@@ -63,7 +88,6 @@ function guardarGrafoActual() {
     customUnit: customUnitText
   };
 
-  // Si ya existía en el historial, lo actualizamos. Si no, lo agregamos.
   const idx = savedGraphs.findIndex(g => g.id === nuevoGrafo.id);
   if (idx !== -1) {
     savedGraphs[idx] = nuevoGrafo;
@@ -91,7 +115,6 @@ function cargarGrafoHistorial(id) {
   customUnitText = g.customUnit || '';
   currentGraphId = g.id;
 
-  // Actualizar UI
   document.getElementById('toggle-directed').checked = isDirected;
   document.getElementById('toggle-label').innerText = isDirected ? 'Dirigido' : 'No Dirigido';
   
@@ -144,7 +167,6 @@ function importarJSON(event) {
     try {
       const imported = JSON.parse(e.target.result);
       if (Array.isArray(imported)) {
-        // Fusionar historiales sin duplicar IDs
         imported.forEach(newG => {
           if (!savedGraphs.some(oldG => oldG.id === newG.id)) {
             savedGraphs.push(newG);
@@ -159,12 +181,12 @@ function importarJSON(event) {
     } catch (err) {
       alert("❌ Error al leer el archivo JSON.");
     }
-    event.target.value = ''; // Limpiar input
+    event.target.value = '';
   };
   reader.readAsText(file);
 }
 
-// 4. UTILIDADES (LOG Y ALERTAS)
+// 5. UTILIDADES
 function logChange(msg) {
   const banner = document.getElementById('log-banner');
   if (banner.querySelector('p.italic')) banner.innerHTML = '';
@@ -186,7 +208,7 @@ function showTempAlert(msg) {
 function getVertex(name) { return vertices.find(v => v.name === name); }
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-// 5. CÁLCULO DE GRADOS Y ARISTAS
+// 6. CÁLCULO DE GRADOS
 function computeGrade(name) {
   if (isDirected) return edges.filter(e => e.a === name).length;
   return edges.filter(e => e.a === name || e.b === name).length;
@@ -200,7 +222,7 @@ function countTotalEdges() { return edges.length; }
 function sumAllGrades() { return vertices.reduce((acc, v) => acc + computeGrade(v.name), 0); }
 function getOddVertices() { return vertices.filter(v => computeGrade(v.name) % 2 !== 0).map(v => v.name); }
 
-// 6. ACCIONES DE LOS VÉRTICES
+// 7. ACCIONES
 function toggleShowNames() {
   showNames = !showNames;
   document.getElementById('btn-toggle-names-label').innerText = showNames ? 'Ocultar Nombres' : 'Mostrar Nombres';
@@ -221,21 +243,6 @@ function onToggleWeighted() {
   limpiarAnalisis(); 
   render();
 }
-
-// Selector de unidades
-document.addEventListener('DOMContentLoaded', () => {
-  const unitSelect = document.getElementById('unit-select');
-  if(unitSelect) {
-    unitSelect.addEventListener('change', function() {
-      currentUnit = this.value;
-      if (currentUnit === 'custom') {
-        const custom = prompt("Escribe la unidad personalizada (ej. galones, nudos, etc.):");
-        customUnitText = custom || 'u';
-      }
-      render();
-    });
-  }
-});
 
 function addVertex() {
   const input = document.getElementById('new-vertex-name'); 
@@ -276,21 +283,11 @@ function removeEdge(a, b) {
   render();
 }
 
-function changeEdge(vertexName, oldTarget, newTarget, oldWeight, newWeight) {
+function changeEdge(vertexName, oldTarget, newTarget) {
   if (!newTarget || oldTarget === newTarget) return;
-  
   const idx = edges.findIndex(e => (e.a === vertexName && e.b === oldTarget) || (!isDirected && e.a === oldTarget && e.b === vertexName));
   if (idx !== -1) { 
-    // Validar si el nuevo destino ya existe en otra arista de este nodo
-    if (validarAristaDuplicada(vertexName, newTarget) && oldTarget !== newTarget) {
-      edges[idx].b = newTarget; 
-    }
-    
-    // Actualizar peso si aplica
-    if (isWeighted && newWeight !== null) {
-      edges[idx].weight = newWeight;
-    }
-    
+    edges[idx].b = newTarget; 
     limpiarAnalisis(); 
     render(); 
   }
@@ -313,13 +310,13 @@ function addConnection(vertexName) {
   let weight = null;
   if (isWeighted) {
     weight = prompt(`Ingresa el peso para la arista ${vertexName} -> ${available.name} (en ${currentUnit === 'custom' ? customUnitText : currentUnit}):`, "10");
-    if (weight === null) return; // Canceló
+    if (weight === null) return; 
   }
   
   addEdge(vertexName, available.name, weight);
 }
 
-// 7. MENÚ CONTEXTUAL
+// 8. MENÚ CONTEXTUAL
 function openContextMenu(x, y, vertexName) {
   ctxTarget = vertexName; 
   const menu = document.getElementById('context-menu'), wrap = document.getElementById('graph-container-wrap'), v = getVertex(vertexName);
@@ -345,7 +342,7 @@ function ctxDelete() { const name = ctxTarget; closeContextMenu(); removeVertex(
 
 document.addEventListener('click', (e) => { if (!e.target.closest('#context-menu')) closeContextMenu(); });
 
-// 8. RENDERIZADO DEL PANEL VISUAL
+// 9. RENDERIZADO DEL PANEL
 function render() {
   const container = document.getElementById('vertex-list'); 
   container.innerHTML = '';
@@ -360,7 +357,6 @@ function render() {
     const row = document.createElement('div'); 
     row.className = 'bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2';
     
-    // Generar UI de conexiones
     let connsHTML = '';
     if (conns.length === 0) {
       connsHTML = '<p class="text-[11px] text-slate-400 italic">Sin conexiones.</p>';
@@ -377,7 +373,7 @@ function render() {
         return `
           <div class="flex items-center gap-2 text-xs">
             <span class="text-slate-500">${isDirected ? '→' : '↔'}</span>
-            <select onchange="changeEdge('${v.name}', '${target}', this.value, '${edgeWeight}', '${edgeWeight}')" class="flex-1 p-1.5 border border-slate-300 rounded-lg text-xs bg-white">
+            <select onchange="changeEdge('${v.name}', '${target}', this.value)" class="flex-1 p-1.5 border border-slate-300 rounded-lg text-xs bg-white">
               ${vertices.filter(x => x.name !== v.name).map(x => `<option value="${x.name}" ${x.name === target ? 'selected' : ''}>${x.name}</option>`).join('')}
             </select>
             ${weightInput}
@@ -417,7 +413,7 @@ function render() {
   renderGraph();
 }
 
-// 9. HERRAMIENTAS DE LOS BOTONES DE ANÁLISIS
+// 10. HERRAMIENTAS DE LOS BOTONES
 function setBtnState(btnId, active) {
   const btn = document.getElementById(btnId);
   btn.disabled = active;
