@@ -11,38 +11,13 @@ let showNames = true;
 let ctxTarget = null; 
 let isAnimating = false;
 
-// Variables para Pesos e Historial
 let isWeighted = false;
 let currentUnit = 'km';
 let customUnitText = '';
 let savedGraphs = JSON.parse(localStorage.getItem('umg_grafos_history')) || [];
 let currentGraphId = null;
 
-// 2. INICIALIZACIÓN
-window.onload = function() {
-  actualizarSelectHistorial();
-  if (savedGraphs.length > 0) {
-    // Cargar el último grafo guardado automáticamente
-    cargarGrafoHistorial(savedGraphs[savedGraphs.length - 1].id);
-  } else {
-    render();
-  }
-
-  // Inicializar el evento del selector de unidades
-  const unitSelect = document.getElementById('unit-select');
-  if(unitSelect) {
-    unitSelect.addEventListener('change', function() {
-      currentUnit = this.value;
-      if (currentUnit === 'custom') {
-        const custom = prompt("Escribe la unidad personalizada (ej. galones, nudos):");
-        customUnitText = custom || 'u';
-      }
-      render();
-    });
-  }
-};
-
-// 3. GENERACIÓN DE CÓDIGO ÚNICO (¡ESTA ERA LA QUE FALTABA!)
+// 2. GENERACIÓN DE CÓDIGO ÚNICO
 function generateUniqueCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; 
   let code, attempts = 0;
@@ -54,7 +29,65 @@ function generateUniqueCode() {
   return code;
 }
 
-// 4. PERSISTENCIA E HISTORIAL
+// 3. UTILIDADES
+function logChange(msg) {
+  const banner = document.getElementById('log-banner');
+  if (banner.querySelector('p.italic')) banner.innerHTML = '';
+  const p = document.createElement('p'); 
+  p.className = 'text-slate-700';
+  p.innerHTML = `<span class="text-umgGold font-bold">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+  banner.prepend(p);
+}
+
+function showTempAlert(msg) {
+  const banner = document.getElementById('log-banner');
+  const p = document.createElement('p'); 
+  p.className = 'text-rose-600 font-bold';
+  p.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>${msg}`;
+  banner.prepend(p); 
+  setTimeout(() => { if (p.parentNode) p.remove(); }, 3500);
+}
+
+function getVertex(name) { return vertices.find(v => v.name === name); }
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+// 4. CÁLCULO DE GRADOS Y ARISTAS
+function computeGrade(name) {
+  if (isDirected) return edges.filter(e => e.a === name).length;
+  return edges.filter(e => e.a === name || e.b === name).length;
+}
+
+function getConnections(name) {
+  return edges.filter(e => e.a === name || e.b === name).map(e => e.a === name ? e.b : e.a);
+}
+
+function countTotalEdges() { return edges.length; }
+function sumAllGrades() { return vertices.reduce((acc, v) => acc + computeGrade(v.name), 0); }
+function getOddVertices() { return vertices.filter(v => computeGrade(v.name) % 2 !== 0).map(v => v.name); }
+
+// 5. ACCIONES BÁSICAS
+function toggleShowNames() {
+  showNames = !showNames;
+  document.getElementById('btn-toggle-names-label').innerText = showNames ? 'Ocultar Nombres' : 'Mostrar Nombres';
+  renderGraph(); 
+}
+
+function onToggleDirected() {
+  isDirected = document.getElementById('toggle-directed').checked;
+  document.getElementById('toggle-label').innerText = isDirected ? 'Dirigido' : 'No Dirigido';
+  limpiarAnalisis(); 
+  render();
+}
+
+function onToggleWeighted() {
+  isWeighted = document.getElementById('toggle-weighted').checked;
+  document.getElementById('toggle-weight-label').innerText = isWeighted ? 'Con Peso' : 'Sin Peso';
+  document.getElementById('unit-selector-container').classList.toggle('hidden', !isWeighted);
+  limpiarAnalisis(); 
+  render();
+}
+
+// 6. PERSISTENCIA E HISTORIAL
 function actualizarSelectHistorial() {
   const select = document.getElementById('history-select');
   select.innerHTML = '<option value="">-- Seleccionar un grafo guardado --</option>';
@@ -72,7 +105,6 @@ function guardarGrafoActual() {
     showTempAlert("No hay nada que guardar. Agrega vértices primero.");
     return;
   }
-
   const nombre = prompt("Dale un nombre a este grafo (ej. Red de Ciudades):", `Grafo ${savedGraphs.length + 1}`);
   if (!nombre) return;
 
@@ -89,16 +121,13 @@ function guardarGrafoActual() {
   };
 
   const idx = savedGraphs.findIndex(g => g.id === nuevoGrafo.id);
-  if (idx !== -1) {
-    savedGraphs[idx] = nuevoGrafo;
-  } else {
-    savedGraphs.push(nuevoGrafo);
-  }
+  if (idx !== -1) savedGraphs[idx] = nuevoGrafo;
+  else savedGraphs.push(nuevoGrafo);
 
   currentGraphId = nuevoGrafo.id;
   localStorage.setItem('umg_grafos_history', JSON.stringify(savedGraphs));
   actualizarSelectHistorial();
-  logChange(`Grafo <strong>${nombre}</strong> guardado en el historial.`);
+  logChange(`Grafo <strong>${nombre}</strong> guardado.`);
   showTempAlert("✅ Grafo guardado correctamente.");
 }
 
@@ -117,7 +146,6 @@ function cargarGrafoHistorial(id) {
 
   document.getElementById('toggle-directed').checked = isDirected;
   document.getElementById('toggle-label').innerText = isDirected ? 'Dirigido' : 'No Dirigido';
-  
   document.getElementById('toggle-weighted').checked = isWeighted;
   document.getElementById('toggle-weight-label').innerText = isWeighted ? 'Con Peso' : 'Sin Peso';
   document.getElementById('unit-selector-container').classList.toggle('hidden', !isWeighted);
@@ -125,7 +153,7 @@ function cargarGrafoHistorial(id) {
 
   limpiarAnalisis();
   render();
-  logChange(`Grafo <strong>${g.name}</strong> cargado del historial.`);
+  logChange(`Grafo <strong>${g.name}</strong> cargado.`);
 }
 
 function crearNuevoGrafo() {
@@ -168,9 +196,7 @@ function importarJSON(event) {
       const imported = JSON.parse(e.target.result);
       if (Array.isArray(imported)) {
         imported.forEach(newG => {
-          if (!savedGraphs.some(oldG => oldG.id === newG.id)) {
-            savedGraphs.push(newG);
-          }
+          if (!savedGraphs.some(oldG => oldG.id === newG.id)) savedGraphs.push(newG);
         });
         localStorage.setItem('umg_grafos_history', JSON.stringify(savedGraphs));
         actualizarSelectHistorial();
@@ -186,64 +212,7 @@ function importarJSON(event) {
   reader.readAsText(file);
 }
 
-// 5. UTILIDADES
-function logChange(msg) {
-  const banner = document.getElementById('log-banner');
-  if (banner.querySelector('p.italic')) banner.innerHTML = '';
-  const p = document.createElement('p'); 
-  p.className = 'text-slate-700';
-  p.innerHTML = `<span class="text-umgGold font-bold">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
-  banner.prepend(p);
-}
-
-function showTempAlert(msg) {
-  const banner = document.getElementById('log-banner');
-  const p = document.createElement('p'); 
-  p.className = 'text-rose-600 font-bold';
-  p.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>${msg}`;
-  banner.prepend(p); 
-  setTimeout(() => { if (p.parentNode) p.remove(); }, 3500);
-}
-
-function getVertex(name) { return vertices.find(v => v.name === name); }
-function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-
-// 6. CÁLCULO DE GRADOS
-function computeGrade(name) {
-  if (isDirected) return edges.filter(e => e.a === name).length;
-  return edges.filter(e => e.a === name || e.b === name).length;
-}
-
-function getConnections(name) {
-  return edges.filter(e => e.a === name || e.b === name).map(e => e.a === name ? e.b : e.a);
-}
-
-function countTotalEdges() { return edges.length; }
-function sumAllGrades() { return vertices.reduce((acc, v) => acc + computeGrade(v.name), 0); }
-function getOddVertices() { return vertices.filter(v => computeGrade(v.name) % 2 !== 0).map(v => v.name); }
-
-// 7. ACCIONES
-function toggleShowNames() {
-  showNames = !showNames;
-  document.getElementById('btn-toggle-names-label').innerText = showNames ? 'Ocultar Nombres' : 'Mostrar Nombres';
-  renderGraph(); 
-}
-
-function onToggleDirected() {
-  isDirected = document.getElementById('toggle-directed').checked;
-  document.getElementById('toggle-label').innerText = isDirected ? 'Dirigido' : 'No Dirigido';
-  limpiarAnalisis(); 
-  render();
-}
-
-function onToggleWeighted() {
-  isWeighted = document.getElementById('toggle-weighted').checked;
-  document.getElementById('toggle-weight-label').innerText = isWeighted ? 'Con Peso' : 'Sin Peso';
-  document.getElementById('unit-selector-container').classList.toggle('hidden', !isWeighted);
-  limpiarAnalisis(); 
-  render();
-}
-
+// 7. LÓGICA DE VÉRTICES Y ARISTAS
 function addVertex() {
   const input = document.getElementById('new-vertex-name'); 
   const name = input.value.trim();
@@ -440,3 +409,25 @@ function limpiarAnalisis() {
   }
   logChange('Análisis limpiado.');
 }
+
+// 11. INICIALIZACIÓN AL CARGAR LA PÁGINA
+window.onload = function() {
+  actualizarSelectHistorial();
+  if (savedGraphs.length > 0) {
+    cargarGrafoHistorial(savedGraphs[savedGraphs.length - 1].id);
+  } else {
+    render();
+  }
+
+  const unitSelect = document.getElementById('unit-select');
+  if(unitSelect) {
+    unitSelect.addEventListener('change', function() {
+      currentUnit = this.value;
+      if (currentUnit === 'custom') {
+        const custom = prompt("Escribe la unidad personalizada:");
+        customUnitText = custom || 'u';
+      }
+      render();
+    });
+  }
+};
