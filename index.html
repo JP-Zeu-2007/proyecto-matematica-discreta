@@ -5,22 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Proyecto Final - Matemática Discreta UMG</title>
   
-  <!-- Favicon -->
   <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
-
-  <!-- Tailwind CSS (CDN para desarrollo) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Font Awesome (CDN para desarrollo) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Vis.js Network (CDN para desarrollo) -->
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-  
-  <!-- Estilos personalizados -->
   <link rel="stylesheet" href="css/styles.css">
   
-  <!-- Configuración de Tailwind para los colores UMG -->
   <script>
     tailwind.config = {
       theme: {
@@ -38,55 +28,107 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- Aquí irá todo el HTML (Header, Paneles, etc.) -->
-<header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold sticky top-0 z-40">
-  <!-- Quitamos el max-w-7xl y el px-4 para que el logo pegue a la izquierda -->
-  <div class="w-full flex flex-col sm:flex-row justify-between items-center">
-    
-    <!-- Bloque del Logo (Izquierda) -->
-    <div class="flex items-center">
-      <!-- Logo más grande, pegado a la esquina, con fondo blanco para que resalte -->
-      <div class="bg-white h-full py-2 px-4 rounded-r-xl">
-        <img src="assets/logo-umg.png" alt="Logo UMG" class="h-16 w-auto object-contain">
+  <header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold sticky top-0 z-40">
+    <div class="w-full flex flex-col sm:flex-row justify-between items-center">
+      <div class="flex items-center">
+        <div class="bg-white h-full py-2 px-4 rounded-r-xl">
+          <img src="assets/logo-umg.png" alt="Logo UMG" class="h-16 w-auto object-contain">
+        </div>
+        <div class="pl-4">
+          <h1 class="font-bold text-lg leading-tight text-white">Matemática Discreta - Proyecto Final</h1>
+          <p class="text-xs text-amber-300 font-medium">Visualización de Grafos y Algoritmos</p>
+        </div>
       </div>
-      <!-- Texto del proyecto separado del logo -->
-      <div class="pl-4">
-        <h1 class="font-bold text-lg leading-tight text-white">Matemática Discreta - Proyecto Final</h1>
-        <p class="text-xs text-amber-300 font-medium">Visualización de Grafos y Algoritmos</p>
+      <div class="flex gap-2 text-xs pr-4 pb-2 sm:pb-0">
+        <button id="btn-toggle-names" onclick="toggleShowNames()" class="px-3 py-2 bg-umgGold text-umgNavy font-bold rounded-lg hover:bg-amber-400 transition">
+          <i class="fa-solid fa-eye mr-1"></i><span id="btn-toggle-names-label">Ocultar Nombres</span>
+        </button>
       </div>
     </div>
+  </header>
 
-    <!-- Botón de la Derecha -->
-    <div class="flex gap-2 text-xs pr-4 pb-2 sm:pb-0">
-      <button id="btn-toggle-names" onclick="toggleShowNames()" class="px-3 py-2 bg-umgGold text-umgNavy font-bold rounded-lg hover:bg-amber-400 transition">
-        <i class="fa-solid fa-eye mr-1"></i><span id="btn-toggle-names-label">Ocultar Nombres</span>
-      </button>
-    </div>
-
-  </div>
-</header>
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
     
-    <!-- Panel Izquierdo -->
+    <!-- PANEL IZQUIERDO -->
     <section class="lg:col-span-7 space-y-4">
+      
+      <!-- HISTORIAL DE GRAFOS -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4">
+        <h3 class="text-sm font-bold text-umgNavy mb-2"><i class="fa-solid fa-clock-rotate-left text-umgGold mr-1"></i> Historial de Grafos</h3>
+        <div class="flex gap-2">
+          <select id="history-select" onchange="cargarGrafoHistorial(this.value)" class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <option value="">-- Seleccionar un grafo guardado --</option>
+          </select>
+          <button onclick="crearNuevoGrafo()" class="px-3 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition" title="Nuevo Grafo"><i class="fa-solid fa-plus"></i> Nuevo</button>
+          <button onclick="guardarGrafoActual()" class="px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition" title="Guardar Copia"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+        </div>
+        <div class="flex gap-2 mt-2">
+          <button onclick="exportarJSON()" class="flex-1 py-1.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded hover:bg-slate-300"><i class="fa-solid fa-download"></i> Exportar JSON</button>
+          <label class="flex-1 py-1.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded hover:bg-slate-300 text-center cursor-pointer">
+            <i class="fa-solid fa-upload"></i> Importar JSON
+            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importarJSON(event)">
+          </label>
+        </div>
+      </div>
+
+      <!-- ENTRADA DE VÉRTICES -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 space-y-4">
         <div class="flex justify-between items-center pb-3 border-b">
           <h2 class="text-lg font-bold text-umgNavy"><i class="fa-solid fa-pen-to-square text-umgGold mr-2"></i>Entrada de Vértices</h2>
-          <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-semibold">
-            <input type="checkbox" id="toggle-directed" class="peer sr-only" onchange="onToggleDirected()">
-            <span class="w-11 h-6 bg-slate-300 rounded-full relative transition peer-checked:bg-emerald-500">
-              <span class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition peer-checked:translate-x-5"></span>
-            </span>
-            <span id="toggle-label">No Dirigido</span>
-          </label>
+          <div class="flex flex-col gap-2 items-end">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-semibold">
+              <input type="checkbox" id="toggle-directed" class="peer sr-only" onchange="onToggleDirected()">
+              <span class="w-10 h-5 bg-slate-300 rounded-full relative transition peer-checked:bg-emerald-500">
+                <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></span>
+              </span>
+              <span id="toggle-label" class="text-xs">No Dirigido</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-semibold">
+              <input type="checkbox" id="toggle-weighted" class="peer sr-only" onchange="onToggleWeighted()">
+              <span class="w-10 h-5 bg-slate-300 rounded-full relative transition peer-checked:bg-indigo-500">
+                <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></span>
+              </span>
+              <span id="toggle-weight-label" class="text-xs">Sin Peso</span>
+            </label>
+          </div>
         </div>
+        
+        <div id="unit-selector-container" class="hidden flex gap-2 mb-2">
+          <select id="unit-select" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <optgroup label="Distancia">
+              <option value="km">Kilómetros (km)</option>
+              <option value="m">Metros (m)</option>
+              <option value="cm">Centímetros (cm)</option>
+              <option value="ft">Pies (ft)</option>
+              <option value="mi">Millas (mi)</option>
+            </optgroup>
+            <optgroup label="Moneda">
+              <option value="Q">Quetzales (Q)</option>
+              <option value="$">Dólares ($)</option>
+              <option value="€">Euros (€)</option>
+              <option value="£">Libras (£)</option>
+              <option value="¥">Yenes (¥)</option>
+            </optgroup>
+            <optgroup label="Otros">
+              <option value="kg">Kilogramos (kg)</option>
+              <option value="lb">Libras (lb)</option>
+              <option value="min">Minutos (min)</option>
+              <option value="h">Horas (h)</option>
+              <option value="°C">Celsius (°C)</option>
+            </optgroup>
+            <option value="custom">Otro (Personalizado)...</option>
+          </select>
+        </div>
+
         <div class="flex gap-2">
-          <input type="text" id="new-vertex-name" placeholder="Nombre del vértice (ej. Peten)" maxlength="14" class="flex-1 text-sm p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-umgGold outline-none">
+          <input type="text" id="new-vertex-name" placeholder="Nombre del vértice" maxlength="14" class="flex-1 text-sm p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-umgGold outline-none">
           <button onclick="addVertex()" class="px-4 py-2 bg-umgNavy text-white font-bold text-sm rounded-lg hover:bg-umgLightNavy transition"><i class="fa-solid fa-plus mr-1"></i> Agregar</button>
         </div>
+        
         <div id="vertex-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar"></div>
       </div>
 
+      <!-- VISUALIZACIÓN -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3">
         <h3 class="text-xs font-bold text-umgNavy mb-2 px-2"><i class="fa-solid fa-diagram-project text-umgGold mr-1"></i> Visualización del Grafo</h3>
         <div id="graph-container-wrap" class="graph-container">
@@ -100,7 +142,7 @@
       </div>
     </section>
 
-    <!-- Panel Derecho -->
+    <!-- PANEL DERECHO -->
     <aside class="lg:col-span-5 space-y-4">
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5">
         <h3 class="text-base font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-square-poll-vertical text-umgGold mr-1"></i> GRADO DE UN VÉRTICE</h3>
@@ -116,7 +158,6 @@
         </div>
       </div>
 
-      <!-- Panel de Análisis -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 space-y-3">
         <div class="flex justify-between items-center border-b pb-2">
           <h3 class="text-base font-bold text-umgNavy"><i class="fa-solid fa-microchip text-umgGold mr-1"></i> Análisis de Algoritmos</h3>
@@ -141,7 +182,6 @@
           </button>
           <div id="result-ciclo" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
 
-          <!-- BOTONES EN ESPERA (INTEGRANTES 2 Y 3) -->
           <button disabled id="btn-hamilton" class="w-full py-2 bg-slate-300 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center mt-4">
             <i class="fa-solid fa-hourglass-half mr-2"></i> 4. Hamilton (En espera del Integrante 2)
           </button>
@@ -161,15 +201,9 @@
     </aside>
   </main>
 
-  <!-- SCRIPTS DE LA APLICACIÓN (Módulos) -->
   <script src="js/graph.js"></script>
   <script src="js/validations.js"></script>
   <script src="js/euler.js"></script>
   <script src="js/main.js"></script>
-  
-  <!-- Scripts en espera (Se activarán cuando los integrantes suban su código) -->
-  <!-- <script src="js/hamilton.js"></script> -->
-  <!-- <script src="js/dijkstra.js"></script> -->
-
 </body>
 </html>
