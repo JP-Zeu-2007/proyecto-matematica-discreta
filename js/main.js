@@ -371,4 +371,76 @@ function render() {
         
         let weightInput = '';
         if (isWeighted) {
-          weightInput = `<input type="number" value="${edgeWeight}" onchange="
+          weightInput = `<input type="number" value="${edgeWeight}" onchange="changeWeight('${v.name}', '${target}', this.value)" class="w-16 p-1 border border-slate-300 rounded text-xs text-center" placeholder="Peso">`;
+        }
+
+        return `
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-slate-500">${isDirected ? '→' : '↔'}</span>
+            <select onchange="changeEdge('${v.name}', '${target}', this.value, '${edgeWeight}', '${edgeWeight}')" class="flex-1 p-1.5 border border-slate-300 rounded-lg text-xs bg-white">
+              ${vertices.filter(x => x.name !== v.name).map(x => `<option value="${x.name}" ${x.name === target ? 'selected' : ''}>${x.name}</option>`).join('')}
+            </select>
+            ${weightInput}
+            <button onclick="removeEdge('${v.name}', '${target}')" class="w-6 h-6 bg-slate-300 text-slate-700 rounded hover:bg-rose-200"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    row.innerHTML = `
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-1 rounded-full bg-umgNavy text-white font-bold text-[11px] font-mono">${v.code}</span>
+          <span class="text-sm font-bold text-slate-800">${v.name}</span>
+          <span class="text-[11px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">V(${v.name}): ${grade}</span>
+          <span class="text-[10px] font-mono px-1.5 py-0.5 rounded font-bold ${isEven ? 'bg-indigo-100 text-indigo-800' : 'bg-rose-100 text-rose-800'}">${isEven ? 'PAR' : 'IMPAR'}</span>
+        </div>
+        <div class="flex gap-1">
+          <button onclick="addConnection('${v.name}')" class="w-7 h-7 bg-emerald-500 text-white rounded text-xs"><i class="fa-solid fa-plus"></i></button>
+          <button onclick="removeVertex('${v.name}')" class="w-7 h-7 bg-rose-500 text-white rounded text-xs"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="space-y-1.5 pl-2">
+        ${connsHTML}
+      </div>
+    `;
+    container.appendChild(row);
+  });
+
+  document.getElementById('sum-order').innerText = vertices.length;
+  document.getElementById('sum-size').innerText = countTotalEdges();
+  document.getElementById('grades-list').innerHTML = vertices.map(v => `<p class="flex justify-between border-b border-dashed border-slate-100 pb-1"><span class="text-slate-600">V(${v.name}):</span><span class="font-bold text-emerald-700">${computeGrade(v.name)}</span></p>`).join('');
+  document.getElementById('summary-even').innerText = evenVerts.join(', ') || 'Ninguno';
+  document.getElementById('summary-odd').innerText = oddVerts.join(', ') || 'Ninguno';
+  document.getElementById('sum-total').innerText = sumAllGrades();
+
+  renderGraph();
+}
+
+// 9. HERRAMIENTAS DE LOS BOTONES DE ANÁLISIS
+function setBtnState(btnId, active) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = active;
+  btn.classList.toggle('opacity-50', active);
+}
+
+function showResult(resId, html, type) {
+  const el = document.getElementById(resId);
+  el.classList.remove('hidden');
+  el.className = `text-xs p-2 rounded border text-center font-semibold ${type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-700'}`;
+  el.innerHTML = html;
+}
+
+function limpiarAnalisis() {
+  if (isAnimating) return;
+  ['result-dfs', 'result-camino', 'result-ciclo'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+  if (network) {
+    const edgeDataSet = network.body.data.edges; 
+    const nodeDataSet = network.body.data.nodes;
+    edges.forEach((e, idx) => edgeDataSet.update({ id: `e_${idx}`, color: { color: '#94A3B8' }, width: 1 }));
+    vertices.forEach(v => nodeDataSet.update({ id: v.name, color: { background: '#002B49' } }));
+  }
+  logChange('Análisis limpiado.');
+}
