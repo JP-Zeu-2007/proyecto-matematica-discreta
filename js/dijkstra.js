@@ -18,7 +18,6 @@ const DIJKSTRA_NODES = [
   { id: 31, label: "Volcán de los Amates" }, { id: 32, label: "Volcán Chingo" }, { id: 33, label: "Volcán de la Cruz" }
 ];
 
-// 2. ARISTAS (Distancias ficticias en km entre volcanes)
 const DIJKSTRA_EDGES = [
   { from: 1, to: 2, weight: 18 }, { from: 1, to: 3, weight: 25 }, { from: 1, to: 4, weight: 12 },
   { from: 2, to: 5, weight: 35 }, { from: 2, to: 6, weight: 42 }, { from: 3, to: 7, weight: 30 },
@@ -31,21 +30,18 @@ const DIJKSTRA_EDGES = [
   { from: 20, to: 26, weight: 28 }, { from: 21, to: 27, weight: 65 }, { from: 22, to: 28, weight: 52 },
   { from: 23, to: 29, weight: 80 }, { from: 24, to: 30, weight: 35 }, { from: 25, to: 31, weight: 90 },
   { from: 26, to: 32, weight: 40 }, { from: 27, to: 33, weight: 55 },
-  
-  // Conexiones extra para crear rutas alternativas
   { from: 1, to: 8, weight: 120 }, { from: 3, to: 10, weight: 75 }, { from: 6, to: 13, weight: 50 },
   { from: 11, to: 15, weight: 60 }, { from: 14, to: 19, weight: 85 }, { from: 18, to: 23, weight: 95 },
   { from: 21, to: 26, weight: 70 }, { from: 27, to: 31, weight: 110 }, { from: 28, to: 32, weight: 65 },
   { from: 29, to: 33, weight: 45 }, { from: 30, to: 32, weight: 35 }
 ];
 
-// 3. LÓGICA DEL ALGORITMO (DIJKSTRA)
+// 2. LÓGICA DEL ALGORITMO (DIJKSTRA)
 function calcularRutaDijkstra(origen, destino) {
   let distancias = {};
   let anteriores = {};
   let noVisitados = new Set();
 
-  // Inicializar
   DIJKSTRA_NODES.forEach(nodo => {
     distancias[nodo.id] = Infinity;
     anteriores[nodo.id] = null;
@@ -54,7 +50,6 @@ function calcularRutaDijkstra(origen, destino) {
   distancias[origen] = 0;
 
   while (noVisitados.size > 0) {
-    // Buscar el nodo con menor distancia acumulada
     let nodoActual = null;
     noVisitados.forEach(id => {
       if (nodoActual === null || distancias[id] < distancias[nodoActual]) {
@@ -62,11 +57,9 @@ function calcularRutaDijkstra(origen, destino) {
       }
     });
 
-    // Si llegamos al destino o no hay camino
     if (distancias[nodoActual] === Infinity || nodoActual === destino) break;
     noVisitados.delete(nodoActual);
 
-    // Revisar vecinos
     DIJKSTRA_EDGES.forEach(arista => {
       let vecino = null;
       if (arista.from === nodoActual) vecino = arista.to;
@@ -82,7 +75,6 @@ function calcularRutaDijkstra(origen, destino) {
     });
   }
 
-  // Reconstruir la ruta
   let ruta = [];
   let actual = destino;
   while (actual !== null) {
@@ -90,23 +82,10 @@ function calcularRutaDijkstra(origen, destino) {
     actual = anteriores[actual];
   }
 
-  return {
-    ruta: ruta,
-    costoTotal: distancias[destino],
-    esAlcanzable: distancias[destino] !== Infinity
-  };
+  return { ruta: ruta, costoTotal: distancias[destino], esAlcanzable: distancias[destino] !== Infinity };
 }
 
-// 4. VALIDACIÓN (BLOQUEO DE PESOS NEGATIVOS)
-function validarPesoNegativo(peso) {
-  if (peso < 0) {
-    alert("⚠️ ERROR TEÓRICO: El algoritmo de Dijkstra NO permite pesos negativos. Esto se debe a que el algoritmo es 'voraz' y asume que sumar un paso siempre aumenta la distancia total. Con pesos negativos, el algoritmo podría caer en un ciclo infinito.");
-    return false;
-  }
-  return true;
-}
-
-// 5. FUNCIÓN DE INTEGRACIÓN CON LA INTERFAZ
+// 3. FUNCIÓN DE INTEGRACIÓN Y RENDERIZADO VISUAL
 async function animarDijkstraUI() {
   if (isAnimating) return;
   
@@ -128,22 +107,71 @@ async function animarDijkstraUI() {
   setBtnState('btn-dijkstra', true);
   logChange(`▶ Calculando Ruta de Dijkstra: ${sourceNode.label} a ${targetNode.label}...`);
 
-  // Limpiar colores del grafo
-  const edgeDataSet = network.body.data.edges;
-  const nodeDataSet = network.body.data.nodes;
-  
+  // 1. DIBUJAR EL GRAFO DE VOLCANES EN PANTALLA
+  const visNodes = DIJKSTRA_NODES.map(n => ({
+    id: n.label, // Usamos el nombre como ID para el grafo visual
+    label: n.label,
+    shape: 'circle',
+    size: 25,
+    color: { background: '#002B49', border: '#D4AF37' },
+    font: { color: '#ffffff', size: 10, face: 'Inter' }
+  }));
+
+  const visEdges = DIJKSTRA_EDGES.map((e, idx) => {
+    const fromName = DIJKSTRA_NODES.find(n => n.id === e.from).label;
+    const toName = DIJKSTRA_NODES.find(n => n.id === e.to).label;
+    return {
+      id: `dijkstra_e_${idx}`,
+      from: fromName,
+      to: toName,
+      label: `${e.weight} km`,
+      font: { size: 9, align: 'top', color: '#1E293B', strokeWidth: 2, strokeColor: '#F8FAFC' },
+      color: { color: '#94A3B8' }
+    };
+  });
+
+  const data = { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) };
+  const options = { physics: { solver: 'forceAtlas2Based', stabilization: { iterations: 150 } }, interaction: { hover: true } };
+
+  // Reemplazar la red actual por la red de volcanes
+  if (network) network.destroy();
+  network = new vis.Network(document.getElementById('graph-canvas'), data, options);
+
+  await sleep(1000); // Esperar que se estabilice el grafo
+
+  // 2. CALCULAR LA RUTA
   const result = calcularRutaDijkstra(sourceNode.id, targetNode.id);
-  
-  await sleep(1000); // Pequeña pausa para la animación
 
   if (result.esAlcanzable) {
-    const rutaNombres = result.ruta.map(id => DIJKSTRA_NODES.find(n => n.id === id).label).join(' ➔ ');
+    const rutaNombres = result.ruta.map(id => DIJKSTRA_NODES.find(n => n.id === id).label);
     
-    // Mostrar resultado en el panel derecho
+    // 3. ANIMAR LA RUTA SOBRE EL GRAFO
+    const edgeDataSet = network.body.data.edges;
+    const nodeDataSet = network.body.data.nodes;
+
+    for (let i = 0; i < rutaNombres.length; i++) {
+      nodeDataSet.update({ id: rutaNombres[i], color: { background: '#0EA5E9' } }); // Azul cielo
+      
+      if (i < rutaNombres.length - 1) {
+        const currentName = rutaNombres[i];
+        const nextName = rutaNombres[i + 1];
+        
+        // Buscar la arista en el dataset visual
+        const edgeId = visEdges.find(e => 
+          (e.from === currentName && e.to === nextName) || 
+          (e.from === nextName && e.to === currentName)
+        ).id;
+        
+        edgeDataSet.update({ id: edgeId, color: { color: '#0EA5E9' }, width: 4 });
+      }
+      await sleep(500);
+    }
+
+    // 4. MOSTRAR RESULTADO
     const el = document.getElementById('result-dijkstra');
     el.classList.remove('hidden');
     el.className = `text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700`;
-    el.innerHTML = `✅ <b>Ruta Encontrada</b><br><span class="text-[10px]">${rutaNombres}<br><b>Costo Total: ${result.costoTotal} km</b></span>`;
+    el.innerHTML = `✅ <b>Ruta Encontrada</b><br><span class="text-[10px]">${rutaNombres.join(' ➔ ')}<br><b>Costo Total: ${result.costoTotal} km</b></span>`;
     
     logChange(`✅ Ruta de Dijkstra encontrada. Costo: ${result.costoTotal} km.`);
   } else {
