@@ -3,7 +3,6 @@
 // Lógica Central, Historial y Persistencia
 // ==========================================
 
-// 1. VARIABLES GLOBALES
 let vertices = []; 
 let edges = []; 
 let isDirected = false; 
@@ -17,7 +16,6 @@ let customUnitText = '';
 let savedGraphs = JSON.parse(localStorage.getItem('umg_grafos_history')) || [];
 let currentGraphId = null;
 
-// 2. GENERACIÓN DE CÓDIGO ÚNICO
 function generateUniqueCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; 
   let code, attempts = 0;
@@ -29,7 +27,6 @@ function generateUniqueCode() {
   return code;
 }
 
-// 3. UTILIDADES
 function logChange(msg) {
   const banner = document.getElementById('log-banner');
   if (banner.querySelector('p.italic')) banner.innerHTML = '';
@@ -51,7 +48,6 @@ function showTempAlert(msg) {
 function getVertex(name) { return vertices.find(v => v.name === name); }
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-// 4. CÁLCULO DE GRADOS Y ARISTAS
 function computeGrade(name) {
   if (isDirected) return edges.filter(e => e.a === name).length;
   return edges.filter(e => e.a === name || e.b === name).length;
@@ -65,7 +61,6 @@ function countTotalEdges() { return edges.length; }
 function sumAllGrades() { return vertices.reduce((acc, v) => acc + computeGrade(v.name), 0); }
 function getOddVertices() { return vertices.filter(v => computeGrade(v.name) % 2 !== 0).map(v => v.name); }
 
-// 5. ACCIONES BÁSICAS
 function toggleShowNames() {
   showNames = !showNames;
   document.getElementById('btn-toggle-names-label').innerText = showNames ? 'Ocultar Nombres' : 'Mostrar Nombres';
@@ -87,7 +82,6 @@ function onToggleWeighted() {
   render();
 }
 
-// 6. PERSISTENCIA E HISTORIAL
 function actualizarSelectHistorial() {
   const select = document.getElementById('history-select');
   select.innerHTML = '<option value="">-- Seleccionar un grafo guardado --</option>';
@@ -212,7 +206,6 @@ function importarJSON(event) {
   reader.readAsText(file);
 }
 
-// 7. LÓGICA DE VÉRTICES Y ARISTAS
 function addVertex() {
   const input = document.getElementById('new-vertex-name'); 
   const name = input.value.trim();
@@ -285,7 +278,6 @@ function addConnection(vertexName) {
   addEdge(vertexName, available.name, weight);
 }
 
-// 8. MENÚ CONTEXTUAL
 function openContextMenu(x, y, vertexName) {
   ctxTarget = vertexName; 
   const menu = document.getElementById('context-menu'), wrap = document.getElementById('graph-container-wrap'), v = getVertex(vertexName);
@@ -311,7 +303,6 @@ function ctxDelete() { const name = ctxTarget; closeContextMenu(); removeVertex(
 
 document.addEventListener('click', (e) => { if (!e.target.closest('#context-menu')) closeContextMenu(); });
 
-// 9. RENDERIZADO DEL PANEL
 function render() {
   const container = document.getElementById('vertex-list'); 
   container.innerHTML = '';
@@ -379,10 +370,10 @@ function render() {
   document.getElementById('summary-odd').innerText = oddVerts.join(', ') || 'Ninguno';
   document.getElementById('sum-total').innerText = sumAllGrades();
 
+  actualizarSelectoresRutas();
   renderGraph();
 }
 
-// 10. HERRAMIENTAS DE LOS BOTONES
 function setBtnState(btnId, active) {
   const btn = document.getElementById(btnId);
   btn.disabled = active;
@@ -398,8 +389,9 @@ function showResult(resId, html, type) {
 
 function limpiarAnalisis() {
   if (isAnimating) return;
-  ['result-dfs', 'result-camino', 'result-ciclo'].forEach(id => {
-    document.getElementById(id).classList.add('hidden');
+  ['result-dfs', 'result-camino', 'result-ciclo', 'result-dijkstra'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('hidden');
   });
   if (network) {
     const edgeDataSet = network.body.data.edges; 
@@ -410,7 +402,117 @@ function limpiarAnalisis() {
   logChange('Análisis limpiado.');
 }
 
-// 11. INICIALIZACIÓN AL CARGAR LA PÁGINA
+// ==========================================
+// BÚSQUEDA DE TODAS LAS RUTAS POSIBLES
+// ==========================================
+function calcularTodasLasRutas() {
+  const origen = document.getElementById('ruta-origen').value;
+  const destino = document.getElementById('ruta-destino').value;
+
+  if (!origen || !destino) {
+    showTempAlert("Selecciona un origen y un destino.");
+    return;
+  }
+  if (origen === destino) {
+    showTempAlert("El origen y el destino deben ser diferentes.");
+    return;
+  }
+
+  const rutas = [];
+  
+  function explorar(actual, visitados, camino, pesoAcumulado) {
+    if (actual === destino) {
+      rutas.push({
+        camino: [...camino, actual],
+        peso: pesoAcumulado,
+        saltos: camino.length
+      });
+      return;
+    }
+
+    visitados.add(actual);
+
+    const vecinos = edges.filter(e => e.a === actual || e.b === actual);
+    
+    for (const arista of vecinos) {
+      let vecino = arista.a === actual ? arista.b : arista.a;
+      
+      if (isDirected && arista.a !== actual) continue;
+
+      if (!visitados.has(vecino)) {
+        let pesoArista = 0;
+        if (isWeighted) {
+          pesoArista = parseFloat(arista.weight) || 0;
+        }
+        explorar(vecino, visitados, [...camino, actual], pesoAcumulado + pesoArista);
+      }
+    }
+
+    visitados.delete(actual);
+  }
+
+  explorar(origen, new Set(), [], 0);
+
+  const container = document.getElementById('resultados-rutas');
+  const tbody = document.getElementById('tbody-rutas');
+  const thPeso = document.getElementById('th-peso');
+  
+  thPeso.style.display = isWeighted ? '' : 'none';
+  container.classList.remove('hidden');
+  tbody.innerHTML = '';
+
+  if (rutas.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" class="p-2 text-center text-rose-600">No se encontró ninguna ruta.</td></tr>';
+    return;
+  }
+
+  rutas.sort((a, b) => isWeighted ? a.peso - b.peso : a.saltos - b.saltos);
+  const mejorRuta = rutas[0];
+
+  rutas.forEach((r) => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-slate-200 hover:bg-slate-100';
+    
+    const esMejor = (r.camino.join(',') === mejorRuta.camino.join(','));
+    if (esMejor) tr.className += ' bg-emerald-100 font-bold';
+
+    let caminoTexto = '';
+    if (isWeighted) {
+      caminoTexto = r.camino.map((nodo, i) => {
+        if (i === 0) return nodo;
+        const prev = r.camino[i-1];
+        const edge = edges.find(e => (e.a === prev && e.b === nodo) || (!isDirected && e.b === prev && e.a === nodo));
+        return `${nodo}(${edge ? edge.weight : 0})`;
+      }).join(' ➔ ');
+    } else {
+      caminoTexto = r.camino.join(' ➔ ');
+    }
+
+    const unidad = currentUnit === 'custom' ? customUnitText : currentUnit;
+    const pesoTexto = isWeighted ? `${r.peso} ${unidad}` : '';
+
+    tr.innerHTML = `
+      <td class="p-2">${caminoTexto}</td>
+      <td class="p-2 text-center">${r.saltos} aristas</td>
+      <td class="p-2 text-center" style="${isWeighted ? '' : 'display:none'}">${pesoTexto}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function actualizarSelectoresRutas() {
+  const origenSel = document.getElementById('ruta-origen');
+  const destinoSel = document.getElementById('ruta-destino');
+
+  origenSel.innerHTML = '<option value="">Origen...</option>';
+  destinoSel.innerHTML = '<option value="">Destino...</option>';
+
+  vertices.forEach(v => {
+    origenSel.innerHTML += `<option value="${v.name}">${v.name}</option>`;
+    destinoSel.innerHTML += `<option value="${v.name}">${v.name}</option>`;
+  });
+}
+
 window.onload = function() {
   actualizarSelectHistorial();
   if (savedGraphs.length > 0) {
