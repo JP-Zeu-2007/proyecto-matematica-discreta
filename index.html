@@ -266,9 +266,11 @@
             <i class="fa-solid fa-hourglass-half mr-2"></i> 4. Hamilton (En espera del Integrante 2)
           </button>
           
-          <button disabled id="btn-dijkstra" class="w-full py-2 bg-slate-300 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center mt-2">
-            <i class="fa-solid fa-hourglass-half mr-2"></i> 5. Dijkstra (En espera del Integrante 3)
+          <!-- BOTÓN DE DIJKSTRA HABILITADO -->
+          <button onclick="animarDijkstraUI()" id="btn-dijkstra" class="w-full py-2 bg-sky-600 text-white font-bold text-xs rounded-xl shadow hover:bg-sky-700 transition flex items-center justify-center mt-2">
+            <i class="fa-solid fa-route mr-2"></i> 5. Buscar Ruta (Dijkstra)
           </button>
+          <div id="result-dijkstra" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
         </div>
       </div>
 
@@ -301,6 +303,7 @@
   <!-- ORDEN DE CARGA CRÍTICO -->
   <script src="js/validations.js"></script>
   <script src="js/euler.js"></script>
+  <script src="js/dijkstra.js"></script> <!-- LÍNEA AÑADIDA -->
   <script src="js/graph.js"></script>
   <script src="js/main.js"></script>
 </body>
