@@ -266,11 +266,20 @@
             <i class="fa-solid fa-hourglass-half mr-2"></i> 4. Hamilton (En espera del Integrante 2)
           </button>
           
-          <!-- BOTÓN DE DIJKSTRA HABILITADO -->
-          <button onclick="animarDijkstraUI()" id="btn-dijkstra" class="w-full py-2 bg-sky-600 text-white font-bold text-xs rounded-xl shadow hover:bg-sky-700 transition flex items-center justify-center mt-2">
+          <!-- BOTÓN DE DIJKSTRA -->
+          <button onclick="inicializarGrafoDijkstra()" id="btn-dijkstra" class="w-full py-2 bg-sky-600 text-white font-bold text-xs rounded-xl shadow hover:bg-sky-700 transition flex items-center justify-center mt-2">
             <i class="fa-solid fa-route mr-2"></i> 5. Buscar Ruta (Dijkstra)
           </button>
-          <div id="result-dijkstra" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
+
+          <!-- PANEL INTERACTIVO DE DIJKSTRA -->
+          <div id="dijkstra-panel" class="hidden mt-2 p-3 bg-sky-50 border border-sky-200 rounded-xl text-center">
+            <p class="text-xs font-bold text-sky-800 mb-2" id="dijkstra-status">Haz clic en el Volcán de ORIGEN</p>
+            <button onclick="ejecutarRutaDijkstra()" id="btn-ejecutar-dijkstra" class="hidden w-full py-1.5 bg-sky-600 text-white text-[10px] font-bold rounded shadow hover:bg-sky-700 transition">
+              Ejecutar Búsqueda
+            </button>
+          </div>
+
+          <div id="result-dijkstra" class="hidden mt-2 text-xs p-2 rounded bg-slate-50 border text-center"></div>
         </div>
       </div>
 
@@ -303,7 +312,7 @@
   <!-- ORDEN DE CARGA CRÍTICO -->
   <script src="js/validations.js"></script>
   <script src="js/euler.js"></script>
-  <script src="js/dijkstra.js"></script> <!-- LÍNEA AÑADIDA -->
+  <script src="js/dijkstra.js"></script>
   <script src="js/graph.js"></script>
   <script src="js/main.js"></script>
 </body>
