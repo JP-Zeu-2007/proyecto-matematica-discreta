@@ -1,356 +1,356 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head> 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Módulo de Hamilton - Integrante 2</title>
+  <title>Proyecto Final - Matemática Discreta UMG</title>
+  
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
   <script>
-    tailwind.config = { theme: { extend: { colors: {
-      umgNavy: '#002B49', umgGold: '#D4AF37', umgLightNavy: '#003A63', umgDarkNavy: '#001A2D',
-    }}}}
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            umgNavy: '#002B49',
+            umgGold: '#D4AF37',
+            umgLightNavy: '#003A63',
+            umgDarkNavy: '#001A2D',
+          }
+        }
+      }
+    }
   </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-    .graph-container { height: 420px; width: 100%; border-radius: 0.75rem; border: 1px solid #E2E8F0; background-color: #F8FAFC; position: relative; overflow: hidden; }
-    .graph-canvas-wrap { position: relative; width: 100%; height: 100%; }
-  </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
   <header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <img src="logo.png" alt="Logo UMG" class="w-10 h-10 rounded-full object-contain bg-white p-1 shadow">
-        <div>
-          <h1 class="font-bold text-lg leading-tight">Módulo de Hamilton (Integrante 2)</h1>
-          <p class="text-xs text-amber-300 font-medium">Luis Omar Pérez Hernández</p>
+    <div class="w-full flex flex-col sm:flex-row justify-between items-center">
+      <div class="flex items-center">
+        <div class="bg-white h-full py-2 px-4 rounded-r-xl">
+          <img src="assets/logo-umg.png" alt="Logo UMG" class="h-16 w-auto object-contain">
         </div>
+        <div class="pl-4">
+          <h1 class="font-bold text-lg leading-tight text-white">Matemática Discreta - Proyecto Final</h1>
+          <p class="text-xs text-amber-300 font-medium">Visualización de Grafos y Algoritmos</p>
+        </div>
+      </div>
+      <div class="flex gap-2 text-xs pr-4 pb-2 sm:pb-0 relative items-center">
+        
+        <!-- MENÚ DE EJEMPLOS -->
+        <div class="relative">
+          <button onclick="toggleMenuEjemplos()" class="px-3 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow flex items-center">
+            <i class="fa-solid fa-folder-open mr-1"></i> Ejemplos
+          </button>
+          <!-- Dropdown -->
+          <div id="menu-ejemplos" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden z-50">
+            <div class="p-2 space-y-1 text-slate-700">
+              <button onclick="cargarEjemplo('vuelos')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-plane text-indigo-500 w-5"></i> <strong>Rutas de Vuelo</strong><br><span class="text-[10px] text-slate-500">Dijkstra (distancias en km)</span>
+              </button>
+              <button onclick="cargarEjemplo('tuberias')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-faucet text-blue-500 w-5"></i> <strong>Red de Tuberías</strong><br><span class="text-[10px] text-slate-500">Euler (pesos en litros)</span>
+              </button>
+              <button onclick="cargarEjemplo('servidores')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-server text-emerald-500 w-5"></i> <strong>Red de Servidores</strong><br><span class="text-[10px] text-slate-500">Hamilton (conexiones lógicas)</span>
+              </button>
+              <button onclick="cargarEjemplo('ciudades')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-city text-amber-500 w-5"></i> <strong>Red de Ciudades</strong><br><span class="text-[10px] text-slate-500">Rutas con costos en Q</span>
+              </button>
+              <button onclick="cargarEjemplo('estrella')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-star text-rose-500 w-5"></i> <strong>Grafo Estrella</strong><br><span class="text-[10px] text-slate-500">Prueba de fallo Euler/Hamilton</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTÓN DE AYUDA -->
+        <button onclick="toggleVista('ayuda')" class="px-3 py-2 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition shadow" title="Manual de Usuario">
+          <i class="fa-solid fa-circle-question mr-1"></i> Ayuda
+        </button>
+        
+        <!-- BOTÓN DE NOMBRES -->
+        <button id="btn-toggle-names" onclick="toggleShowNames()" class="px-3 py-2 bg-umgGold text-umgNavy font-bold rounded-lg hover:bg-amber-400 transition">
+          <i class="fa-solid fa-eye mr-1"></i><span id="btn-toggle-names-label">Ocultar Nombres</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-    
-    <!-- PANEL IZQUIERDO (Grafo) -->
-    <section class="lg:col-span-7 space-y-4">
-      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 space-y-4">
-        <h2 class="text-lg font-bold text-umgNavy border-b pb-2"><i class="fa-solid fa-pen-to-square text-umgGold mr-2"></i>Entrada de Vértices</h2>
-        <div class="flex gap-2">
-          <input type="text" id="new-vertex-name" placeholder="Ej. A, B, C o A B C" maxlength="50" class="flex-1 text-sm p-2 border border-slate-300 rounded-lg outline-none">
-          <!-- ÚNICO BOTÓN DE AGREGAR -->
-          <button onclick="addVertex(); return false;" class="px-4 py-2 bg-umgNavy text-white font-bold text-sm rounded-lg hover:bg-umgLightNavy transition"><i class="fa-solid fa-plus mr-1"></i> Agregar Vértices</button>
-        </div>
-        <div id="vertex-list" class="space-y-3 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar"></div>
+  <!-- PANTALLA DE AYUDA -->
+  <section id="vista-ayuda" class="hidden flex-grow max-w-4xl w-full mx-auto px-4 py-8 space-y-6">
+    <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-2 bg-umgGold"></div>
+      
+      <div class="flex justify-between items-center mb-6 border-b pb-4">
+        <h2 class="text-2xl font-bold text-umgNavy"><i class="fa-solid fa-book-open text-umgGold mr-2"></i> Manual de Usuario</h2>
+        <button onclick="toggleVista('app')" class="px-4 py-2 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition">
+          <i class="fa-solid fa-arrow-left mr-1"></i> Volver al Programa
+        </button>
       </div>
 
+      <div class="prose max-w-none text-slate-600 text-sm space-y-6">
+        <div>
+          <h3 class="text-lg font-bold text-umgNavy mb-2">Introducción</h3>
+          <p>Bienvenido al Gestor de Grafos de Matemática Discreta. Esta herramienta te permite construir grafos de forma interactiva, evaluar su conexidad, buscar rutas (Dijkstra) y ejecutar los algoritmos de Euler y Hamilton. También puedes cargar ejemplos predefinidos desde el menú superior para probar los diferentes algoritmos.</p>
+        </div>
+
+        <h3 class="text-lg font-bold text-umgNavy mb-4">Preguntas Frecuentes (FAQ)</h3>
+        
+        <div class="space-y-3">
+          <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Cómo empiezo a crear un grafo?</p>
+            <p>Ve a la pestaña principal, escribe el nombre de un vértice y presiona "Agregar".</p>
+          </div>
+          <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Cómo conecto los vértices?</p>
+            <p>Presiona el botón verde <strong>[+]</strong> al lado de cada vértice.</p>
+          </div>
+          <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Para qué sirven los colores de los nodos?</p>
+            <p><strong>Borde Dorado:</strong> Grado Par.<br><strong>Borde Rojo:</strong> Grado Impar.<br><strong>Verde Punteado:</strong> Nodo "Usado".<br><strong>Rojo Grueso:</strong> Nodo "Fijado".</p>
+          </div>
+          <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
+            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Qué es el menú de Ejemplos?</p>
+            <p>Carga automáticamente un grafo con datos reales o simulados para que pruebes los botones de Euler, Hamilton, Dijkstra o Rutas Mínimas sin tener que dibujarlo desde cero.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VISTA PRINCIPAL DE LA APP -->
+  <main id="vista-app" class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- PANEL IZQUIERDO -->
+    <section class="lg:col-span-7 space-y-4">
+      
+      <!-- HISTORIAL DE GRAFOS -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4">
+        <h3 class="text-sm font-bold text-umgNavy mb-2"><i class="fa-solid fa-clock-rotate-left text-umgGold mr-1"></i> Historial de Grafos</h3>
+        <div class="flex gap-2">
+          <select id="history-select" onchange="cargarGrafoHistorial(this.value)" class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <option value="">-- Seleccionar un grafo guardado --</option>
+          </select>
+          <button onclick="crearNuevoGrafo()" class="px-3 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition" title="Nuevo Grafo"><i class="fa-solid fa-plus"></i> Nuevo</button>
+          <button onclick="guardarGrafoActual()" class="px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition" title="Guardar Copia"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+        </div>
+        <div class="flex gap-2 mt-2">
+          <button onclick="exportarJSON()" class="flex-1 py-1.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded hover:bg-slate-300"><i class="fa-solid fa-download"></i> Exportar JSON</button>
+          <label class="flex-1 py-1.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded hover:bg-slate-300 text-center cursor-pointer">
+            <i class="fa-solid fa-upload"></i> Importar JSON
+            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importarJSON(event)">
+          </label>
+        </div>
+      </div>
+
+      <!-- BÚSQUEDA DE RUTAS PERSONALIZADAS -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4">
+        <h3 class="text-sm font-bold text-umgNavy mb-2"><i class="fa-solid fa-route text-umgGold mr-1"></i> Buscar Ruta en el Grafo</h3>
+        <div class="flex gap-2 mb-2">
+          <select id="ruta-origen" class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <option value="">Origen...</option>
+          </select>
+          <select id="ruta-destino" class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <option value="">Destino...</option>
+          </select>
+          <button onclick="calcularTodasLasRutas()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition">
+            <i class="fa-solid fa-magnifying-glass"></i> Calcular
+          </button>
+        </div>
+        
+        <div id="resultados-rutas" class="hidden mt-3 max-h-60 overflow-y-auto custom-scrollbar border rounded-lg bg-slate-50">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-200 text-slate-700 sticky top-0">
+              <tr>
+                <th class="p-2">Ruta</th>
+                <th class="p-2 text-center">Distancia</th>
+                <th class="p-2 text-center" id="th-peso">Peso</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-rutas"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ENTRADA DE VÉRTICES -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b">
+          <h2 class="text-lg font-bold text-umgNavy"><i class="fa-solid fa-pen-to-square text-umgGold mr-2"></i>Entrada de Vértices</h2>
+          <div class="flex flex-col gap-2 items-end">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-semibold">
+              <input type="checkbox" id="toggle-directed" class="peer sr-only" onchange="onToggleDirected()">
+              <span class="w-10 h-5 bg-slate-300 rounded-full relative transition peer-checked:bg-emerald-500">
+                <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></span>
+              </span>
+              <span id="toggle-label" class="text-xs">No Dirigido</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-semibold">
+              <input type="checkbox" id="toggle-weighted" class="peer sr-only" onchange="onToggleWeighted()">
+              <span class="w-10 h-5 bg-slate-300 rounded-full relative transition peer-checked:bg-indigo-500">
+                <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></span>
+              </span>
+              <span id="toggle-weight-label" class="text-xs">Sin Peso</span>
+            </label>
+          </div>
+        </div>
+        
+        <div id="unit-selector-container" class="hidden flex gap-2 mb-2">
+          <select id="unit-select" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <optgroup label="Distancia">
+              <option value="km">Kilómetros (km)</option>
+              <option value="m">Metros (m)</option>
+              <option value="cm">Centímetros (cm)</option>
+              <option value="ft">Pies (ft)</option>
+              <option value="mi">Millas (mi)</option>
+            </optgroup>
+            <optgroup label="Moneda">
+              <option value="Q">Quetzales (Q)</option>
+              <option value="$">Dólares ($)</option>
+              <option value="€">Euros (€)</option>
+              <option value="£">Libras (£)</option>
+              <option value="¥">Yenes (¥)</option>
+            </optgroup>
+            <optgroup label="Otros">
+              <option value="kg">Kilogramos (kg)</option>
+              <option value="lb">Libras (lb)</option>
+              <option value="min">Minutos (min)</option>
+              <option value="h">Horas (h)</option>
+              <option value="°C">Celsius (°C)</option>
+            </optgroup>
+            <option value="custom">Otro (Personalizado)...</option>
+          </select>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="new-vertex-name" placeholder="Nombre del vértice" maxlength="14" class="flex-1 text-sm p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-umgGold outline-none">
+          <button onclick="addVertex()" class="px-4 py-2 bg-umgNavy text-white font-bold text-sm rounded-lg hover:bg-umgLightNavy transition"><i class="fa-solid fa-plus mr-1"></i> Agregar</button>
+        </div>
+        
+        <div id="vertex-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar"></div>
+      </div>
+
+      <!-- VISUALIZACIÓN -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3">
-        <h3 class="text-xs font-bold text-umgNavy mb-2 px-2">Visualización del Grafo</h3>
-        <div class="graph-container">
+        <h3 class="text-xs font-bold text-umgNavy mb-2 px-2"><i class="fa-solid fa-diagram-project text-umgGold mr-1"></i> Visualización del Grafo</h3>
+        <div id="graph-container-wrap" class="graph-container">
           <div id="graph-canvas" class="graph-canvas-wrap"></div>
+          <div id="context-menu" class="context-menu">
+            <button class="ctx-pinned" onclick="ctxPin()"><i class="fa-solid fa-thumbtack"></i> <span id="ctx-pin-text">Fijar nodo</span></button>
+            <button class="ctx-used" onclick="ctxUsed()"><i class="fa-solid fa-circle-check"></i> <span id="ctx-used-text">Marcar como Usado</span></button>
+            <button class="ctx-delete" onclick="ctxDelete()"><i class="fa-solid fa-trash"></i> Eliminar vértice</button>
+          </div>
         </div>
       </div>
     </section>
 
+    <!-- PANEL DERECHO -->
     <aside class="lg:col-span-5 space-y-4">
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5">
-        <h3 class="text-base font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-microchip text-umgGold mr-1"></i> Análisis de Hamilton</h3>
-        
-        <div class="space-y-2">
-          <button onclick="buscarCaminoHamilton()" class="w-full py-2.5 bg-emerald-500 text-white font-bold text-sm rounded-xl shadow hover:bg-emerald-600 transition flex items-center justify-center">
-            <i class="fa-solid fa-route mr-2"></i> Buscar Camino de Hamilton
-          </button>
-          
-          <button onclick="buscarCicloHamilton()" class="w-full py-2.5 bg-teal-600 text-white font-bold text-sm rounded-xl shadow hover:bg-teal-700 transition flex items-center justify-center">
-            <i class="fa-solid fa-arrows-spin mr-2"></i> Buscar Ciclo de Hamilton
-          </button>
-          
-          <button onclick="limpiar()" class="w-full py-1.5 bg-slate-200 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-300 transition mt-2">
-            <i class="fa-solid fa-broom mr-1"></i> Limpiar Análisis
+        <h3 class="text-base font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-square-poll-vertical text-umgGold mr-1"></i> GRADO DE UN VÉRTICE</h3>
+        <div class="text-sm space-y-1 font-mono">
+          <p class="flex justify-between border-b border-dashed border-slate-200 pb-1"><span class="text-slate-600">Orden:</span><span id="sum-order" class="font-bold text-umgNavy">0</span></p>
+          <p class="flex justify-between border-b border-dashed border-slate-200 pb-1"><span class="text-slate-600">Tamaño:</span><span id="sum-size" class="font-bold text-umgNavy">0</span></p>
+          <div id="grades-list" class="pt-2 space-y-1 text-xs"><p class="text-slate-400 italic text-center">Aún sin vértices.</p></div>
+          <div class="mt-4 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs space-y-1">
+            <p class="flex justify-between"><span class="text-slate-600 font-bold">Vértices Pares:</span> <span id="summary-even" class="text-indigo-600 font-semibold text-right">--</span></p>
+            <p class="flex justify-between"><span class="text-slate-600 font-bold">Vértices Impares:</span> <span id="summary-odd" class="text-rose-600 font-semibold text-right">--</span></p>
+          </div>
+          <p class="flex justify-between pt-3 mt-2 border-t-2 border-umgGold font-bold text-umgNavy text-sm"><span>Σ (SUMA de grados):</span><span id="sum-total">0</span></p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 space-y-3">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h3 class="text-base font-bold text-umgNavy"><i class="fa-solid fa-microchip text-umgGold mr-1"></i> Análisis de Algoritmos</h3>
+          <button onclick="limpiarAnalisis()" title="Limpiar resultados" class="text-xs text-slate-500 hover:text-rose-600 transition bg-slate-100 hover:bg-rose-100 px-2 py-1 rounded-lg">
+            <i class="fa-solid fa-broom"></i> Limpiar
           </button>
         </div>
         
-        <div id="result-hamilton" class="mt-4 text-xs p-3 rounded-lg border text-left font-sans leading-relaxed bg-slate-50 border-slate-200 text-slate-500">
-          <i class="fa-solid fa-arrow-up mr-1"></i> Haz clic en un botón para iniciar el análisis del grafo.
+        <div class="space-y-2">
+          <button onclick="animarDFS()" id="btn-dfs" class="w-full py-2 bg-indigo-600 text-white font-bold text-xs rounded-xl shadow hover:bg-indigo-700 transition flex items-center justify-center">
+            <i class="fa-solid fa-person-walking-arrow-right mr-2"></i> 1. Evaluar Conexidad (DFS)
+          </button>
+          <div id="result-dfs" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
+
+          <button onclick="animarEulerCamino()" id="btn-camino" class="w-full py-2 bg-amber-500 text-white font-bold text-xs rounded-xl shadow hover:bg-amber-600 transition flex items-center justify-center">
+            <i class="fa-solid fa-route mr-2"></i> 2. Buscar Camino de Euler
+          </button>
+          <div id="result-camino" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
+
+          <button onclick="animarEulerCiclo()" id="btn-ciclo" class="w-full py-2 bg-purple-600 text-white font-bold text-xs rounded-xl shadow hover:bg-purple-700 transition flex items-center justify-center">
+            <i class="fa-solid fa-arrows-spin mr-2"></i> 3. Buscar Ciclo de Euler
+          </button>
+          <div id="result-ciclo" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
+
+          <button disabled id="btn-hamilton" class="w-full py-2 bg-slate-300 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center mt-4">
+            <i class="fa-solid fa-hourglass-half mr-2"></i> 4. Hamilton (En espera del Integrante 2)
+          </button>
+          
+          <!-- BOTÓN DE DIJKSTRA DE ADDISON -->
+          <button onclick="inicializarGrafoDijkstra()" id="btn-dijkstra" class="w-full py-2 bg-sky-600 text-white font-bold text-xs rounded-xl shadow hover:bg-sky-700 transition flex items-center justify-center mt-2">
+            <i class="fa-solid fa-route mr-2"></i> 5. Buscar Ruta (Dijkstra Volcanes)
+          </button>
+
+          <div id="dijkstra-panel" class="hidden mt-2 p-3 bg-sky-50 border border-sky-200 rounded-xl text-center">
+            <p class="text-xs font-bold text-sky-800 mb-2" id="dijkstra-status">Haz clic en el Volcán de ORIGEN</p>
+            <button onclick="ejecutarRutaDijkstra()" id="btn-ejecutar-dijkstra" class="hidden w-full py-1.5 bg-sky-600 text-white text-[10px] font-bold rounded shadow hover:bg-sky-700 transition">
+              Ejecutar Búsqueda
+            </button>
+          </div>
+
+          <div id="result-dijkstra" class="hidden mt-2 text-xs p-2 rounded bg-slate-50 border text-center"></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5">
+        <h3 class="text-sm font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-clock-rotate-left text-umgGold mr-1"></i> Registro de Cambios</h3>
+        <div id="log-banner" class="text-xs space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar bg-slate-50 p-3 rounded-lg border border-slate-200 font-mono">
+          <p class="text-slate-400 italic">Sin cambios registrados aún...</p>
         </div>
       </div>
     </aside>
   </main>
 
   <script>
-    let vertices = []; let edges = []; let isDirected = false;
-    let network = null; let isAnimating = false;
-
-    function generateUniqueCode() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let code, attempts = 0;
-      do { code = '#'; for (let i = 0; i < 4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length)); attempts++; }
-      while (vertices.some(v => v.code === code) && attempts < 500);
-      return code;
-    }
-    function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-    function computeGrade(name) { return edges.filter(e => e.a === name || e.b === name).length; }
-
-    function addVertex() {
-      const input = document.getElementById('new-vertex-name'); 
-      let texto = input.value.trim();
-      if (!texto) return;
-
-      let textoLimpio = texto.replace(/[^a-zA-Z0-9]/g, ' ');
+    function toggleVista(vista) {
+      const app = document.getElementById('vista-app');
+      const ayuda = document.getElementById('vista-ayuda');
       
-      let nombres = textoLimpio.split(/\s+/).filter(n => n.length > 0);
-      
-      nombres = nombres.map(n => n.toUpperCase());
-
-      let agregados = 0;
-      let repetidos = 0;
-
-      nombres.forEach(name => {
-        if (!vertices.find(v => v.name === name)) {
-          vertices.push({ name, code: generateUniqueCode() });
-          agregados++;
-        } else {
-          repetidos++;
-        }
-      });
-
-      input.value = '';
-      
-      if (agregados > 0) {
-        render();
-      } 
-      if (repetidos > 0 && agregados === 0) {
-        document.getElementById('result-hamilton').innerHTML = "⚠️ Los vértices que intentaste agregar ya existen.";
-      }
-    }
-
-    function removeVertex(name) {
-      edges = edges.filter(e => e.a !== name && e.b !== name);
-      vertices = vertices.filter(x => x.name !== name); render();
-    }
-    
-    function addEdge(a, b) {
-      if (a === b || edges.some(e => (e.a === a && e.b === b) || (e.a === b && e.b === a))) return;
-      edges.push({ a, b }); render();
-    }
-    
-    function removeEdge(a,b) { edges = edges.filter(e => !((e.a === a && e.b === b) || (e.a === b && e.b === a))); render(); }
-
-    function render() {
-      const container = document.getElementById('vertex-list'); container.innerHTML = '';
-      
-      vertices.forEach(v => {
-        const conns = edges.filter(e => e.a === v.name || e.b === v.name).map(e => e.a === v.name ? e.b : e.a);
-        const disponibles = vertices.filter(x => x.name !== v.name && !conns.includes(x.name));
-
-        const row = document.createElement('div'); row.className = 'bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2';
-        row.innerHTML = `
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-1 rounded-full bg-umgNavy text-white font-bold text-[11px] font-mono">${v.code}</span>
-              <span class="text-sm font-bold text-slate-800">${v.name}</span>
-              <span class="text-[11px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">V: ${computeGrade(v.name)}</span>
-            </div>
-            <button onclick="removeVertex('${v.name}')" class="w-7 h-7 bg-rose-500 text-white rounded text-xs" title="Eliminar vértice"><i class="fa-solid fa-trash"></i></button>
-          </div>
-          <div class="space-y-1.5 pl-2">
-            
-            <div class="flex items-center gap-2 text-xs mb-2">
-              <span class="text-indigo-600 font-bold text-[10px] uppercase">Conectar a:</span>
-              <select id="select-conectar-${v.name}" class="flex-1 p-1 border border-indigo-300 rounded bg-indigo-50 font-semibold text-indigo-800 outline-none">
-                <option value="">-- Elegir vértice --</option>
-                ${disponibles.map(x => `<option value="${x.name}">${x.name} ${x.code}</option>`).join('')}
-              </select>
-              <button onclick="ejecutarConexion('${v.name}')" class="w-6 h-6 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-                <i class="fa-solid fa-check"></i>
-              </button>
-            </div>
-
-            ${conns.map(target => `
-              <div class="flex items-center gap-2 text-xs">
-                <span class="text-slate-500">↔</span>
-                <span class="flex-1 p-1.5 border border-slate-300 rounded-lg bg-white">${target}</span>
-                <button onclick="removeEdge('${v.name}', '${target}')" class="w-6 h-6 bg-slate-300 text-slate-700 rounded hover:bg-rose-200"><i class="fa-solid fa-xmark"></i></button>
-              </div>
-            `).join('')}
-          </div>
-        `;
-        container.appendChild(row);
-      });
-      renderGraph();
-    }
-
-    function ejecutarConexion(nodoOrigen) {
-      const select = document.getElementById(`select-conectar-${nodoOrigen}`);
-      const nodoDestino = select.value;
-      if (nodoDestino) addEdge(nodoOrigen, nodoDestino);
-    }
-
-    function renderGraph() {
-      const container = document.getElementById('graph-canvas');
-      const visNodes = vertices.map(v => ({
-        id: v.name, label: `${v.code}\n${v.name}`,
-        shape: 'circle', size: 26, color: { background: '#002B49', border: '#D4AF37' }, font: { color: '#ffffff' }
-      }));
-      const visEdges = edges.map((e, idx) => ({ id: `e_${idx}`, from: e.a, to: e.b, color: { color: '#94A3B8' } }));
-      
-      const data = { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) };
-      const options = { physics: { solver: 'forceAtlas2Based' }, interaction: { hover: true } };
-
-      if (network) network.destroy();
-      network = new vis.Network(container, data, options);
-    }
-
-    function limpiar() {
-      if (isAnimating) return;
-      const resDiv = document.getElementById('result-hamilton');
-      resDiv.className = 'mt-4 text-xs p-3 rounded-lg border text-left font-sans leading-relaxed bg-slate-50 border-slate-200 text-slate-500';
-      resDiv.innerHTML = '<i class="fa-solid fa-arrow-up mr-1"></i> Haz clic en un botón para iniciar el análisis del grafo.';
-      
-      if (network) {
-        const edgeDataSet = network.body.data.edges;
-        const nodeDataSet = network.body.data.nodes;
-        edges.forEach((e, idx) => edgeDataSet.update({ id: `e_${idx}`, color: { color: '#94A3B8' }, width: 1 }));
-        vertices.forEach(v => nodeDataSet.update({ id: v.name, color: { background: '#002B49', border: '#D4AF37' } }));
-      }
-    }
-
-    function isConnected() {
-      if (vertices.length === 0) return false;
-      let visited = new Set(); let stack = [vertices[0].name];
-      while (stack.length > 0) {
-        let curr = stack.pop();
-        if (!visited.has(curr)) {
-          visited.add(curr);
-          edges.forEach(e => {
-            if (e.a === curr && !visited.has(e.b)) stack.push(e.b);
-            if (e.b === curr && !visited.has(e.a)) stack.push(e.a);
-          });
-        }
-      }
-      return visited.size === vertices.length;
-    }
-
-    function findHamiltonian(nodes, adj) {
-      let n = nodes.length;
-      let result = { path: null, cycle: null, intentos: 0 };
-      function solve(curr, visited, path) {
-        result.intentos++;
-        if (path.length === n) {
-          if (!result.path) result.path = [...path];
-          if (adj[curr].includes(path[0])) result.cycle = [...path, path[0]];
-          return;
-        }
-        for (let neighbor of adj[curr]) {
-          if (!visited[neighbor]) {
-            visited[neighbor] = true;
-            path.push(neighbor);
-            solve(neighbor, visited, path);
-            path.pop();
-            visited[neighbor] = false;
-            if (result.cycle) return;
-          }
-        }
-      }
-      for (let startNode of nodes) {
-        let visited = { [startNode]: true };
-        solve(startNode, visited, [startNode]);
-        if (result.cycle) break;
-      }
-      return result;
-    }
-
-    async function animarRecorrido(path, colorHex) {
-      isAnimating = true;
-      const edgeDataSet = network.body.data.edges; const nodeDataSet = network.body.data.nodes;
-      
-      for (let i = 0; i < path.length; i++) {
-        nodeDataSet.update({ id: path[i], color: { background: colorHex, border: '#ffffff' } });
-        if (i < path.length - 1) {
-          const a = path[i], b = path[i+1];
-          const edgeIdx = edges.findIndex(e => (e.a === a && e.b === b) || (e.a === b && e.b === a));
-          if (edgeIdx !== -1) edgeDataSet.update({ id: `e_${edgeIdx}`, color: { color: colorHex }, width: 4 });
-        }
-        await sleep(400);
-      }
-      isAnimating = false;
-    }
-
-    function mostrarResultado(html, exito) {
-      const resDiv = document.getElementById('result-hamilton');
-      resDiv.className = `text-xs p-3 mt-4 rounded-lg border text-left font-sans leading-relaxed ${exito ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-900'}`;
-      resDiv.innerHTML = html;
-    }
-
-    async function buscarCaminoHamilton() {
-      if (isAnimating || vertices.length === 0) return;
-      limpiar();
-      
-      if (vertices.length < 3) return mostrarResultado("<b>⚠️ Análisis Matemático:</b><br>El grafo tiene menos de 3 nodos. Un camino de Hamilton requiere al menos 3 nodos.", false);
-      if (!isConnected()) return mostrarResultado("<b>⚠️ Análisis Matemático:</b><br>El grafo está <b>desconectado</b>. Es imposible recorrer todos los nodos en un solo trazo.", false);
-      
-      let grados1 = vertices.filter(v => computeGrade(v.name) === 1).length;
-      if (grados1 > 2) return mostrarResultado(`<b>⚠️ Análisis Matemático:</b><br>Hay <b>${grados1} nodos con grado 1 (hojas)</b>. Un camino puede iniciar en una hoja y terminar en otra (máximo 2).`, false);
-
-      let adj = {}; vertices.forEach(v => adj[v.name] = []);
-      edges.forEach(e => { adj[e.a].push(e.b); adj[e.b].push(e.a); });
-
-      const startTime = performance.now();
-      let res = findHamiltonian(vertices.map(v => v.name), adj);
-      const endTime = performance.now();
-      const timeMs = (endTime - startTime).toFixed(2);
-      
-      if (res.path) {
-        let esCiclo = res.cycle ? "<br><i class='text-emerald-600'>Nota: Como el último nodo conecta con el primero, también forma un Ciclo de Hamilton.</i>" : "";
-        mostrarResultado(`<b>✅ Camino de Hamilton Encontrado</b><br><br>
-          <span class="font-mono text-sm bg-white p-1 rounded border inline-block mb-2">${res.path.join(' → ')}</span><br>
-          <b>Explicación:</b> El algoritmo de Backtracking logró visitar los ${vertices.length} nodos sin repetir ninguno. ${esCiclo}<br><br>
-          <span class="text-[10px] text-slate-600"><b>⏱️ Tiempo:</b> ${timeMs} ms | <b>🔄 Intentos:</b> ${res.intentos}</span>`, true);
-        await animarRecorrido(res.path, '#10B981');
+      if (vista === 'ayuda') {
+        app.classList.add('hidden');
+        ayuda.classList.remove('hidden');
+        window.scrollTo(0, 0);
       } else {
-        mostrarResultado(`<b>❌ No existe Camino de Hamilton</b><br><br>
-          <b>Análisis:</b> El algoritmo exploró todas las combinaciones posibles (${res.intentos} intentos) y no encontró ninguna ruta válida.<br><br>
-          <span class="text-[10px] text-slate-600"><b>⏱️ Tiempo:</b> ${timeMs} ms | <b>🔄 Intentos:</b> ${res.intentos}</span>`, false);
+        ayuda.classList.add('hidden');
+        app.classList.remove('hidden');
       }
     }
 
-    async function buscarCicloHamilton() {
-      if (isAnimating || vertices.length === 0) return;
-      limpiar();
-
-      if (vertices.length < 3) return mostrarResultado("<b>⚠️ Análisis Matemático:</b><br>El grafo tiene menos de 3 nodos. No se puede formar un ciclo.", false);
-      if (!isConnected()) return mostrarResultado("<b>⚠️ Análisis Matemático:</b><br>El grafo está <b>desconectado</b>. No puede haber Ciclo de Hamilton.", false);
-
-      let grados1 = vertices.filter(v => computeGrade(v.name) === 1).length;
-      if (grados1 > 0) return mostrarResultado(`<b>⚠️ Análisis Matemático:</b><br>El vértice <b>${vertices.find(v => computeGrade(v.name) === 1).name}</b> tiene grado 1 (es una hoja). Si entras a una hoja, no puedes regresar sin repetir nodo, por lo tanto, <b>es imposible cerrar un ciclo</b>.`, false);
-
-      let adj = {}; vertices.forEach(v => adj[v.name] = []);
-      edges.forEach(e => { adj[e.a].push(e.b); adj[e.b].push(e.a); });
-
-      const startTime = performance.now();
-      let res = findHamiltonian(vertices.map(v => v.name), adj);
-      const endTime = performance.now();
-      const timeMs = (endTime - startTime).toFixed(2);
-
-      if (res.cycle) {
-        mostrarResultado(`<b>✅ Ciclo de Hamilton Encontrado</b><br><br>
-          <span class="font-mono text-sm bg-white p-1 rounded border inline-block mb-2">${res.cycle.join(' → ')}</span><br>
-          <b>Explicación:</b> El recorrido visitó todos los nodos y logró regresar al punto de partida.<br><br>
-          <span class="text-[10px] text-slate-600"><b>⏱️ Tiempo:</b> ${timeMs} ms | <b>🔄 Intentos:</b> ${res.intentos}</span>`, true);
-        await animarRecorrido(res.cycle, '#0D9488');
-      } else {
-        mostrarResultado(`<b>❌ No existe Ciclo de Hamilton</b><br><br>
-          <b>Análisis:</b> Aunque el grafo es conexo, no hay forma de visitar todos los nodos y volver al inicio sin repetir. <br><br>
-          <span class="text-[10px] text-slate-600"><b>⏱️ Tiempo:</b> ${timeMs} ms | <b>🔄 Intentos:</b> ${res.intentos}</span>`, false);
-      }
+    function toggleMenuEjemplos() {
+      const menu = document.getElementById('menu-ejemplos');
+      menu.classList.toggle('hidden');
     }
 
-    render(); // Iniciar
+    // Cerrar el menú al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[onclick="toggleMenuEjemplos()"]');
+      const menu = document.getElementById('menu-ejemplos');
+      if (!btn && !e.target.closest('#menu-ejemplos') && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+      }
+    });
   </script>
+
+  <script src="js/validations.js"></script>
+  <script src="js/euler.js"></script>
+  <script src="js/dijkstra.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
