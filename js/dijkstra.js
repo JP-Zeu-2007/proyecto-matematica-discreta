@@ -30,7 +30,6 @@ const DIJKSTRA_EDGES = [
   { from: 17, to: 23, weight: 70 }, { from: 18, to: 24, weight: 38 }, { from: 19, to: 25, weight: 50 },
   { from: 20, to: 26, weight: 28 }, { from: 21, to: 27, weight: 65 }, { from: 22, to: 28, weight: 52 },
   { from: 23, to: 29, weight: 80 }, { from: 24, to: 30, weight: 35 }, { from: 25, to: 31, weight: 90 },
-  // Conexiones para los nuevos volcanes (32 y 33)
   { from: 26, to: 32, weight: 40 }, { from: 27, to: 33, weight: 55 },
   
   // Conexiones extra para crear rutas alternativas
@@ -107,23 +106,54 @@ function validarPesoNegativo(peso) {
   return true;
 }
 
-// ==========================================
-// 5. BLOQUE DE PRUEBA (EJECUCIÓN LOCAL)
-// ==========================================
-console.log("=== INICIANDO PRUEBA DE DIJKSTRA (33 VOLCANES) ===");
+// 5. FUNCIÓN DE INTEGRACIÓN CON LA INTERFAZ
+async function animarDijkstraUI() {
+  if (isAnimating) return;
+  
+  const sourceName = prompt("Ingresa el nombre EXACTO del Vértice Origen (ej. Volcán de Fuego):");
+  if (!sourceName) return;
+  
+  const targetName = prompt("Ingresa el nombre EXACTO del Vértice Destino (ej. Volcán de los Amates):");
+  if (!targetName) return;
 
-// Probaremos la ruta desde Volcán de Fuego (id: 1) hasta Volcán de la Cruz (id: 33)
-const resultado = calcularRutaDijkstra(1, 33);
+  const sourceNode = DIJKSTRA_NODES.find(n => n.label.toLowerCase() === sourceName.toLowerCase());
+  const targetNode = DIJKSTRA_NODES.find(n => n.label.toLowerCase() === targetName.toLowerCase());
 
-if (resultado.esAlcanzable) {
-    console.log("✅ Ruta encontrada:");
-    console.log("   Nodos:", resultado.ruta.join(" → "));
-    console.log("   Costo Total:", resultado.costoTotal, "km");
-} else {
-    console.log("❌ No se encontró una ruta.");
+  if (!sourceNode || !targetNode) {
+    alert("❌ Error: El volcán ingresado no existe en la red de 33 volcanes.");
+    return;
+  }
+
+  isAnimating = true;
+  setBtnState('btn-dijkstra', true);
+  logChange(`▶ Calculando Ruta de Dijkstra: ${sourceNode.label} a ${targetNode.label}...`);
+
+  // Limpiar colores del grafo
+  const edgeDataSet = network.body.data.edges;
+  const nodeDataSet = network.body.data.nodes;
+  
+  const result = calcularRutaDijkstra(sourceNode.id, targetNode.id);
+  
+  await sleep(1000); // Pequeña pausa para la animación
+
+  if (result.esAlcanzable) {
+    const rutaNombres = result.ruta.map(id => DIJKSTRA_NODES.find(n => n.id === id).label).join(' ➔ ');
+    
+    // Mostrar resultado en el panel derecho
+    const el = document.getElementById('result-dijkstra');
+    el.classList.remove('hidden');
+    el.className = `text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700`;
+    el.innerHTML = `✅ <b>Ruta Encontrada</b><br><span class="text-[10px]">${rutaNombres}<br><b>Costo Total: ${result.costoTotal} km</b></span>`;
+    
+    logChange(`✅ Ruta de Dijkstra encontrada. Costo: ${result.costoTotal} km.`);
+  } else {
+    const el = document.getElementById('result-dijkstra');
+    el.classList.remove('hidden');
+    el.className = `text-xs p-2 rounded border text-center font-semibold bg-rose-50 border-rose-200 text-rose-700`;
+    el.innerHTML = `❌ <b>No hay ruta disponible</b><br><span class="text-[10px]">El destino es inalcanzable.</span>`;
+    logChange(`❌ No se encontró ruta con Dijkstra.`);
+  }
+
+  isAnimating = false;
+  setBtnState('btn-dijkstra', false);
 }
-
-// Prueba extra: Origen igual a Destino
-const resultadoMismo = calcularRutaDijkstra(5, 5);
-console.log("\n=== PRUEBA ORIGEN = DESTINO ===");
-console.log("   Ruta:", resultadoMismo.ruta, "| Costo:", resultadoMismo.costoTotal, "km");
