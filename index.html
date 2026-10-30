@@ -40,9 +40,11 @@
         </div>
       </div>
       <div class="flex gap-2 text-xs pr-4 pb-2 sm:pb-0">
+        <!-- BOTÓN DE AYUDA (ROJO) -->
         <button onclick="toggleVista('ayuda')" class="px-3 py-2 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition shadow" title="Manual de Usuario">
           <i class="fa-solid fa-circle-question mr-1"></i> Ayuda
         </button>
+        <!-- BOTÓN DE OCULTAR NOMBRES -->
         <button id="btn-toggle-names" onclick="toggleShowNames()" class="px-3 py-2 bg-umgGold text-umgNavy font-bold rounded-lg hover:bg-amber-400 transition">
           <i class="fa-solid fa-eye mr-1"></i><span id="btn-toggle-names-label">Ocultar Nombres</span>
         </button>
@@ -50,7 +52,9 @@
     </div>
   </header>
 
-  <!-- PANTALLA DE AYUDA -->
+  <!-- ============================================== -->
+  <!-- PANTALLA DE AYUDA (Inicia oculta)              -->
+  <!-- ============================================== -->
   <section id="vista-ayuda" class="hidden flex-grow max-w-4xl w-full mx-auto px-4 py-8 space-y-6">
     <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8 relative overflow-hidden">
       <div class="absolute top-0 left-0 right-0 h-2 bg-umgGold"></div>
@@ -65,7 +69,7 @@
       <div class="prose max-w-none text-slate-600 text-sm space-y-6">
         <div>
           <h3 class="text-lg font-bold text-umgNavy mb-2">Introducción</h3>
-          <p>Bienvenido al Gestor de Grafos de Matemática Discreta. Esta herramienta te permite construir grafos de forma interactiva, evaluar su conexidad, buscar rutas (Dijkstra) y ejecutar los algoritmos de Euler y Hamilton (próximamente). Puedes guardar tus grafos en el historial y exportarlos.</p>
+          <p>Bienvenido al Gestor de Grafos de Matemática Discreta. Esta herramienta te permite construir grafos de forma interactiva, evaluar su conexidad y ejecutar los algoritmos de Euler, Hamilton y Dijkstra. Puedes guardar tus grafos en el historial y exportarlos para compartirlos.</p>
         </div>
 
         <h3 class="text-lg font-bold text-umgNavy mb-4">Preguntas Frecuentes (FAQ)</h3>
@@ -73,26 +77,34 @@
         <div class="space-y-3">
           <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
             <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Cómo empiezo a crear un grafo?</p>
-            <p>Ve a la pestaña principal, escribe el nombre de un vértice y presiona "Agregar".</p>
+            <p>Ve a la pestaña principal, escribe el nombre de un vértice en el campo de texto y presiona "Agregar". Cada vértice tendrá un código único (ej. <strong>#A1B2</strong>) y se mostrará en el panel de visualización.</p>
           </div>
+
           <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
             <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Cómo conecto los vértices?</p>
-            <p>Presiona el botón verde <strong>[+]</strong> al lado de cada vértice.</p>
+            <p>En la lista de la izquierda, al lado de cada vértice, presiona el botón verde con el signo <strong>[+]</strong> para agregar una conexión hacia otro vértice existente.</p>
           </div>
+
           <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
             <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Para qué sirven los colores de los nodos?</p>
-            <p><strong>Borde Dorado:</strong> Grado Par.<br><strong>Borde Rojo:</strong> Grado Impar.<br><strong>Verde Punteado:</strong> Nodo "Usado".<br><strong>Rojo Grueso:</strong> Nodo "Fijado".</p>
+            <p><strong>Borde Dorado:</strong> El vértice tiene un grado Par.<br>
+               <strong>Borde Rojo:</strong> El vértice tiene un grado Impar (esenciales para Euler).<br>
+               <strong>Borde Verde Punteado:</strong> Marcaste el nodo como "Usado" con clic derecho.<br>
+               <strong>Borde Rojo Grueso:</strong> Marcaste el nodo como "Fijado" con clic derecho (no se moverá con la física).</p>
           </div>
+
           <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
-            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Qué es Buscar Ruta en el Grafo?</p>
-            <p>Busca y enumera <strong>todas las rutas posibles</strong> entre un origen y un destino en el grafo que haz creado, mostrándote la distancia en aristas y el peso total (si lo activaste).</p>
+            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Cómo funciona el botón de Dijkstra?</p>
+            <p>Presiona el botón azul de <strong>Dijkstra</strong>. Se cargará el mapa de los 33 volcanes. Haz clic en el volcán de <strong>Origen</strong> (se pintará de verde) y luego en el volcán de <strong>Destino</strong> (se pintará de rojo). El sistema calculará la ruta más corta automáticamente y la animará en color azul cielo.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- VISTA PRINCIPAL DE LA APP -->
+  <!-- ============================================== -->
+  <!-- VISTA PRINCIPAL DE LA APP (Inicia visible)     -->
+  <!-- ============================================== -->
   <main id="vista-app" class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
     
     <!-- PANEL IZQUIERDO -->
@@ -114,35 +126,6 @@
             <i class="fa-solid fa-upload"></i> Importar JSON
             <input type="file" id="import-file" accept=".json" class="hidden" onchange="importarJSON(event)">
           </label>
-        </div>
-      </div>
-
-      <!-- BÚSQUEDA DE RUTAS PERSONALIZADAS -->
-      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4">
-        <h3 class="text-sm font-bold text-umgNavy mb-2"><i class="fa-solid fa-route text-umgGold mr-1"></i> Buscar Ruta en el Grafo</h3>
-        <div class="flex gap-2 mb-2">
-          <select id="ruta-origen" class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
-            <option value="">Origen...</option>
-          </select>
-          <select id="ruta-destino" class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
-            <option value="">Destino...</option>
-          </select>
-          <button onclick="calcularTodasLasRutas()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition">
-            <i class="fa-solid fa-magnifying-glass"></i> Calcular
-          </button>
-        </div>
-        
-        <div id="resultados-rutas" class="hidden mt-3 max-h-60 overflow-y-auto custom-scrollbar border rounded-lg bg-slate-50">
-          <table class="w-full text-xs text-left">
-            <thead class="bg-slate-200 text-slate-700 sticky top-0">
-              <tr>
-                <th class="p-2">Ruta</th>
-                <th class="p-2 text-center">Distancia</th>
-                <th class="p-2 text-center" id="th-peso">Peso</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-rutas"></tbody>
-          </table>
         </div>
       </div>
 
@@ -261,16 +244,14 @@
             <i class="fa-solid fa-hourglass-half mr-2"></i> 4. Hamilton (En espera del Integrante 2)
           </button>
           
-          <!-- BOTÓN DE DIJKSTRA DE ADDISON -->
+          <!-- BOTÓN DE DIJKSTRA -->
           <button onclick="inicializarGrafoDijkstra()" id="btn-dijkstra" class="w-full py-2 bg-sky-600 text-white font-bold text-xs rounded-xl shadow hover:bg-sky-700 transition flex items-center justify-center mt-2">
-            <i class="fa-solid fa-route mr-2"></i> 5. Buscar Ruta (Dijkstra Volcanes)
+            <i class="fa-solid fa-route mr-2"></i> 5. Buscar Ruta (Dijkstra)
           </button>
 
+          <!-- PANEL INTERACTIVO DE DIJKSTRA (Sin botón extra) -->
           <div id="dijkstra-panel" class="hidden mt-2 p-3 bg-sky-50 border border-sky-200 rounded-xl text-center">
-            <p class="text-xs font-bold text-sky-800 mb-2" id="dijkstra-status">Haz clic en el Volcán de ORIGEN</p>
-            <button onclick="ejecutarRutaDijkstra()" id="btn-ejecutar-dijkstra" class="hidden w-full py-1.5 bg-sky-600 text-white text-[10px] font-bold rounded shadow hover:bg-sky-700 transition">
-              Ejecutar Búsqueda
-            </button>
+            <p class="text-xs font-bold text-sky-800" id="dijkstra-status">Haz clic en el Volcán de ORIGEN</p>
           </div>
 
           <div id="result-dijkstra" class="hidden mt-2 text-xs p-2 rounded bg-slate-50 border text-center"></div>
@@ -286,6 +267,7 @@
     </aside>
   </main>
 
+  <!-- SCRIPT PARA CAMBIAR DE VISTA (Ayuda / App) -->
   <script>
     function toggleVista(vista) {
       const app = document.getElementById('vista-app');
@@ -302,6 +284,7 @@
     }
   </script>
 
+  <!-- ORDEN DE CARGA CRÍTICO -->
   <script src="js/validations.js"></script>
   <script src="js/euler.js"></script>
   <script src="js/dijkstra.js"></script>
