@@ -1,13 +1,13 @@
 // ==========================================
 // js/main.js
-// Lógica Central, Historial y Persistencia (V2 - Interfaz Visual)
+// Lógica Central, Historial, Persistencia y Matriz
 // ==========================================
 
 let vertices = []; 
 let edges = []; 
 let isDirected = false; 
 let showNames = true;
-let showId = true; // Nueva variable para el ID
+let showId = true; 
 let ctxTarget = null; 
 let isAnimating = false;
 
@@ -30,6 +30,7 @@ function generateUniqueCode() {
 
 function logChange(msg) {
   const banner = document.getElementById('log-banner');
+  if (!banner) return;
   if (banner.querySelector('p.italic')) banner.innerHTML = '';
   const p = document.createElement('p'); 
   p.className = 'text-slate-700';
@@ -39,6 +40,7 @@ function logChange(msg) {
 
 function showTempAlert(msg) {
   const banner = document.getElementById('log-banner');
+  if (!banner) return;
   const p = document.createElement('p'); 
   p.className = 'text-rose-600 font-bold';
   p.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>${msg}`;
@@ -83,7 +85,7 @@ function onToggleWeighted() {
 }
 
 // ==========================================
-// NUEVO HISTORIAL VISUAL (Con botón de basura)
+// HISTORIAL VISUAL
 // ==========================================
 function actualizarSelectHistorial() {
   const container = document.getElementById('history-list');
@@ -165,7 +167,9 @@ function cargarGrafoHistorial(id) {
   currentGraphId = g.id;
 
   document.getElementById('toggle-directed').checked = isDirected;
-  document.getElementById('toggle-weighted').checked = isWeighted;
+  
+  const tw = document.getElementById('toggle-weighted');
+  if(tw) tw.checked = isWeighted;
   
   const twLabel = document.getElementById('toggle-weight-label');
   if(twLabel) twLabel.innerText = isWeighted ? 'Con Peso' : 'Sin Peso';
@@ -240,7 +244,7 @@ function importarJSON(event) {
 }
 
 // ==========================================
-// VÉRTICES Y ARISTAS (Adaptado a clics)
+// VÉRTICES Y ARISTAS
 // ==========================================
 function addVertex(name = null, isClick = false) {
   if (isClick) {
@@ -321,7 +325,7 @@ document.addEventListener('click', (e) => {
 });
 
 // ==========================================
-// RENDERIZADO DEL PANEL DERECHO
+// RENDERIZADO DEL PANEL DERECHO (MATRIZ)
 // ==========================================
 function render() {
   let evenVerts = [], oddVerts = [];
@@ -332,14 +336,66 @@ function render() {
     if (isEven) evenVerts.push(v.name); else oddVerts.push(v.name);
   });
 
+  // 1. Contadores Superiores
   document.getElementById('sum-order').innerText = vertices.length;
   document.getElementById('sum-size').innerText = countTotalEdges();
-  document.getElementById('grades-list').innerHTML = vertices.map(v => `<p class="flex justify-between border-b border-dashed border-slate-100 pb-1"><span class="text-slate-600">V(${v.name}):</span><span class="font-bold text-emerald-700">${computeGrade(v.name)}</span></p>`).join('');
+
+  // 2. Matriz de Adyacencia
+  let matrizHTML = '';
+  
+  if (vertices.length > 0) {
+    matrizHTML += `<div class="overflow-x-auto custom-scrollbar pb-2">`;
+    matrizHTML += `<table class="text-[10px] font-mono border-collapse">`;
+    
+    // Encabezados
+    matrizHTML += `<thead><tr><th class="p-1"></th>`;
+    vertices.forEach(v => {
+      matrizHTML += `<th class="p-1 text-center font-bold text-umgNavy border-b border-slate-300">${v.name}</th>`;
+    });
+    matrizHTML += `<th class="p-1 text-center font-bold text-umgGold border-b border-slate-300 border-l-2">Grado</th>`;
+    matrizHTML += `</tr></thead><tbody>`;
+
+    // Filas
+    vertices.forEach(vRow => {
+      matrizHTML += `<tr>`;
+      // Nombre a la izquierda
+      matrizHTML += `<td class="p-1 text-right font-bold text-umgNavy border-r border-slate-300 pr-2">${vRow.name}</td>`;
+      
+      vertices.forEach(vCol => {
+        // Verificar conexión
+        let isConnected = edges.some(e => 
+          (e.a === vRow.name && e.b === vCol.name) || 
+          (!isDirected && e.a === vCol.name && e.b === vRow.name)
+        );
+        
+        // Colores: 1 negro, 0 gris
+        let bgColor = isConnected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400';
+        let val = isConnected ? '1' : '0';
+        
+        matrizHTML += `<td class="p-1 text-center border border-slate-200 ${bgColor}">${val}</td>`;
+      });
+
+      // Grado a la derecha
+      const grade = computeGrade(vRow.name);
+      matrizHTML += `<td class="p-1 text-center font-bold text-emerald-700 border-l-2 border-slate-300">${grade}</td>`;
+      
+      matrizHTML += `</tr>`;
+    });
+
+    matrizHTML += `</tbody></table></div>`;
+    matrizHTML += `<hr class="my-2 border-slate-200">`;
+  } else {
+    matrizHTML = `<p class="text-slate-400 italic text-center py-2">Aún sin vértices para calcular matriz.</p>`;
+  }
+
+  document.getElementById('grades-list').innerHTML = matrizHTML;
+
+  // 3. Resumen Pares/Impares y Suma Total
   document.getElementById('summary-even').innerText = evenVerts.join(', ') || 'Ninguno';
   document.getElementById('summary-odd').innerText = oddVerts.join(', ') || 'Ninguno';
   document.getElementById('sum-total').innerText = sumAllGrades();
 
-  // Renderizar el grafo
+  // 4. Renderizar el grafo
   renderGraph();
 }
 
