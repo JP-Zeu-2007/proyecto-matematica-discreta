@@ -88,13 +88,21 @@ function calcularRutaDijkstra(origen, destino) {
   return { ruta: ruta, costoTotal: distancias[destino], esAlcanzable: distancias[destino] !== Infinity };
 }
 
-// 3. DIBUJAR EL GRAFO BASE
+// 3. DIBUJAR EL GRAFO BASE Y REINICIAR ESTADO
 function inicializarGrafoDijkstra() {
   if (isAnimating) return;
   
+  // 1. LIMPIAR RESULTADOS Y ESTADOS ANTERIORES
+  document.getElementById('result-dijkstra').classList.add('hidden');
+  document.getElementById('btn-ejecutar-dijkstra').classList.add('hidden');
+  document.getElementById('dijkstra-status').innerText = "Haz clic en el Volcán de ORIGEN";
+  dijkstraSource = null;
+  dijkstraTarget = null;
+
+  // 2. CREAR LOS NODOS VISUALES (Todo vuelve a su color base)
   const visNodes = DIJKSTRA_NODES.map(n => ({
     id: n.label, label: n.label, shape: 'circle', size: 22,
-    color: { background: '#002B49', border: '#D4AF37' },
+    color: { background: '#002B49', border: '#D4AF37' }, // Azul oscuro y borde dorado
     font: { color: '#ffffff', size: 10, face: 'Inter' }
   }));
 
@@ -105,24 +113,21 @@ function inicializarGrafoDijkstra() {
       id: `dijkstra_e_${idx}`,
       from: fromName, to: toName, label: `${e.weight} km`,
       font: { size: 9, align: 'top', color: '#1E293B', strokeWidth: 2, strokeColor: '#F8FAFC' },
-      color: { color: '#94A3B8' }
+      color: { color: '#94A3B8' }, // Aristas grises
+      width: 1
     };
   });
 
   const data = { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) };
   const options = { physics: { solver: 'forceAtlas2Based', stabilization: { iterations: 150 } }, interaction: { hover: true } };
 
+  // 3. DIBUJAR EL NUEVO GRAFO EN PANTALLA
   if (network) network.destroy();
   network = new vis.Network(document.getElementById('graph-canvas'), data, options);
 
-  dijkstraSource = null;
-  dijkstraTarget = null;
-  
-  // Mostrar panel flotante
   document.getElementById('dijkstra-panel').classList.remove('hidden');
-  document.getElementById('dijkstra-status').innerText = "Haz clic en el Volcán de ORIGEN";
 
-  // EVENTO: CLIC EN UN NODO
+  // 4. CONFIGURAR EL EVENTO DE CLIC (Se reinicia para permitir nuevas selecciones)
   network.on("click", function(params) {
     if (params.nodes.length > 0) {
       const clickedNode = params.nodes[0];
@@ -166,7 +171,6 @@ async function ejecutarRutaDijkstra() {
     // Animación de la ruta
     for (let i = 0; i < rutaNombres.length; i++) {
       const nodeName = rutaNombres[i];
-      // Si no es el origen ni el destino, lo pintamos de azul cielo
       if (nodeName !== dijkstraSource && nodeName !== dijkstraTarget) {
         nodeDataSet.update({ id: nodeName, color: { background: '#0EA5E9' } }); 
       }
@@ -204,6 +208,5 @@ async function ejecutarRutaDijkstra() {
 
   isAnimating = false;
   document.getElementById('dijkstra-panel').classList.add('hidden');
-  document.getElementById('btn-dijkstra').disabled = false;
-  document.getElementById('btn-dijkstra').innerText = "5. Buscar Ruta (Dijkstra)";
+  setBtnState('btn-dijkstra', false);
 }
