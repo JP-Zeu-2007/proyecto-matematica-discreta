@@ -36,6 +36,9 @@ const DIJKSTRA_EDGES = [
   { from: 29, to: 33, weight: 45 }, { from: 30, to: 32, weight: 35 }
 ];
 
+let dijkstraSource = null;
+let dijkstraTarget = null;
+
 // 2. LÓGICA DEL ALGORITMO (DIJKSTRA)
 function calcularRutaDijkstra(origen, destino) {
   let distancias = {};
@@ -85,29 +88,10 @@ function calcularRutaDijkstra(origen, destino) {
   return { ruta: ruta, costoTotal: distancias[destino], esAlcanzable: distancias[destino] !== Infinity };
 }
 
-// 3. FUNCIÓN DE INTEGRACIÓN, DIBUJADO Y ANIMACIÓN
-async function animarDijkstraUI() {
+// 3. DIBUJAR EL GRAFO BASE
+function inicializarGrafoDijkstra() {
   if (isAnimating) return;
   
-  const sourceName = prompt("Ingresa el nombre EXACTO del Vértice Origen (ej. Volcán de Fuego):");
-  if (!sourceName) return;
-  
-  const targetName = prompt("Ingresa el nombre EXACTO del Vértice Destino (ej. Volcán de los Amates):");
-  if (!targetName) return;
-
-  const sourceNode = DIJKSTRA_NODES.find(n => n.label.toLowerCase() === sourceName.toLowerCase());
-  const targetNode = DIJKSTRA_NODES.find(n => n.label.toLowerCase() === targetName.toLowerCase());
-
-  if (!sourceNode || !targetNode) {
-    alert("❌ Error: El volcán ingresado no existe en la red de 33 volcanes.");
-    return;
-  }
-
-  isAnimating = true;
-  setBtnState('btn-dijkstra', true);
-  logChange(`▶ Calculando Ruta de Dijkstra: ${sourceNode.label} a ${targetNode.label}...`);
-
-  // 1. FORZAR LA CREACIÓN DEL GRAFO VISUAL (Para que no se borre)
   const visNodes = DIJKSTRA_NODES.map(n => ({
     id: n.label, label: n.label, shape: 'circle', size: 22,
     color: { background: '#002B49', border: '#D4AF37' },
@@ -128,45 +112,87 @@ async function animarDijkstraUI() {
   const data = { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) };
   const options = { physics: { solver: 'forceAtlas2Based', stabilization: { iterations: 150 } }, interaction: { hover: true } };
 
-  // Reemplazamos la red y la dibujamos
   if (network) network.destroy();
   network = new vis.Network(document.getElementById('graph-canvas'), data, options);
 
-  await sleep(1000); 
+  dijkstraSource = null;
+  dijkstraTarget = null;
+  
+  // Mostrar panel flotante
+  document.getElementById('dijkstra-panel').classList.remove('hidden');
+  document.getElementById('dijkstra-status').innerText = "Haz clic en el Volcán de ORIGEN";
 
-  // 2. CALCULAR LA RUTA
+  // EVENTO: CLIC EN UN NODO
+  network.on("click", function(params) {
+    if (params.nodes.length > 0) {
+      const clickedNode = params.nodes[0];
+      
+      if (!dijkstraSource) {
+        // Asignar Origen
+        dijkstraSource = clickedNode;
+        network.body.data.nodes.update({ id: clickedNode, color: { background: '#10B981', border: '#047857' } }); // Verde
+        document.getElementById('dijkstra-status').innerText = "Ahora haz clic en el Volcán de DESTINO";
+      } else if (!dijkstraTarget && clickedNode !== dijkstraSource) {
+        // Asignar Destino
+        dijkstraTarget = clickedNode;
+        network.body.data.nodes.update({ id: clickedNode, color: { background: '#EF4444', border: '#B91C1C' } }); // Rojo
+        document.getElementById('dijkstra-status').innerText = "¡Listo! Presiona el botón de Calcular.";
+        document.getElementById('btn-ejecutar-dijkstra').classList.remove('hidden');
+      }
+    }
+  });
+}
+
+// 4. EJECUTAR LA ANIMACIÓN DE BÚSQUEDA
+async function ejecutarRutaDijkstra() {
+  if (!dijkstraSource || !dijkstraTarget || isAnimating) return;
+  
+  isAnimating = true;
+  setBtnState('btn-ejecutar-dijkstra', true);
+  document.getElementById('dijkstra-status').innerText = "Calculando...";
+  logChange(`▶ Calculando Ruta de Dijkstra: ${dijkstraSource} a ${dijkstraTarget}...`);
+
+  const sourceNode = DIJKSTRA_NODES.find(n => n.label === dijkstraSource);
+  const targetNode = DIJKSTRA_NODES.find(n => n.label === dijkstraTarget);
+  
   const result = calcularRutaDijkstra(sourceNode.id, targetNode.id);
 
   if (result.esAlcanzable) {
     const rutaNombres = result.ruta.map(id => DIJKSTRA_NODES.find(n => n.id === id).label);
     
-    // 3. ANIMAR LA RUTA SOBRE EL GRAFO
     const edgeDataSet = network.body.data.edges;
     const nodeDataSet = network.body.data.nodes;
 
+    // Animación de la ruta
     for (let i = 0; i < rutaNombres.length; i++) {
-      nodeDataSet.update({ id: rutaNombres[i], color: { background: '#0EA5E9' } }); // Azul cielo
+      const nodeName = rutaNombres[i];
+      // Si no es el origen ni el destino, lo pintamos de azul cielo
+      if (nodeName !== dijkstraSource && nodeName !== dijkstraTarget) {
+        nodeDataSet.update({ id: nodeName, color: { background: '#0EA5E9' } }); 
+      }
       
       if (i < rutaNombres.length - 1) {
         const currentName = rutaNombres[i];
         const nextName = rutaNombres[i + 1];
         
-        const edgeId = visEdges.find(e => 
-          (e.from === currentName && e.to === nextName) || 
-          (e.from === nextName && e.to === currentName)
-        ).id;
+        const edgeId = DIJKSTRA_EDGES.findIndex(e => {
+          const from = DIJKSTRA_NODES.find(n => n.id === e.from).label;
+          const to = DIJKSTRA_NODES.find(n => n.id === e.to).label;
+          return (from === currentName && to === nextName) || (from === nextName && to === currentName);
+        });
         
-        edgeDataSet.update({ id: edgeId, color: { color: '#0EA5E9' }, width: 4 });
+        if (edgeId !== -1) {
+            edgeDataSet.update({ id: `dijkstra_e_${edgeId}`, color: { color: '#0EA5E9' }, width: 4 });
+        }
       }
       await sleep(500);
     }
 
-    // 4. MOSTRAR RESULTADO
+    // Mostrar resultado
     const el = document.getElementById('result-dijkstra');
     el.classList.remove('hidden');
     el.className = `text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700`;
     el.innerHTML = `✅ <b>Ruta Encontrada</b><br><span class="text-[10px]">${rutaNombres.join(' ➔ ')}<br><b>Costo Total: ${result.costoTotal} km</b></span>`;
-    
     logChange(`✅ Ruta de Dijkstra encontrada. Costo: ${result.costoTotal} km.`);
   } else {
     const el = document.getElementById('result-dijkstra');
@@ -177,5 +203,7 @@ async function animarDijkstraUI() {
   }
 
   isAnimating = false;
-  setBtnState('btn-dijkstra', false);
+  document.getElementById('dijkstra-panel').classList.add('hidden');
+  document.getElementById('btn-dijkstra').disabled = false;
+  document.getElementById('btn-dijkstra').innerText = "5. Buscar Ruta (Dijkstra)";
 }
