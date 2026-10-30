@@ -85,7 +85,7 @@ function calcularRutaDijkstra(origen, destino) {
   return { ruta: ruta, costoTotal: distancias[destino], esAlcanzable: distancias[destino] !== Infinity };
 }
 
-// 3. FUNCIÓN DE INTEGRACIÓN Y RENDERIZADO VISUAL
+// 3. FUNCIÓN DE INTEGRACIÓN, DIBUJADO Y ANIMACIÓN
 async function animarDijkstraUI() {
   if (isAnimating) return;
   
@@ -107,12 +107,9 @@ async function animarDijkstraUI() {
   setBtnState('btn-dijkstra', true);
   logChange(`▶ Calculando Ruta de Dijkstra: ${sourceNode.label} a ${targetNode.label}...`);
 
-  // 1. DIBUJAR EL GRAFO DE VOLCANES EN PANTALLA
+  // 1. FORZAR LA CREACIÓN DEL GRAFO VISUAL (Para que no se borre)
   const visNodes = DIJKSTRA_NODES.map(n => ({
-    id: n.label, // Usamos el nombre como ID para el grafo visual
-    label: n.label,
-    shape: 'circle',
-    size: 25,
+    id: n.label, label: n.label, shape: 'circle', size: 22,
     color: { background: '#002B49', border: '#D4AF37' },
     font: { color: '#ffffff', size: 10, face: 'Inter' }
   }));
@@ -122,9 +119,7 @@ async function animarDijkstraUI() {
     const toName = DIJKSTRA_NODES.find(n => n.id === e.to).label;
     return {
       id: `dijkstra_e_${idx}`,
-      from: fromName,
-      to: toName,
-      label: `${e.weight} km`,
+      from: fromName, to: toName, label: `${e.weight} km`,
       font: { size: 9, align: 'top', color: '#1E293B', strokeWidth: 2, strokeColor: '#F8FAFC' },
       color: { color: '#94A3B8' }
     };
@@ -133,11 +128,11 @@ async function animarDijkstraUI() {
   const data = { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) };
   const options = { physics: { solver: 'forceAtlas2Based', stabilization: { iterations: 150 } }, interaction: { hover: true } };
 
-  // Reemplazar la red actual por la red de volcanes
+  // Reemplazamos la red y la dibujamos
   if (network) network.destroy();
   network = new vis.Network(document.getElementById('graph-canvas'), data, options);
 
-  await sleep(1000); // Esperar que se estabilice el grafo
+  await sleep(1000); 
 
   // 2. CALCULAR LA RUTA
   const result = calcularRutaDijkstra(sourceNode.id, targetNode.id);
@@ -156,7 +151,6 @@ async function animarDijkstraUI() {
         const currentName = rutaNombres[i];
         const nextName = rutaNombres[i + 1];
         
-        // Buscar la arista en el dataset visual
         const edgeId = visEdges.find(e => 
           (e.from === currentName && e.to === nextName) || 
           (e.from === nextName && e.to === currentName)
