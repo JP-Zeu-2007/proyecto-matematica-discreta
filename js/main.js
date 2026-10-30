@@ -513,6 +513,129 @@ function actualizarSelectoresRutas() {
   });
 }
 
+// ==========================================
+// CARGAR EJEMPLOS PREDEFINIDOS
+// ==========================================
+function cargarEjemplo(tipo) {
+  document.getElementById('menu-ejemplos').classList.add('hidden');
+  crearNuevoGrafo(); // Limpiar grafo actual
+
+  if (tipo === 'vuelos') {
+    vertices = [
+      { name: "Guatemala", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Miami", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Bogota", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Mexico", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Madrid", code: generateUniqueCode(), pinned: false, used: false }
+    ];
+    edges = [
+      { a: "Guatemala", b: "Miami", weight: 1600 },
+      { a: "Guatemala", b: "Mexico", weight: 900 },
+      { a: "Guatemala", b: "Bogota", weight: 1900 },
+      { a: "Miami", b: "Madrid", weight: 7500 },
+      { a: "Mexico", b: "Madrid", weight: 9000 },
+      { a: "Bogota", b: "Madrid", weight: 8000 }
+    ];
+    isWeighted = true;
+    currentUnit = 'km';
+    document.getElementById('toggle-weighted').checked = true;
+    document.getElementById('toggle-weight-label').innerText = 'Con Peso';
+    document.getElementById('unit-selector-container').classList.remove('hidden');
+    document.getElementById('unit-select').value = 'km';
+    logChange("Ejemplo cargado: Rutas de Vuelo (km).");
+    
+  } else if (tipo === 'tuberias') {
+    vertices = [
+      { name: "Planta", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Bomba1", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Bomba2", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Tanque1", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Tanque2", code: generateUniqueCode(), pinned: false, used: false }
+    ];
+    edges = [
+      { a: "Planta", b: "Bomba1", weight: 500 },
+      { a: "Planta", b: "Bomba2", weight: 400 },
+      { a: "Bomba1", b: "Tanque1", weight: 200 },
+      { a: "Bomba2", b: "Tanque2", weight: 300 },
+      { a: "Tanque1", b: "Tanque2", weight: 150 }
+    ];
+    isWeighted = true;
+    currentUnit = 'custom';
+    customUnitText = 'L';
+    document.getElementById('toggle-weighted').checked = true;
+    document.getElementById('toggle-weight-label').innerText = 'Con Peso';
+    document.getElementById('unit-selector-container').classList.remove('hidden');
+    document.getElementById('unit-select').value = 'custom';
+    logChange("Ejemplo cargado: Red de Tuberías (L).");
+
+  } else if (tipo === 'servidores') {
+    vertices = [
+      { name: "Servidor Central", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Router A", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Router B", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "PC Admin", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Base Datos", code: generateUniqueCode(), pinned: false, used: false }
+    ];
+    edges = [
+      { a: "Servidor Central", b: "Router A", weight: null },
+      { a: "Servidor Central", b: "Router B", weight: null },
+      { a: "Router A", b: "PC Admin", weight: null },
+      { a: "Router B", b: "Base Datos", weight: null },
+      { a: "Servidor Central", b: "Base Datos", weight: null }
+    ];
+    isWeighted = false;
+    document.getElementById('toggle-weighted').checked = false;
+    document.getElementById('toggle-weight-label').innerText = 'Sin Peso';
+    document.getElementById('unit-selector-container').classList.add('hidden');
+    logChange("Ejemplo cargado: Red de Servidores.");
+
+  } else if (tipo === 'ciudades') {
+    vertices = [
+      { name: "Zona 1", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Zona 4", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Zona 10", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Mixco", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Villa Nueva", code: generateUniqueCode(), pinned: false, used: false }
+    ];
+    edges = [
+      { a: "Zona 1", b: "Zona 4", weight: 15 },
+      { a: "Zona 4", b: "Zona 10", weight: 20 },
+      { a: "Zona 1", b: "Mixco", weight: 35 },
+      { a: "Mixco", b: "Villa Nueva", weight: 25 },
+      { a: "Villa Nueva", b: "Zona 10", weight: 40 }
+    ];
+    isWeighted = true;
+    currentUnit = 'Q';
+    document.getElementById('toggle-weighted').checked = true;
+    document.getElementById('toggle-weight-label').innerText = 'Con Peso';
+    document.getElementById('unit-selector-container').classList.remove('hidden');
+    document.getElementById('unit-select').value = 'Q';
+    logChange("Ejemplo cargado: Red de Ciudades (Q).");
+
+  } else if (tipo === 'estrella') {
+    vertices = [
+      { name: "Centro", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Hoja 1", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Hoja 2", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Hoja 3", code: generateUniqueCode(), pinned: false, used: false },
+      { name: "Hoja 4", code: generateUniqueCode(), pinned: false, used: false }
+    ];
+    edges = [
+      { a: "Centro", b: "Hoja 1", weight: null },
+      { a: "Centro", b: "Hoja 2", weight: null },
+      { a: "Centro", b: "Hoja 3", weight: null },
+      { a: "Centro", b: "Hoja 4", weight: null }
+    ];
+    isWeighted = false;
+    document.getElementById('toggle-weighted').checked = false;
+    document.getElementById('toggle-weight-label').innerText = 'Sin Peso';
+    document.getElementById('unit-selector-container').classList.add('hidden');
+    logChange("Ejemplo cargado: Grafo Estrella (Prueba de fallo).");
+  }
+
+  render();
+}
+
 window.onload = function() {
   actualizarSelectHistorial();
   if (savedGraphs.length > 0) {
