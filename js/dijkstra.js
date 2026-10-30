@@ -92,17 +92,16 @@ function calcularRutaDijkstra(origen, destino) {
 function inicializarGrafoDijkstra() {
   if (isAnimating) return;
   
-  // 1. LIMPIAR RESULTADOS Y ESTADOS ANTERIORES
+  // LIMPIAR RESULTADOS Y BOTONES
   document.getElementById('result-dijkstra').classList.add('hidden');
   document.getElementById('btn-ejecutar-dijkstra').classList.add('hidden');
   document.getElementById('dijkstra-status').innerText = "Haz clic en el Volcán de ORIGEN";
   dijkstraSource = null;
   dijkstraTarget = null;
 
-  // 2. CREAR LOS NODOS VISUALES (Todo vuelve a su color base)
   const visNodes = DIJKSTRA_NODES.map(n => ({
     id: n.label, label: n.label, shape: 'circle', size: 22,
-    color: { background: '#002B49', border: '#D4AF37' }, // Azul oscuro y borde dorado
+    color: { background: '#002B49', border: '#D4AF37' },
     font: { color: '#ffffff', size: 10, face: 'Inter' }
   }));
 
@@ -113,34 +112,29 @@ function inicializarGrafoDijkstra() {
       id: `dijkstra_e_${idx}`,
       from: fromName, to: toName, label: `${e.weight} km`,
       font: { size: 9, align: 'top', color: '#1E293B', strokeWidth: 2, strokeColor: '#F8FAFC' },
-      color: { color: '#94A3B8' }, // Aristas grises
-      width: 1
+      color: { color: '#94A3B8' }, width: 1
     };
   });
 
   const data = { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) };
   const options = { physics: { solver: 'forceAtlas2Based', stabilization: { iterations: 150 } }, interaction: { hover: true } };
 
-  // 3. DIBUJAR EL NUEVO GRAFO EN PANTALLA
   if (network) network.destroy();
   network = new vis.Network(document.getElementById('graph-canvas'), data, options);
 
   document.getElementById('dijkstra-panel').classList.remove('hidden');
 
-  // 4. CONFIGURAR EL EVENTO DE CLIC (Se reinicia para permitir nuevas selecciones)
   network.on("click", function(params) {
     if (params.nodes.length > 0) {
       const clickedNode = params.nodes[0];
       
       if (!dijkstraSource) {
-        // Asignar Origen
         dijkstraSource = clickedNode;
-        network.body.data.nodes.update({ id: clickedNode, color: { background: '#10B981', border: '#047857' } }); // Verde
+        network.body.data.nodes.update({ id: clickedNode, color: { background: '#10B981', border: '#047857' } });
         document.getElementById('dijkstra-status').innerText = "Ahora haz clic en el Volcán de DESTINO";
       } else if (!dijkstraTarget && clickedNode !== dijkstraSource) {
-        // Asignar Destino
         dijkstraTarget = clickedNode;
-        network.body.data.nodes.update({ id: clickedNode, color: { background: '#EF4444', border: '#B91C1C' } }); // Rojo
+        network.body.data.nodes.update({ id: clickedNode, color: { background: '#EF4444', border: '#B91C1C' } });
         document.getElementById('dijkstra-status').innerText = "¡Listo! Presiona el botón de Calcular.";
         document.getElementById('btn-ejecutar-dijkstra').classList.remove('hidden');
       }
@@ -153,7 +147,7 @@ async function ejecutarRutaDijkstra() {
   if (!dijkstraSource || !dijkstraTarget || isAnimating) return;
   
   isAnimating = true;
-  setBtnState('btn-ejecutar-dijkstra', true);
+  document.getElementById('btn-ejecutar-dijkstra').disabled = true;
   document.getElementById('dijkstra-status').innerText = "Calculando...";
   logChange(`▶ Calculando Ruta de Dijkstra: ${dijkstraSource} a ${dijkstraTarget}...`);
 
@@ -164,11 +158,9 @@ async function ejecutarRutaDijkstra() {
 
   if (result.esAlcanzable) {
     const rutaNombres = result.ruta.map(id => DIJKSTRA_NODES.find(n => n.id === id).label);
-    
     const edgeDataSet = network.body.data.edges;
     const nodeDataSet = network.body.data.nodes;
 
-    // Animación de la ruta
     for (let i = 0; i < rutaNombres.length; i++) {
       const nodeName = rutaNombres[i];
       if (nodeName !== dijkstraSource && nodeName !== dijkstraTarget) {
@@ -178,21 +170,16 @@ async function ejecutarRutaDijkstra() {
       if (i < rutaNombres.length - 1) {
         const currentName = rutaNombres[i];
         const nextName = rutaNombres[i + 1];
-        
         const edgeId = DIJKSTRA_EDGES.findIndex(e => {
           const from = DIJKSTRA_NODES.find(n => n.id === e.from).label;
           const to = DIJKSTRA_NODES.find(n => n.id === e.to).label;
           return (from === currentName && to === nextName) || (from === nextName && to === currentName);
         });
-        
-        if (edgeId !== -1) {
-            edgeDataSet.update({ id: `dijkstra_e_${edgeId}`, color: { color: '#0EA5E9' }, width: 4 });
-        }
+        if (edgeId !== -1) edgeDataSet.update({ id: `dijkstra_e_${edgeId}`, color: { color: '#0EA5E9' }, width: 4 });
       }
       await sleep(500);
     }
 
-    // Mostrar resultado
     const el = document.getElementById('result-dijkstra');
     el.classList.remove('hidden');
     el.className = `text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700`;
@@ -206,7 +193,15 @@ async function ejecutarRutaDijkstra() {
     logChange(`❌ No se encontró ruta con Dijkstra.`);
   }
 
+  // DESBLOQUEAR TODO AL TERMINAR
   isAnimating = false;
+  document.getElementById('btn-ejecutar-dijkstra').disabled = false;
   document.getElementById('dijkstra-panel').classList.add('hidden');
-  setBtnState('btn-dijkstra', false);
+  
+  // Forzar el desbloqueo del botón principal de Dijkstra
+  const btnDijkstra = document.getElementById('btn-dijkstra');
+  if (btnDijkstra) {
+    btnDijkstra.disabled = false;
+    btnDijkstra.classList.remove('opacity-50');
+  }
 }
