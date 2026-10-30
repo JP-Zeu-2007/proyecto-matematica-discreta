@@ -3,7 +3,6 @@
 // TEMA: VOLCANES DE GUATEMALA (33 VÉRTICES)
 // ==========================================
 
-// 1. DATOS DE LA RED (33 VOLCANES)
 const DIJKSTRA_NODES = [
   { id: 1, label: "Volcán de Fuego" }, { id: 2, label: "Volcán de Agua" }, { id: 3, label: "Volcán de Pacaya" },
   { id: 4, label: "Volcán Acatenango" }, { id: 5, label: "Volcán de Atitlán" }, { id: 6, label: "Volcán San Pedro" },
@@ -39,7 +38,6 @@ const DIJKSTRA_EDGES = [
 let dijkstraSource = null;
 let dijkstraTarget = null;
 
-// 2. LÓGICA DEL ALGORITMO (DIJKSTRA)
 function calcularRutaDijkstra(origen, destino) {
   let distancias = {};
   let anteriores = {};
@@ -92,10 +90,18 @@ function calcularRutaDijkstra(origen, destino) {
 function inicializarGrafoDijkstra() {
   if (isAnimating) return;
   
-  // LIMPIAR RESULTADOS Y BOTONES
+  // Limpiar la tabla de "Buscar Ruta en el Grafo" para que no estorbe
+  const tablaRutas = document.getElementById('resultados-rutas');
+  if (tablaRutas) tablaRutas.classList.add('hidden');
+
+  // Limpiar resultados previos de Dijkstra
   document.getElementById('result-dijkstra').classList.add('hidden');
-  document.getElementById('btn-ejecutar-dijkstra').classList.add('hidden');
-  document.getElementById('dijkstra-status').innerText = "Haz clic en el Volcán de ORIGEN";
+  const panelDijkstra = document.getElementById('dijkstra-panel');
+  if (panelDijkstra) {
+    panelDijkstra.classList.remove('hidden');
+    panelDijkstra.innerHTML = '<p class="text-xs font-bold text-sky-800 text-center" id="dijkstra-status">Haz clic en el Volcán de ORIGEN</p>';
+  }
+  
   dijkstraSource = null;
   dijkstraTarget = null;
 
@@ -122,8 +128,7 @@ function inicializarGrafoDijkstra() {
   if (network) network.destroy();
   network = new vis.Network(document.getElementById('graph-canvas'), data, options);
 
-  document.getElementById('dijkstra-panel').classList.remove('hidden');
-
+  // EVENTO CLIC (Selecciona y EJECUTA AUTOMÁTICAMENTE al segundo clic)
   network.on("click", function(params) {
     if (params.nodes.length > 0) {
       const clickedNode = params.nodes[0];
@@ -135,8 +140,8 @@ function inicializarGrafoDijkstra() {
       } else if (!dijkstraTarget && clickedNode !== dijkstraSource) {
         dijkstraTarget = clickedNode;
         network.body.data.nodes.update({ id: clickedNode, color: { background: '#EF4444', border: '#B91C1C' } });
-        document.getElementById('dijkstra-status').innerText = "¡Listo! Presiona el botón de Calcular.";
-        document.getElementById('btn-ejecutar-dijkstra').classList.remove('hidden');
+        document.getElementById('dijkstra-status').innerText = "Calculando ruta...";
+        ejecutarRutaDijkstra();
       }
     }
   });
@@ -147,8 +152,6 @@ async function ejecutarRutaDijkstra() {
   if (!dijkstraSource || !dijkstraTarget || isAnimating) return;
   
   isAnimating = true;
-  document.getElementById('btn-ejecutar-dijkstra').disabled = true;
-  document.getElementById('dijkstra-status').innerText = "Calculando...";
   logChange(`▶ Calculando Ruta de Dijkstra: ${dijkstraSource} a ${dijkstraTarget}...`);
 
   const sourceNode = DIJKSTRA_NODES.find(n => n.label === dijkstraSource);
@@ -182,26 +185,18 @@ async function ejecutarRutaDijkstra() {
 
     const el = document.getElementById('result-dijkstra');
     el.classList.remove('hidden');
-    el.className = `text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700`;
+    el.className = `text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700 mt-2`;
     el.innerHTML = `✅ <b>Ruta Encontrada</b><br><span class="text-[10px]">${rutaNombres.join(' ➔ ')}<br><b>Costo Total: ${result.costoTotal} km</b></span>`;
     logChange(`✅ Ruta de Dijkstra encontrada. Costo: ${result.costoTotal} km.`);
   } else {
     const el = document.getElementById('result-dijkstra');
     el.classList.remove('hidden');
-    el.className = `text-xs p-2 rounded border text-center font-semibold bg-rose-50 border-rose-200 text-rose-700`;
+    el.className = `text-xs p-2 rounded border text-center font-semibold bg-rose-50 border-rose-200 text-rose-700 mt-2`;
     el.innerHTML = `❌ <b>No hay ruta disponible</b><br><span class="text-[10px]">El destino es inalcanzable.</span>`;
     logChange(`❌ No se encontró ruta con Dijkstra.`);
   }
 
-  // DESBLOQUEAR TODO AL TERMINAR
   isAnimating = false;
-  document.getElementById('btn-ejecutar-dijkstra').disabled = false;
-  document.getElementById('dijkstra-panel').classList.add('hidden');
-  
-  // Forzar el desbloqueo del botón principal de Dijkstra
-  const btnDijkstra = document.getElementById('btn-dijkstra');
-  if (btnDijkstra) {
-    btnDijkstra.disabled = false;
-    btnDijkstra.classList.remove('opacity-50');
-  }
+  const panelDijkstra = document.getElementById('dijkstra-panel');
+  if (panelDijkstra) panelDijkstra.classList.add('hidden');
 }
