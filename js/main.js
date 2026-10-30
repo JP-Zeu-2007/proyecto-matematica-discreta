@@ -166,7 +166,8 @@ function cargarGrafoHistorial(id) {
   customUnitText = g.customUnit || '';
   currentGraphId = g.id;
 
-  document.getElementById('toggle-directed').checked = isDirected;
+  const td = document.getElementById('toggle-directed');
+  if(td) td.checked = isDirected;
   
   const tw = document.getElementById('toggle-weighted');
   if(tw) tw.checked = isWeighted;
@@ -253,6 +254,7 @@ function addVertex(name = null, isClick = false) {
     name = `V${i}`;
   } else {
     const input = document.getElementById('new-vertex-name'); 
+    if(!input) return;
     name = input.value.trim();
     if (!validarNombreVertice(name)) return; 
     input.value = ''; 
@@ -325,7 +327,7 @@ document.addEventListener('click', (e) => {
 });
 
 // ==========================================
-// RENDERIZADO DEL PANEL DERECHO (MATRIZ)
+// RENDERIZADO DEL PANEL DERECHO (MATRIZ COMPACTA)
 // ==========================================
 function render() {
   let evenVerts = [], oddVerts = [];
@@ -340,26 +342,26 @@ function render() {
   document.getElementById('sum-order').innerText = vertices.length;
   document.getElementById('sum-size').innerText = countTotalEdges();
 
-  // 2. Matriz de Adyacencia
+  // 2. Matriz de Adyacencia COMPACTA
   let matrizHTML = '';
   
   if (vertices.length > 0) {
-    matrizHTML += `<div class="overflow-x-auto custom-scrollbar pb-2">`;
-    matrizHTML += `<table class="text-[10px] font-mono border-collapse">`;
+    matrizHTML += `<div class="w-full overflow-x-auto custom-scrollbar pb-1">`;
+    matrizHTML += `<table class="w-full text-[9px] font-mono border-collapse text-center">`;
     
     // Encabezados
-    matrizHTML += `<thead><tr><th class="p-1"></th>`;
+    matrizHTML += `<thead><tr><th class="p-0.5"></th>`;
     vertices.forEach(v => {
-      matrizHTML += `<th class="p-1 text-center font-bold text-umgNavy border-b border-slate-300">${v.name}</th>`;
+      matrizHTML += `<th class="p-0.5 font-bold text-umgNavy">${v.name}</th>`;
     });
-    matrizHTML += `<th class="p-1 text-center font-bold text-umgGold border-b border-slate-300 border-l-2">Grado</th>`;
+    matrizHTML += `<th class="p-0.5 font-bold text-umgGold border-l border-slate-300">V</th>`;
     matrizHTML += `</tr></thead><tbody>`;
 
     // Filas
     vertices.forEach(vRow => {
       matrizHTML += `<tr>`;
       // Nombre a la izquierda
-      matrizHTML += `<td class="p-1 text-right font-bold text-umgNavy border-r border-slate-300 pr-2">${vRow.name}</td>`;
+      matrizHTML += `<td class="p-0.5 text-right font-bold text-umgNavy pr-1">${vRow.name}</td>`;
       
       vertices.forEach(vCol => {
         // Verificar conexión
@@ -372,12 +374,13 @@ function render() {
         let bgColor = isConnected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400';
         let val = isConnected ? '1' : '0';
         
-        matrizHTML += `<td class="p-1 text-center border border-slate-200 ${bgColor}">${val}</td>`;
+        // Celdas cuadradas
+        matrizHTML += `<td class="p-0 border border-slate-300 ${bgColor}" style="width: 16px; height: 16px;">${val}</td>`;
       });
 
       // Grado a la derecha
       const grade = computeGrade(vRow.name);
-      matrizHTML += `<td class="p-1 text-center font-bold text-emerald-700 border-l-2 border-slate-300">${grade}</td>`;
+      matrizHTML += `<td class="p-0.5 font-bold text-emerald-700 border-l border-slate-300">${grade}</td>`;
       
       matrizHTML += `</tr>`;
     });
