@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head> 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portada - Proyecto Final Matemática Discreta</title>
+  
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            umgNavy: '#002B49',
+            umgGold: '#D4AF37',
+            umgLightNavy: '#003A63',
+            umgDarkNavy: '#001A2D',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- HEADER INSTITUCIONAL -->
+  <header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold py-4">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="bg-white p-2 rounded-xl">
+          <img src="assets/logo-umg.png" alt="Logo UMG" class="h-12 w-auto object-contain">
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">Universidad Mariano Gálvez de Guatemala</h1>
+          <p class="text-xs text-amber-300 font-medium">Facultad de Ingeniería en Sistemas de Información</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-grow flex items-center justify-center py-12 px-4 relative overflow-hidden">
+    
+    <!-- Decoración de fondo -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 opacity-10">
+      <i class="fa-solid fa-diagram-project absolute top-10 left-10 text-9xl text-umgNavy"></i>
+      <i class="fa-solid fa-route absolute bottom-10 right-10 text-9xl text-umgGold"></i>
+    </div>
+
+    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden relative">
+      <div class="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-umgNavy via-umgGold to-umgNavy"></div>
+      
+      <div class="p-8 sm:p-12 text-center space-y-8">
+        <div class="space-y-2">
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-umgNavy">Proyecto Final</h2>
+          <h3 class="text-xl text-slate-600 font-semibold">Matemática Discreta</h3>
+          <p class="text-sm text-slate-500 mt-2">Visualización de Algoritmos de Grafos</p>
+        </div>
+
+        <!-- INTEGRANTES -->
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 max-w-2xl mx-auto">
+          <h4 class="text-sm font-bold text-umgNavy uppercase tracking-wider mb-4 border-b pb-2">
+            <i class="fa-solid fa-users text-umgGold mr-2"></i> Equipo de Trabajo
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-umgNavy text-white flex items-center justify-center font-bold">1</div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">Josué Pineda</p>
+                <p class="text-[10px] text-slate-500">Arquitecto / Integración</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-umgNavy text-white flex items-center justify-center font-bold">2</div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">Luis Omar Pérez</p>
+                <p class="text-[10px] text-slate-500">Módulo de Hamilton</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-umgNavy text-white flex items-center justify-center font-bold">3</div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">Addison (Tú)</p>
+                <p class="text-[10px] text-slate-500">Módulo de Dijkstra</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-umgNavy text-white flex items-center justify-center font-bold">4</div>
+              <div>
+                <p class="text-sm font-bold text-slate-800">[Nombre Integrante 4]</p>
+                <p class="text-[10px] text-slate-500">Documentación y QA</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTONES DE ACCESO -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+          
+          <!-- Botón Euler -->
+          <a href="programa.html" class="group relative bg-white border-2 border-amber-500 rounded-2xl p-6 text-center hover:bg-amber-50 transition-all duration-300 shadow-sm hover:shadow-lg flex flex-col items-center">
+            <div class="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-infinity"></i>
+            </div>
+            <h5 class="text-lg font-bold text-umgNavy mb-1">Euler y Hamilton</h5>
+            <p class="text-xs text-slate-500">Recorridos exactos y caminos hamiltonianos</p>
+            <span class="mt-4 text-[10px] font-bold text-amber-600 uppercase tracking-wider">Ingresar al Módulo <i class="fa-solid fa-arrow-right ml-1"></i></span>
+          </a>
+
+          <!-- Botón Dijkstra -->
+          <a href="programa.html" class="group relative bg-white border-2 border-sky-600 rounded-2xl p-6 text-center hover:bg-sky-50 transition-all duration-300 shadow-sm hover:shadow-lg flex flex-col items-center">
+            <div class="w-16 h-16 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            <h5 class="text-lg font-bold text-umgNavy mb-1">Algoritmo de Dijkstra</h5>
+            <p class="text-xs text-slate-500">Rutas mínimas en grafos ponderados (33 Volcanes)</p>
+            <span class="mt-4 text-[10px] font-bold text-sky-600 uppercase tracking-wider">Ingresar al Módulo <i class="fa-solid fa-arrow-right ml-1"></i></span>
+          </a>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-umgDarkNavy text-slate-400 py-4 text-xs text-center border-t border-slate-800">
+    <p>© 2026 Universidad Mariano Gálvez - Sede El Naranjo</p>
+    <p class="text-amber-400 mt-1">Curso: Matemática Discreta | Catedrático: M.A. Ing. Esaú Hernández Castillo</p>
+  </footer>
+
+</body>
+</html>
