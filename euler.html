@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head> 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo Euler y Hamilton - UMG</title>
+  
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { umgNavy: '#002B49', umgGold: '#D4AF37', umgLightNavy: '#003A63', umgDarkNavy: '#001A2D' } } }
+    }
+  </script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold sticky top-0 z-40">
+    <div class="w-full flex flex-col sm:flex-row justify-between items-center">
+      <div class="flex items-center">
+        <div class="bg-white h-full py-2 px-4 rounded-r-xl">
+          <img src="assets/logo-umg.png" alt="Logo UMG" class="h-16 w-auto object-contain">
+        </div>
+        <div class="pl-4">
+          <h1 class="font-bold text-lg leading-tight text-white">Módulo Euler y Hamilton</h1>
+          <p class="text-xs text-amber-300 font-medium">Matemática Discreta - Proyecto Final</p>
+        </div>
+      </div>
+      <div class="flex gap-2 text-xs pr-4 pb-2 sm:pb-0 relative items-center">
+        <a href="index.html" class="px-3 py-2 bg-slate-600 text-white font-bold rounded-lg hover:bg-slate-700 transition shadow flex items-center">
+          <i class="fa-solid fa-arrow-left mr-1"></i> Volver al Inicio
+        </a>
+        <button id="btn-toggle-names" onclick="toggleShowNames()" class="px-3 py-2 bg-umgGold text-umgNavy font-bold rounded-lg hover:bg-amber-400 transition">
+          <i class="fa-solid fa-eye mr-1"></i><span id="btn-toggle-names-label">Ocultar Nombres</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="vista-app" class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- PANEL IZQUIERDO -->
+    <section class="lg:col-span-7 space-y-4">
+      <!-- (Aquí va el Historial de Grafos, Entrada de Vértices y Visualización del Grafo original) -->
+      <!-- ... COPIA EL CÓDIGO DE TU PANEL IZQUIERDO AQUÍ ... -->
+    </section>
+
+    <!-- PANEL DERECHO -->
+    <aside class="lg:col-span-5 space-y-4">
+      <!-- (Aquí va el panel de Grados y el de Análisis de Algoritmos) -->
+      <!-- ... COPIA EL CÓDIGO DE TU PANEL DERECHO AQUÍ ... -->
+      <!-- BORRA EL BOTÓN DE DIJKSTRA Y SU PANEL -->
+    </aside>
+  </main>
+
+  <script src="js/validations.js"></script>
+  <script src="js/euler.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
