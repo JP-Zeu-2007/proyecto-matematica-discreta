@@ -3,11 +3,12 @@
 <head> 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portada - Proyecto Final Matemática Discreta</title>
+  <title>Proyecto Final - Matemática Discreta UMG</title>
   
   <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <link rel="stylesheet" href="css/styles.css">
   
   <script>
@@ -24,126 +25,457 @@
       }
     }
   </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    
-    /* Efectos para la portada */
-    .portada-card {
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .portada-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-  </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- HEADER INSTITUCIONAL -->
-  <header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold py-4">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="bg-white p-2 rounded-xl">
-          <img src="assets/logo-umg.png" alt="Logo UMG" class="h-12 w-auto object-contain">
+  <header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold sticky top-0 z-40">
+    <div class="w-full flex flex-col sm:flex-row justify-between items-center">
+      <div class="flex items-center">
+        <div class="bg-white h-full py-2 px-4 rounded-r-xl">
+          <img src="assets/logo-umg.png" alt="Logo UMG" class="h-16 w-auto object-contain">
         </div>
-        <div>
-          <h1 class="font-bold text-lg leading-tight">Universidad Mariano Gálvez de Guatemala</h1>
-          <p class="text-xs text-amber-300 font-medium">Facultad de Ingeniería en Sistemas de Información</p>
+        <div class="pl-4">
+          <h1 class="font-bold text-lg leading-tight text-white">Matemática Discreta - Proyecto Final</h1>
+          <p class="text-xs text-amber-300 font-medium">Visualización de Grafos y Algoritmos</p>
         </div>
       </div>
-    </div>
-  </header>
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-grow flex items-center justify-center py-12 px-4 relative overflow-hidden">
-    
-    <!-- Decoración de fondo -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 opacity-10">
-      <i class="fa-solid fa-diagram-project absolute top-10 left-10 text-9xl text-umgNavy" style="animation: float 6s ease-in-out infinite;"></i>
-      <i class="fa-solid fa-route absolute bottom-10 right-10 text-9xl text-umgGold" style="animation: float 6s ease-in-out infinite 3s;"></i>
-    </div>
-
-    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden relative">
-      <div class="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-umgNavy via-umgGold to-umgNavy"></div>
-      
-      <div class="p-8 sm:p-12 text-center space-y-8">
-        <div class="space-y-2">
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-umgNavy">Proyecto Final</h2>
-          <h3 class="text-xl text-slate-600 font-semibold">Matemática Discreta</h3>
-          <p class="text-sm text-slate-500 mt-2">Visualización Interactiva de Algoritmos de Grafos</p>
-        </div>
-
-        <!-- INTEGRANTES -->
-        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 max-w-2xl mx-auto">
-          <h4 class="text-sm font-bold text-umgNavy uppercase tracking-wider mb-4 border-b pb-2">
-            <i class="fa-solid fa-users text-umgGold mr-2"></i> Equipo de Trabajo
-          </h4>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-umgNavy text-white flex items-center justify-center font-bold">1</div>
-              <div>
-                <p class="text-sm font-bold text-slate-800">Josué Pineda</p>
-                <p class="text-[10px] text-slate-500">Arquitecto / Integración</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-umgNavy text-white flex items-center justify-center font-bold">2</div>
-              <div>
-                <p class="text-sm font-bold text-slate-800">Luis Omar Pérez</p>
-                <p class="text-[10px] text-slate-500">Módulo de Hamilton</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-umgNavy text-white flex items-center justify-center font-bold">3</div>
-              <div>
-                <p class="text-sm font-bold text-slate-800">Addison Otzoy</p>
-                <p class="text-[10px] text-slate-500">Módulo de Dijkstra</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-umgNavy text-white flex items-center justify-center font-bold">4</div>
-              <div>
-                <p class="text-sm font-bold text-slate-800">Jose David Vasquez</p>
-                <p class="text-[10px] text-slate-500">Documentación y QA</p>
-              </div>
+      <div class="flex gap-2 text-xs pr-4 pb-2 sm:pb-0 relative items-center">
+        
+        <!-- MENÚ DE EJEMPLOS -->
+        <div class="relative">
+          <button onclick="toggleMenuEjemplos()" class="px-3 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow flex items-center">
+            <i class="fa-solid fa-folder-open mr-1"></i> Ejemplos
+          </button>
+          <!-- Dropdown -->
+          <div id="menu-ejemplos" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden z-50">
+            <div class="p-2 space-y-1 text-slate-700">
+              <button onclick="cargarEjemplo('vuelos')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-plane text-indigo-500 w-5"></i> <strong>Rutas de Vuelo</strong><br><span class="text-[10px] text-slate-500">Dijkstra (distancias en km)</span>
+              </button>
+              <button onclick="cargarEjemplo('tuberias')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-faucet text-blue-500 w-5"></i> <strong>Red de Tuberías</strong><br><span class="text-[10px] text-slate-500">Euler (pesos en litros)</span>
+              </button>
+              <button onclick="cargarEjemplo('servidores')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-server text-emerald-500 w-5"></i> <strong>Red de Servidores</strong><br><span class="text-[10px] text-slate-500">Hamilton (conexiones lógicas)</span>
+              </button>
+              <button onclick="cargarEjemplo('ciudades')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-city text-amber-500 w-5"></i> <strong>Red de Ciudades</strong><br><span class="text-[10px] text-slate-500">Rutas con costos en Q</span>
+              </button>
+              <button onclick="cargarEjemplo('estrella')" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded transition">
+                <i class="fa-solid fa-star text-rose-500 w-5"></i> <strong>Grafo Estrella</strong><br><span class="text-[10px] text-slate-500">Prueba de fallo Euler/Hamilton</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- BOTONES DE ACCESO -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
-          
-          <!-- Botón Euler -->
-          <a href="euler.html" class="portada-card group relative bg-white border-2 border-amber-500 rounded-2xl p-6 text-center hover:bg-amber-50 transition-all duration-300 shadow-sm hover:shadow-lg flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
-              <i class="fa-solid fa-infinity"></i>
-            </div>
-            <h5 class="text-lg font-bold text-umgNavy mb-1">Euler y Hamilton</h5>
-            <p class="text-xs text-slate-500">Recorridos exactos y caminos hamiltonianos</p>
-            <span class="mt-4 text-[10px] font-bold text-amber-600 uppercase tracking-wider">Ingresar al Módulo <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i></span>
-          </a>
-
-          <!-- Botón Dijkstra -->
-          <a href="dijkstra.html" class="portada-card group relative bg-white border-2 border-sky-600 rounded-2xl p-6 text-center hover:bg-sky-50 transition-all duration-300 shadow-sm hover:shadow-lg flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
-              <i class="fa-solid fa-route"></i>
-            </div>
-            <h5 class="text-lg font-bold text-umgNavy mb-1">Algoritmo de Dijkstra</h5>
-            <p class="text-xs text-slate-500">Rutas mínimas en grafos ponderados (33 Volcanes)</p>
-            <span class="mt-4 text-[10px] font-bold text-sky-600 uppercase tracking-wider">Ingresar al Módulo <i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i></span>
-          </a>
-
-        </div>
+        <!-- BOTÓN DE DOCUMENTACIÓN -->
+        <button onclick="toggleVista('ayuda')" class="px-3 py-2 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition shadow" title="Manual de Usuario">
+          <i class="fa-solid fa-circle-question mr-1"></i> Documentación
+        </button>
+        
+        <!-- BOTÓN DE NOMBRES -->
+        <button id="btn-toggle-names" onclick="toggleShowNames()" class="px-3 py-2 bg-umgGold text-umgNavy font-bold rounded-lg hover:bg-amber-400 transition">
+          <i class="fa-solid fa-eye mr-1"></i><span id="btn-toggle-names-label">Ocultar Nombres</span>
+        </button>
       </div>
     </div>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- VISTA DE DOCUMENTACIÓN / AYUDA (oculta por defecto)       -->
+  <!-- ========================================================= -->
+  <section id="vista-ayuda" class="hidden flex-grow w-full mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- MENÚ LATERAL (Índice) -->
+      <aside class="lg:col-span-3">
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sticky top-24">
+          <h2 class="text-base font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-3">
+            <i class="fa-solid fa-list-ul text-umgGold mr-1"></i> Índice
+          </h2>
+          <nav class="space-y-1 text-sm">
+            <a href="#doc-autores" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-users w-5 text-umgGold"></i> Autores
+            </a>
+            <a href="#doc-tecnologias" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-code w-5 text-umgGold"></i> Tecnologías Usadas
+            </a>
+            <a href="#doc-guia" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-book w-5 text-umgGold"></i> Guía de Uso
+            </a>
+            <a href="#doc-algoritmos" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-microchip w-5 text-umgGold"></i> Algoritmos
+            </a>
+            <a href="#doc-faq" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-circle-question w-5 text-umgGold"></i> Preguntas Frecuentes
+            </a>
+          </nav>
+          <div class="mt-4 pt-4 border-t border-slate-200">
+            <button onclick="toggleVista('app')" class="w-full px-4 py-2 bg-umgNavy text-white font-bold rounded-lg hover:bg-umgLightNavy transition">
+              <i class="fa-solid fa-arrow-left mr-1"></i> Volver al Editor
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO DE LA DOCUMENTACIÓN -->
+      <main class="lg:col-span-9 space-y-6">
+
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8 relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-2 bg-umgGold"></div>
+          <h1 class="text-2xl font-bold text-umgNavy mb-2"><i class="fa-solid fa-book-open text-umgGold mr-2"></i> Manual de Usuario</h1>
+          <p class="text-sm text-slate-500">Documentación oficial del proyecto de Matemática Discreta - UMG</p>
+        </div>
+
+        <!-- 1. AUTORES -->
+        <section id="doc-autores" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-users text-umgGold mr-2"></i> 1. Autores
+          </h2>
+          <ul class="space-y-2 text-sm text-slate-700">
+            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-50"><i class="fa-solid fa-user-graduate text-umgGold"></i> <strong>Josué Daniel Pineda Pineda</strong></li>
+            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-50"><i class="fa-solid fa-user-graduate text-umgGold"></i> <strong>Luis Omar Pérez Hernández</strong></li>
+            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-50"><i class="fa-solid fa-user-graduate text-umgGold"></i> <strong>Addison Orlando Otzoy Poyon</strong></li>
+            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-50"><i class="fa-solid fa-user-graduate text-umgGold"></i> <strong>Cristofer José David Vásquez Galo</strong></li>
+          </ul>
+        </section>
+
+        <!-- 2. TECNOLOGÍAS -->
+        <section id="doc-tecnologias" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-code text-umgGold mr-2"></i> 2. Tecnologías Usadas
+          </h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-brands fa-html5 text-orange-500 text-2xl block mb-1"></i> HTML5</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-brands fa-css3-alt text-blue-500 text-2xl block mb-1"></i> CSS3 / Tailwind</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-brands fa-js text-yellow-500 text-2xl block mb-1"></i> JavaScript</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-solid fa-diagram-project text-indigo-500 text-2xl block mb-1"></i> Vis.js</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-solid fa-database text-emerald-500 text-2xl block mb-1"></i> LocalStorage</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-solid fa-robot text-purple-500 text-2xl block mb-1"></i> IA (Asistencia)</div>
+          </div>
+        </section>
+
+        <!-- 3. GUÍA DE USO -->
+        <section id="doc-guia" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-book text-umgGold mr-2"></i> 3. Guía de Uso
+          </h2>
+          <ul class="space-y-3 text-sm text-slate-700 list-none">
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Crear nodos:</strong> Escribe el nombre del vértice en el campo de texto y presiona <em>Agregar</em>. Puedes elegir un ícono desde el selector.</li>
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Clic derecho:</strong> Sobre cualquier nodo abre un menú contextual para <em>Fijar</em>, <em>Marcar como Usado</em> o <em>Eliminar</em> el vértice.</li>
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Tijera (conectar):</strong> Presiona el botón verde <strong>[+]</strong> junto a un vértice para conectarlo con otro mediante una arista.</li>
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Historial:</strong> Usa los botones <em>Guardar</em> y <em>Nuevo</em> para administrar tus grafos. También puedes <em>Exportar</em> e <em>Importar</em> en formato JSON.</li>
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Ejemplos:</strong> El menú superior <em>Ejemplos</em> carga grafos predefinidos listos para probar los algoritmos.</li>
+          </ul>
+        </section>
+
+        <!-- 4. ALGORITMOS -->
+        <section id="doc-algoritmos" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-microchip text-umgGold mr-2"></i> 4. Algoritmos
+          </h2>
+          <div class="space-y-3 text-sm text-slate-700">
+            <div class="p-3 bg-indigo-50 rounded-lg border-l-4 border-indigo-500">
+              <strong class="text-indigo-700">Conexidad (DFS):</strong> Recorrido en profundidad que verifica si todos los vértices del grafo son alcanzables desde un nodo inicial. Determina si el grafo es conexo.
+            </div>
+            <div class="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500">
+              <strong class="text-amber-700">Camino de Euler (Hierholzer):</strong> Encuentra una ruta que recorre cada arista exactamente una vez. Requiere exactamente 0 o 2 vértices de grado impar.
+            </div>
+            <div class="p-3 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+              <strong class="text-purple-700">Ciclo de Euler:</strong> Similar al camino, pero la ruta inicia y termina en el mismo vértice. Requiere que todos los vértices tengan grado par.
+            </div>
+            <div class="p-3 bg-rose-50 rounded-lg border-l-4 border-rose-500">
+              <strong class="text-rose-700">Hamilton (Backtracking):</strong> Busca un recorrido que visite cada vértice exactamente una vez. Usa retroceso para explorar todas las rutas posibles.
+            </div>
+            <div class="p-3 bg-sky-50 rounded-lg border-l-4 border-sky-500">
+              <strong class="text-sky-700">Dijkstra:</strong> Calcula la ruta más corta entre dos vértices considerando los pesos de las aristas. No admite pesos negativos.
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. FAQ -->
+        <section id="doc-faq" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-circle-question text-umgGold mr-2"></i> 5. Preguntas Frecuentes (FAQ)
+          </h2>
+          <div class="space-y-2 text-sm">
+            <details class="bg-slate-50 rounded-lg border border-slate-200 p-3 group">
+              <summary class="font-bold text-slate-800 cursor-pointer flex items-center justify-between">
+                <span><i class="fa-solid fa-question text-rose-500 mr-1"></i> ¿Qué significan los colores de los nodos?</span>
+                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition"></i>
+              </summary>
+              <p class="mt-2 text-slate-600 pl-6">
+                <strong>Borde Dorado:</strong> Grado Par. <br>
+                <strong>Borde Rojo:</strong> Grado Impar. <br>
+                <strong>Verde Punteado:</strong> Nodo marcado como "Usado". <br>
+                <strong>Rojo Grueso:</strong> Nodo "Fijado".
+              </p>
+            </details>
+            <details class="bg-slate-50 rounded-lg border border-slate-200 p-3 group">
+              <summary class="font-bold text-slate-800 cursor-pointer flex items-center justify-between">
+                <span><i class="fa-solid fa-question text-rose-500 mr-1"></i> ¿Por qué Dijkstra no acepta pesos negativos?</span>
+                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition"></i>
+              </summary>
+              <p class="mt-2 text-slate-600 pl-6">El algoritmo de Dijkstra asume que una vez visitado un nodo, su distancia ya es la mínima. Con pesos negativos, este supuesto falla y podrían existir rutas más cortas no consideradas. Para pesos negativos se recomienda el algoritmo de Bellman-Ford.</p>
+            </details>
+            <details class="bg-slate-50 rounded-lg border border-slate-200 p-3 group">
+              <summary class="font-bold text-slate-800 cursor-pointer flex items-center justify-between">
+                <span><i class="fa-solid fa-question text-rose-500 mr-1"></i> ¿Cómo se calcula el grado de un vértice?</span>
+                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition"></i>
+              </summary>
+              <p class="mt-2 text-slate-600 pl-6">Es el número de aristas conectadas al vértice. En grafos dirigidos se distinguen grado de entrada y de salida. La suma de todos los grados equivale al doble del número de aristas.</p>
+            </details>
+            <details class="bg-slate-50 rounded-lg border border-slate-200 p-3 group">
+              <summary class="font-bold text-slate-800 cursor-pointer flex items-center justify-between">
+                <span><i class="fa-solid fa-question text-rose-500 mr-1"></i> ¿Cuándo existe un Camino de Euler?</span>
+                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition"></i>
+              </summary>
+              <p class="mt-2 text-slate-600 pl-6">Existe un Camino de Euler si y solo si el grafo es conexo y tiene exactamente <strong>0 o 2</strong> vértices de grado impar. Si tiene 0 impares, también existe un Ciclo de Euler.</p>
+            </details>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </section>
+
+  <!-- ⬇️⬇️⬇️ AQUÍ TERMINA LA PARTE 1 Y EMPIEZA LA PARTE 2 ⬇️⬇️⬇️ -->
+
+    <!-- ========================================================= -->
+  <!-- VISTA PRINCIPAL DE LA APP (editor de grafos)              -->
+  <!-- ========================================================= -->
+  <main id="vista-app" class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- PANEL IZQUIERDO -->
+    <section class="lg:col-span-7 space-y-4">
+      
+      <!-- HISTORIAL DE GRAFOS -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4">
+        <h3 class="text-sm font-bold text-umgNavy mb-2"><i class="fa-solid fa-clock-rotate-left text-umgGold mr-1"></i> Historial de Grafos</h3>
+        <div class="flex gap-2">
+          <select id="history-select" onchange="cargarGrafoHistorial(this.value)" class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <option value="">-- Seleccionar un grafo guardado --</option>
+          </select>
+          <button onclick="crearNuevoGrafo()" class="px-3 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition" title="Nuevo Grafo"><i class="fa-solid fa-plus"></i> Nuevo</button>
+          <button onclick="guardarGrafoActual()" class="px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition" title="Guardar Copia"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+        </div>
+        <div class="flex gap-2 mt-2">
+          <button onclick="exportarJSON()" class="flex-1 py-1.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded hover:bg-slate-300"><i class="fa-solid fa-download"></i> Exportar JSON</button>
+          <label class="flex-1 py-1.5 bg-slate-200 text-slate-700 text-[10px] font-bold rounded hover:bg-slate-300 text-center cursor-pointer">
+            <i class="fa-solid fa-upload"></i> Importar JSON
+            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importarJSON(event)">
+          </label>
+        </div>
+      </div>
+
+      <!-- BÚSQUEDA DE RUTAS PERSONALIZADAS -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4">
+        <h3 class="text-sm font-bold text-umgNavy mb-2"><i class="fa-solid fa-route text-umgGold mr-1"></i> Buscar Ruta en el Grafo</h3>
+        <div class="flex gap-2 mb-2">
+          <select id="ruta-origen" class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <option value="">Origen...</option>
+          </select>
+          <select id="ruta-destino" class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <option value="">Destino...</option>
+          </select>
+          <button onclick="calcularTodasLasRutas()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition">
+            <i class="fa-solid fa-magnifying-glass"></i> Calcular
+          </button>
+        </div>
+        
+        <div id="resultados-rutas" class="hidden mt-3 max-h-60 overflow-y-auto custom-scrollbar border rounded-lg bg-slate-50">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-200 text-slate-700 sticky top-0">
+              <tr>
+                <th class="p-2">Ruta</th>
+                <th class="p-2 text-center">Distancia</th>
+                <th class="p-2 text-center" id="th-peso">Peso</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-rutas"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ENTRADA DE VÉRTICES -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b">
+          <h2 class="text-lg font-bold text-umgNavy"><i class="fa-solid fa-pen-to-square text-umgGold mr-2"></i>Entrada de Vértices</h2>
+          <div class="flex flex-col gap-2 items-end">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-semibold">
+              <input type="checkbox" id="toggle-directed" class="peer sr-only" onchange="onToggleDirected()">
+              <span class="w-10 h-5 bg-slate-300 rounded-full relative transition peer-checked:bg-emerald-500">
+                <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></span>
+              </span>
+              <span id="toggle-label" class="text-xs">No Dirigido</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer select-none text-sm font-semibold">
+              <input type="checkbox" id="toggle-weighted" class="peer sr-only" onchange="onToggleWeighted()">
+              <span class="w-10 h-5 bg-slate-300 rounded-full relative transition peer-checked:bg-indigo-500">
+                <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></span>
+              </span>
+              <span id="toggle-weight-label" class="text-xs">Sin Peso</span>
+            </label>
+          </div>
+        </div>
+        
+        <div id="unit-selector-container" class="hidden flex gap-2 mb-2">
+          <select id="unit-select" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white outline-none">
+            <optgroup label="Distancia">
+              <option value="km">Kilómetros (km)</option>
+              <option value="m">Metros (m)</option>
+              <option value="cm">Centímetros (cm)</option>
+              <option value="ft">Pies (ft)</option>
+              <option value="mi">Millas (mi)</option>
+            </optgroup>
+            <optgroup label="Moneda">
+              <option value="Q">Quetzales (Q)</option>
+              <option value="$">Dólares ($)</option>
+              <option value="€">Euros (€)</option>
+              <option value="£">Libras (£)</option>
+              <option value="¥">Yenes (¥)</option>
+            </optgroup>
+            <optgroup label="Otros">
+              <option value="kg">Kilogramos (kg)</option>
+              <option value="lb">Libras (lb)</option>
+              <option value="min">Minutos (min)</option>
+              <option value="h">Horas (h)</option>
+              <option value="°C">Celsius (°C)</option>
+            </optgroup>
+            <option value="custom">Otro (Personalizado)...</option>
+          </select>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="new-vertex-name" placeholder="Nombre del vértice" maxlength="14" class="flex-1 text-sm p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-umgGold outline-none">
+          <button onclick="addVertex()" class="px-4 py-2 bg-umgNavy text-white font-bold text-sm rounded-lg hover:bg-umgLightNavy transition"><i class="fa-solid fa-plus mr-1"></i> Agregar</button>
+        </div>
+        
+        <div id="vertex-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar"></div>
+      </div>
+
+      <!-- VISUALIZACIÓN -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3">
+        <h3 class="text-xs font-bold text-umgNavy mb-2 px-2"><i class="fa-solid fa-diagram-project text-umgGold mr-1"></i> Visualización del Grafo</h3>
+        <div id="graph-container-wrap" class="graph-container">
+          <div id="graph-canvas" class="graph-canvas-wrap"></div>
+          <div id="context-menu" class="context-menu">
+            <button class="ctx-pinned" onclick="ctxPin()"><i class="fa-solid fa-thumbtack"></i> <span id="ctx-pin-text">Fijar nodo</span></button>
+            <button class="ctx-used" onclick="ctxUsed()"><i class="fa-solid fa-circle-check"></i> <span id="ctx-used-text">Marcar como Usado</span></button>
+            <button class="ctx-delete" onclick="ctxDelete()"><i class="fa-solid fa-trash"></i> Eliminar vértice</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⬇️⬇️⬇️ AQUÍ TERMINA LA PARTE 2 Y EMPIEZA LA PARTE 3 ⬇️⬇️⬇️ -->
+
+
+        <!-- PANEL DERECHO -->
+    <aside class="lg:col-span-5 space-y-4">
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5">
+        <h3 class="text-base font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-square-poll-vertical text-umgGold mr-1"></i> GRADO DE UN VÉRTICE</h3>
+        <div class="text-sm space-y-1 font-mono">
+          <p class="flex justify-between border-b border-dashed border-slate-200 pb-1"><span class="text-slate-600">Orden:</span><span id="sum-order" class="font-bold text-umgNavy">0</span></p>
+          <p class="flex justify-between border-b border-dashed border-slate-200 pb-1"><span class="text-slate-600">Tamaño:</span><span id="sum-size" class="font-bold text-umgNavy">0</span></p>
+          <div id="grades-list" class="pt-2 space-y-1 text-xs"><p class="text-slate-400 italic text-center">Aún sin vértices.</p></div>
+          <div class="mt-4 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs space-y-1">
+            <p class="flex justify-between"><span class="text-slate-600 font-bold">Vértices Pares:</span> <span id="summary-even" class="text-indigo-600 font-semibold text-right">--</span></p>
+            <p class="flex justify-between"><span class="text-slate-600 font-bold">Vértices Impares:</span> <span id="summary-odd" class="text-rose-600 font-semibold text-right">--</span></p>
+          </div>
+          <p class="flex justify-between pt-3 mt-2 border-t-2 border-umgGold font-bold text-umgNavy text-sm"><span>Σ (SUMA de grados):</span><span id="sum-total">0</span></p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 space-y-3">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h3 class="text-base font-bold text-umgNavy"><i class="fa-solid fa-microchip text-umgGold mr-1"></i> Análisis de Algoritmos</h3>
+          <button onclick="limpiarAnalisis()" title="Limpiar resultados" class="text-xs text-slate-500 hover:text-rose-600 transition bg-slate-100 hover:bg-rose-100 px-2 py-1 rounded-lg">
+            <i class="fa-solid fa-broom"></i> Limpiar
+          </button>
+        </div>
+        
+        <div class="space-y-2">
+          <button onclick="animarDFS()" id="btn-dfs" class="w-full py-2 bg-indigo-600 text-white font-bold text-xs rounded-xl shadow hover:bg-indigo-700 transition flex items-center justify-center">
+            <i class="fa-solid fa-person-walking-arrow-right mr-2"></i> 1. Evaluar Conexidad (DFS)
+          </button>
+          <div id="result-dfs" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
+
+          <button onclick="animarEulerCamino()" id="btn-camino" class="w-full py-2 bg-amber-500 text-white font-bold text-xs rounded-xl shadow hover:bg-amber-600 transition flex items-center justify-center">
+            <i class="fa-solid fa-route mr-2"></i> 2. Buscar Camino de Euler
+          </button>
+          <div id="result-camino" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
+
+          <button onclick="animarEulerCiclo()" id="btn-ciclo" class="w-full py-2 bg-purple-600 text-white font-bold text-xs rounded-xl shadow hover:bg-purple-700 transition flex items-center justify-center">
+            <i class="fa-solid fa-arrows-spin mr-2"></i> 3. Buscar Ciclo de Euler
+          </button>
+          <div id="result-ciclo" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
+
+          <button disabled id="btn-hamilton" class="w-full py-2 bg-slate-300 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center mt-4">
+            <i class="fa-solid fa-hourglass-half mr-2"></i> 4. Hamilton (En espera del Integrante 2)
+          </button>
+          
+          <!-- BOTÓN DE DIJKSTRA DE ADDISON -->
+          <button onclick="inicializarGrafoDijkstra()" id="btn-dijkstra" class="w-full py-2 bg-sky-600 text-white font-bold text-xs rounded-xl shadow hover:bg-sky-700 transition flex items-center justify-center mt-2">
+            <i class="fa-solid fa-route mr-2"></i> 5. Buscar Ruta (Dijkstra Volcanes)
+          </button>
+
+          <div id="dijkstra-panel" class="hidden mt-2 p-3 bg-sky-50 border border-sky-200 rounded-xl text-center">
+            <p class="text-xs font-bold text-sky-800 mb-2" id="dijkstra-status">Haz clic en el Volcán de ORIGEN</p>
+            <button onclick="ejecutarRutaDijkstra()" id="btn-ejecutar-dijkstra" class="hidden w-full py-1.5 bg-sky-600 text-white text-[10px] font-bold rounded shadow hover:bg-sky-700 transition">
+              Ejecutar Búsqueda
+            </button>
+            <!-- CONTENEDOR NUEVO PARA LA TABLA DE ITERACIONES DE DIJKSTRA -->
+            <div id="dijkstra-tabla" class="hidden mt-3 overflow-x-auto text-left"></div>
+          </div>
+
+          <div id="result-dijkstra" class="hidden mt-2 text-xs p-2 rounded bg-slate-50 border text-center"></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5">
+        <h3 class="text-sm font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-clock-rotate-left text-umgGold mr-1"></i> Registro de Cambios</h3>
+        <div id="log-banner" class="text-xs space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar bg-slate-50 p-3 rounded-lg border border-slate-200 font-mono">
+          <p class="text-slate-400 italic">Sin cambios registrados aún...</p>
+        </div>
+      </div>
+    </aside>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="bg-umgDarkNavy text-slate-400 py-4 text-xs text-center border-t border-slate-800 mt-auto">
-    <p>© 2026 Universidad Mariano Gálvez - Sede El Naranjo</p>
-    <p class="text-amber-400 mt-1">Curso: Matemática Discreta | Catedrático: M.A. Ing. Esaú Hernández Castillo</p>
-  </footer>
+  <script>
+    function toggleVista(vista) {
+      const app = document.getElementById('vista-app');
+      const ayuda = document.getElementById('vista-ayuda');
+      
+      if (vista === 'ayuda') {
+        app.classList.add('hidden');
+        ayuda.classList.remove('hidden');
+        window.scrollTo(0, 0);
+      } else {
+        ayuda.classList.add('hidden');
+        app.classList.remove('hidden');
+      }
+    }
 
+    function toggleMenuEjemplos() {
+      const menu = document.getElementById('menu-ejemplos');
+      menu.classList.toggle('hidden');
+    }
+
+    // Cerrar el menú al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[onclick="toggleMenuEjemplos()"]');
+      const menu = document.getElementById('menu-ejemplos');
+      if (!btn && !e.target.closest('#menu-ejemplos') && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+      }
+    });
+  </script>
+
+  <script src="js/validations.js"></script>
+  <script src="js/euler.js"></script>
+  <script src="js/dijkstra.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
