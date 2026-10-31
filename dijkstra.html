@@ -93,7 +93,10 @@
 
         <select onchange="cargarEjemploDijkstra(this.value); this.value='';" class="text-xs p-2 bg-slate-200 rounded-lg font-bold text-slate-700 outline-none">
           <option value="">-- Cargar Ejemplo --</option>
-          <option value="volcanes">🌋 Red de Volcanes (33 Nodos)</option>
+          <option value="volcanes">🌋 Red de Volcanes</option>
+          <option value="vuelos">✈️ Rutas de Vuelo</option>
+          <option value="servidores">💻 Red de Servidores</option>
+          <option value="ciudades">🏢 Red de Ciudades</option>
         </select>
 
         <button onclick="guardarGrafoActual()" class="px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
@@ -116,18 +119,34 @@
           </div>
         </div>
       </div>
+
+      <!-- TABLA DE TODAS LAS RUTAS POSIBLES -->
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 mt-4">
+        <h3 class="text-sm font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-list-ol text-umgGold mr-1"></i> Todas las Rutas Posibles (Análisis)</h3>
+        <div id="tabla-rutas" class="overflow-x-auto custom-scrollbar">
+          <p class="text-xs text-slate-400 italic text-center">Calcula una ruta en el panel derecho para ver el análisis.</p>
+        </div>
+      </div>
     </section>
 
     <aside class="lg:col-span-4 space-y-4">
+      
+      <!-- RESUMEN Y MATRIZ CON BOTÓN DE MINIMIZAR -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 space-y-3">
-        <h3 class="text-sm font-bold text-umgNavy border-b pb-2"><i class="fa-solid fa-table text-umgGold mr-1"></i> Resumen y Matriz</h3>
-        <div class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono space-y-1">
-          <p class="flex justify-between"><span>Orden (Vértices):</span> <span id="sum-order" class="font-bold text-umgNavy">0</span></p>
-          <p class="flex justify-between"><span>Tamaño (Aristas):</span> <span id="sum-size" class="font-bold text-umgNavy">0</span></p>
-          <p class="flex justify-between border-t pt-1 mt-1"><span>Σ (Suma Grados):</span> <span id="sum-total" class="font-bold text-emerald-700">0</span></p>
+        <div class="flex justify-between items-center border-b pb-2 cursor-pointer" onclick="toggleMatriz()">
+          <h3 class="text-sm font-bold text-umgNavy"><i class="fa-solid fa-table text-umgGold mr-1"></i> Resumen y Matriz</h3>
+          <i id="icono-matriz" class="fa-solid fa-chevron-up text-slate-400"></i>
         </div>
-        <div id="matriz-container" class="overflow-x-auto custom-scrollbar pb-2">
-          <p class="text-xs text-slate-400 italic text-center">Agrega vértices para ver la matriz.</p>
+        
+        <div id="contenido-matriz">
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono space-y-1 mb-3">
+            <p class="flex justify-between"><span>Orden (Vértices):</span> <span id="sum-order" class="font-bold text-umgNavy">0</span></p>
+            <p class="flex justify-between"><span>Tamaño (Aristas):</span> <span id="sum-size" class="font-bold text-umgNavy">0</span></p>
+            <p class="flex justify-between border-t pt-1 mt-1"><span>Σ (Suma Grados):</span> <span id="sum-total" class="font-bold text-emerald-700">0</span></p>
+          </div>
+          <div id="matriz-container" class="overflow-x-auto custom-scrollbar pb-2">
+            <p class="text-xs text-slate-400 italic text-center">Agrega vértices para ver la matriz.</p>
+          </div>
         </div>
       </div>
 
