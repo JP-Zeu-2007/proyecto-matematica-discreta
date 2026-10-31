@@ -68,9 +68,9 @@
           </div>
         </div>
 
-        <!-- BOTÓN DE AYUDA -->
+        <!-- BOTÓN DE DOCUMENTACIÓN -->
         <button onclick="toggleVista('ayuda')" class="px-3 py-2 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition shadow" title="Manual de Usuario">
-          <i class="fa-solid fa-circle-question mr-1"></i> Ayuda
+          <i class="fa-solid fa-circle-question mr-1"></i> Documentación
         </button>
         
         <!-- BOTÓN DE NOMBRES -->
@@ -81,49 +81,169 @@
     </div>
   </header>
 
-  <!-- PANTALLA DE AYUDA -->
-  <section id="vista-ayuda" class="hidden flex-grow max-w-4xl w-full mx-auto px-4 py-8 space-y-6">
-    <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8 relative overflow-hidden">
-      <div class="absolute top-0 left-0 right-0 h-2 bg-umgGold"></div>
-      
-      <div class="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 class="text-2xl font-bold text-umgNavy"><i class="fa-solid fa-book-open text-umgGold mr-2"></i> Manual de Usuario</h2>
-        <button onclick="toggleVista('app')" class="px-4 py-2 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition">
-          <i class="fa-solid fa-arrow-left mr-1"></i> Volver al Programa
-        </button>
-      </div>
+  <!-- ========================================================= -->
+  <!-- VISTA DE DOCUMENTACIÓN / AYUDA (oculta por defecto)       -->
+  <!-- ========================================================= -->
+  <section id="vista-ayuda" class="hidden flex-grow w-full mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <div class="prose max-w-none text-slate-600 text-sm space-y-6">
-        <div>
-          <h3 class="text-lg font-bold text-umgNavy mb-2">Introducción</h3>
-          <p>Bienvenido al Gestor de Grafos de Matemática Discreta. Esta herramienta te permite construir grafos de forma interactiva, evaluar su conexidad, buscar rutas (Dijkstra) y ejecutar los algoritmos de Euler y Hamilton. También puedes cargar ejemplos predefinidos desde el menú superior para probar los diferentes algoritmos.</p>
-        </div>
-
-        <h3 class="text-lg font-bold text-umgNavy mb-4">Preguntas Frecuentes (FAQ)</h3>
-        
-        <div class="space-y-3">
-          <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
-            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Cómo empiezo a crear un grafo?</p>
-            <p>Ve a la pestaña principal, escribe el nombre de un vértice y presiona "Agregar".</p>
-          </div>
-          <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
-            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Cómo conecto los vértices?</p>
-            <p>Presiona el botón verde <strong>[+]</strong> al lado de cada vértice.</p>
-          </div>
-          <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
-            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Para qué sirven los colores de los nodos?</p>
-            <p><strong>Borde Dorado:</strong> Grado Par.<br><strong>Borde Rojo:</strong> Grado Impar.<br><strong>Verde Punteado:</strong> Nodo "Usado".<br><strong>Rojo Grueso:</strong> Nodo "Fijado".</p>
-          </div>
-          <div class="border border-slate-200 rounded-lg p-4 bg-slate-50">
-            <p class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-question text-rose-500 mr-1"></i> ¿Qué es el menú de Ejemplos?</p>
-            <p>Carga automáticamente un grafo con datos reales o simulados para que pruebes los botones de Euler, Hamilton, Dijkstra o Rutas Mínimas sin tener que dibujarlo desde cero.</p>
+      <!-- MENÚ LATERAL (Índice) -->
+      <aside class="lg:col-span-3">
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sticky top-24">
+          <h2 class="text-base font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-3">
+            <i class="fa-solid fa-list-ul text-umgGold mr-1"></i> Índice
+          </h2>
+          <nav class="space-y-1 text-sm">
+            <a href="#doc-autores" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-users w-5 text-umgGold"></i> Autores
+            </a>
+            <a href="#doc-tecnologias" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-code w-5 text-umgGold"></i> Tecnologías Usadas
+            </a>
+            <a href="#doc-guia" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-book w-5 text-umgGold"></i> Guía de Uso
+            </a>
+            <a href="#doc-algoritmos" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-microchip w-5 text-umgGold"></i> Algoritmos
+            </a>
+            <a href="#doc-faq" class="block px-3 py-2 rounded-lg hover:bg-umgNavy hover:text-white transition text-slate-700">
+              <i class="fa-solid fa-circle-question w-5 text-umgGold"></i> Preguntas Frecuentes
+            </a>
+          </nav>
+          <div class="mt-4 pt-4 border-t border-slate-200">
+            <button onclick="toggleVista('app')" class="w-full px-4 py-2 bg-umgNavy text-white font-bold rounded-lg hover:bg-umgLightNavy transition">
+              <i class="fa-solid fa-arrow-left mr-1"></i> Volver al Editor
+            </button>
           </div>
         </div>
-      </div>
+      </aside>
+
+      <!-- CONTENIDO DE LA DOCUMENTACIÓN -->
+      <main class="lg:col-span-9 space-y-6">
+
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8 relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-2 bg-umgGold"></div>
+          <h1 class="text-2xl font-bold text-umgNavy mb-2"><i class="fa-solid fa-book-open text-umgGold mr-2"></i> Manual de Usuario</h1>
+          <p class="text-sm text-slate-500">Documentación oficial del proyecto de Matemática Discreta - UMG</p>
+        </div>
+
+        <!-- 1. AUTORES -->
+        <section id="doc-autores" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-users text-umgGold mr-2"></i> 1. Autores
+          </h2>
+          <ul class="space-y-2 text-sm text-slate-700">
+            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-50"><i class="fa-solid fa-user-graduate text-umgGold"></i> <strong>Josué Daniel Pineda Pineda</strong></li>
+            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-50"><i class="fa-solid fa-user-graduate text-umgGold"></i> <strong>Luis Omar Pérez Hernández</strong></li>
+            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-50"><i class="fa-solid fa-user-graduate text-umgGold"></i> <strong>Addison Orlando Otzoy Poyon</strong></li>
+            <li class="flex items-center gap-3 p-2 rounded-lg bg-slate-50"><i class="fa-solid fa-user-graduate text-umgGold"></i> <strong>Cristofer José David Vásquez Galo</strong></li>
+          </ul>
+        </section>
+
+        <!-- 2. TECNOLOGÍAS -->
+        <section id="doc-tecnologias" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-code text-umgGold mr-2"></i> 2. Tecnologías Usadas
+          </h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-brands fa-html5 text-orange-500 text-2xl block mb-1"></i> HTML5</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-brands fa-css3-alt text-blue-500 text-2xl block mb-1"></i> CSS3 / Tailwind</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-brands fa-js text-yellow-500 text-2xl block mb-1"></i> JavaScript</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-solid fa-diagram-project text-indigo-500 text-2xl block mb-1"></i> Vis.js</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-solid fa-database text-emerald-500 text-2xl block mb-1"></i> LocalStorage</div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center"><i class="fa-solid fa-robot text-purple-500 text-2xl block mb-1"></i> IA (Asistencia)</div>
+          </div>
+        </section>
+
+        <!-- 3. GUÍA DE USO -->
+        <section id="doc-guia" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-book text-umgGold mr-2"></i> 3. Guía de Uso
+          </h2>
+          <ul class="space-y-3 text-sm text-slate-700 list-none">
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Crear nodos:</strong> Escribe el nombre del vértice en el campo de texto y presiona <em>Agregar</em>. Puedes elegir un ícono desde el selector.</li>
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Clic derecho:</strong> Sobre cualquier nodo abre un menú contextual para <em>Fijar</em>, <em>Marcar como Usado</em> o <em>Eliminar</em> el vértice.</li>
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Tijera (conectar):</strong> Presiona el botón verde <strong>[+]</strong> junto a un vértice para conectarlo con otro mediante una arista.</li>
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Historial:</strong> Usa los botones <em>Guardar</em> y <em>Nuevo</em> para administrar tus grafos. También puedes <em>Exportar</em> e <em>Importar</em> en formato JSON.</li>
+            <li class="p-3 bg-slate-50 rounded-lg border-l-4 border-umgGold"><strong>Ejemplos:</strong> El menú superior <em>Ejemplos</em> carga grafos predefinidos listos para probar los algoritmos.</li>
+          </ul>
+        </section>
+
+        <!-- 4. ALGORITMOS -->
+        <section id="doc-algoritmos" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-microchip text-umgGold mr-2"></i> 4. Algoritmos
+          </h2>
+          <div class="space-y-3 text-sm text-slate-700">
+            <div class="p-3 bg-indigo-50 rounded-lg border-l-4 border-indigo-500">
+              <strong class="text-indigo-700">Conexidad (DFS):</strong> Recorrido en profundidad que verifica si todos los vértices del grafo son alcanzables desde un nodo inicial. Determina si el grafo es conexo.
+            </div>
+            <div class="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500">
+              <strong class="text-amber-700">Camino de Euler (Hierholzer):</strong> Encuentra una ruta que recorre cada arista exactamente una vez. Requiere exactamente 0 o 2 vértices de grado impar.
+            </div>
+            <div class="p-3 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+              <strong class="text-purple-700">Ciclo de Euler:</strong> Similar al camino, pero la ruta inicia y termina en el mismo vértice. Requiere que todos los vértices tengan grado par.
+            </div>
+            <div class="p-3 bg-rose-50 rounded-lg border-l-4 border-rose-500">
+              <strong class="text-rose-700">Hamilton (Backtracking):</strong> Busca un recorrido que visite cada vértice exactamente una vez. Usa retroceso para explorar todas las rutas posibles.
+            </div>
+            <div class="p-3 bg-sky-50 rounded-lg border-l-4 border-sky-500">
+              <strong class="text-sky-700">Dijkstra:</strong> Calcula la ruta más corta entre dos vértices considerando los pesos de las aristas. No admite pesos negativos.
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. FAQ -->
+        <section id="doc-faq" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 scroll-mt-24">
+          <h2 class="text-xl font-bold text-umgNavy border-b-2 border-umgGold pb-2 mb-4">
+            <i class="fa-solid fa-circle-question text-umgGold mr-2"></i> 5. Preguntas Frecuentes (FAQ)
+          </h2>
+          <div class="space-y-2 text-sm">
+            <details class="bg-slate-50 rounded-lg border border-slate-200 p-3 group">
+              <summary class="font-bold text-slate-800 cursor-pointer flex items-center justify-between">
+                <span><i class="fa-solid fa-question text-rose-500 mr-1"></i> ¿Qué significan los colores de los nodos?</span>
+                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition"></i>
+              </summary>
+              <p class="mt-2 text-slate-600 pl-6">
+                <strong>Borde Dorado:</strong> Grado Par. <br>
+                <strong>Borde Rojo:</strong> Grado Impar. <br>
+                <strong>Verde Punteado:</strong> Nodo marcado como "Usado". <br>
+                <strong>Rojo Grueso:</strong> Nodo "Fijado".
+              </p>
+            </details>
+            <details class="bg-slate-50 rounded-lg border border-slate-200 p-3 group">
+              <summary class="font-bold text-slate-800 cursor-pointer flex items-center justify-between">
+                <span><i class="fa-solid fa-question text-rose-500 mr-1"></i> ¿Por qué Dijkstra no acepta pesos negativos?</span>
+                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition"></i>
+              </summary>
+              <p class="mt-2 text-slate-600 pl-6">El algoritmo de Dijkstra asume que una vez visitado un nodo, su distancia ya es la mínima. Con pesos negativos, este supuesto falla y podrían existir rutas más cortas no consideradas. Para pesos negativos se recomienda el algoritmo de Bellman-Ford.</p>
+            </details>
+            <details class="bg-slate-50 rounded-lg border border-slate-200 p-3 group">
+              <summary class="font-bold text-slate-800 cursor-pointer flex items-center justify-between">
+                <span><i class="fa-solid fa-question text-rose-500 mr-1"></i> ¿Cómo se calcula el grado de un vértice?</span>
+                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition"></i>
+              </summary>
+              <p class="mt-2 text-slate-600 pl-6">Es el número de aristas conectadas al vértice. En grafos dirigidos se distinguen grado de entrada y de salida. La suma de todos los grados equivale al doble del número de aristas.</p>
+            </details>
+            <details class="bg-slate-50 rounded-lg border border-slate-200 p-3 group">
+              <summary class="font-bold text-slate-800 cursor-pointer flex items-center justify-between">
+                <span><i class="fa-solid fa-question text-rose-500 mr-1"></i> ¿Cuándo existe un Camino de Euler?</span>
+                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition"></i>
+              </summary>
+              <p class="mt-2 text-slate-600 pl-6">Existe un Camino de Euler si y solo si el grafo es conexo y tiene exactamente <strong>0 o 2</strong> vértices de grado impar. Si tiene 0 impares, también existe un Ciclo de Euler.</p>
+            </details>
+          </div>
+        </section>
+
+      </main>
     </div>
   </section>
 
-  <!-- VISTA PRINCIPAL DE LA APP -->
+  <!-- ⬇️⬇️⬇️ AQUÍ TERMINA LA PARTE 1 Y EMPIEZA LA PARTE 2 ⬇️⬇️⬇️ -->
+
+    <!-- ========================================================= -->
+  <!-- VISTA PRINCIPAL DE LA APP (editor de grafos)              -->
+  <!-- ========================================================= -->
   <main id="vista-app" class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
     
     <!-- PANEL IZQUIERDO -->
@@ -248,7 +368,10 @@
       </div>
     </section>
 
-    <!-- PANEL DERECHO -->
+    <!-- ⬇️⬇️⬇️ AQUÍ TERMINA LA PARTE 2 Y EMPIEZA LA PARTE 3 ⬇️⬇️⬇️ -->
+
+
+        <!-- PANEL DERECHO -->
     <aside class="lg:col-span-5 space-y-4">
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5">
         <h3 class="text-base font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-square-poll-vertical text-umgGold mr-1"></i> GRADO DE UN VÉRTICE</h3>
@@ -302,6 +425,8 @@
             <button onclick="ejecutarRutaDijkstra()" id="btn-ejecutar-dijkstra" class="hidden w-full py-1.5 bg-sky-600 text-white text-[10px] font-bold rounded shadow hover:bg-sky-700 transition">
               Ejecutar Búsqueda
             </button>
+            <!-- CONTENEDOR NUEVO PARA LA TABLA DE ITERACIONES DE DIJKSTRA -->
+            <div id="dijkstra-tabla" class="hidden mt-3 overflow-x-auto text-left"></div>
           </div>
 
           <div id="result-dijkstra" class="hidden mt-2 text-xs p-2 rounded bg-slate-50 border text-center"></div>
