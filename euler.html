@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Módulo Euler y Hamilton - UMG</title>
+  <title>Editor Euler y Hamilton - UMG</title>
   
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
   
   <script>
     tailwind.config = {
@@ -26,10 +28,16 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-    .graph-container { height: 500px; width: 100%; border-radius: 0.75rem; border: 1px solid #E2E8F0; background-color: #F8FAFC; position: relative; overflow: hidden; }
+    
+    .graph-container { 
+      height: 520px; 
+      width: 100%; 
+      border-radius: 0.75rem; 
+      border: 1px solid #E2E8F0; 
+      background-color: #F8FAFC; 
+      position: relative; 
+      overflow: hidden; 
+    }
     .graph-canvas-wrap { position: relative; width: 100%; height: 100%; }
     .tool-btn { padding: 6px 12px; font-size: 12px; border-radius: 6px; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
     
@@ -45,14 +53,18 @@
   <header class="bg-umgNavy text-white shadow-xl border-b-4 border-umgGold sticky top-0 z-40">
     <div class="w-full flex flex-col sm:flex-row justify-between items-center px-4 py-2">
       <div class="flex items-center space-x-3">
-        <img src="logo.png" alt="Logo UMG" class="w-10 h-10 rounded-full object-contain bg-white p-1 shadow">
+        <div class="bg-white p-1 rounded-full">
+          <img src="assets/logo-umg.png" alt="Logo UMG" class="w-10 h-10 object-contain">
+        </div>
         <div>
           <h1 class="font-bold text-lg leading-tight">Editor de Grafos - Euler & Hamilton</h1>
           <p class="text-xs text-amber-300 font-medium">UMG - Matemática Discreta</p>
         </div>
       </div>
       <div class="flex gap-2 text-xs mt-2 sm:mt-0">
-        <a href="index.html" class="px-4 py-2 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 transition"><i class="fa-solid fa-house mr-1"></i> Menú Principal</a>
+        <a href="index.html" class="px-4 py-2 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 transition shadow">
+          <i class="fa-solid fa-house mr-1"></i> Menú Principal
+        </a>
       </div>
     </div>
   </header>
@@ -65,21 +77,16 @@
       
       <!-- BARRA DE HERRAMIENTAS -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3 flex flex-wrap gap-2 items-center">
-        <!-- Función corregida: addVertexClick() -->
         <button onclick="addVertexClick()" class="tool-btn bg-umgNavy text-white hover:bg-umgLightNavy">
           <i class="fa-solid fa-plus"></i> + Vértice
         </button>
         
-        <!-- Función corregida: toggleTijera() y ID btn-tijera -->
         <button onclick="toggleTijera()" id="btn-tijera" class="tool-btn bg-slate-200 text-slate-700 hover:bg-slate-300">
           <i class="fa-solid fa-scissors"></i> Tijera
         </button>
         
-        <!-- Quitamos el botón de enlazar porque se hace por clic derecho -->
-        
         <div class="h-6 w-px bg-slate-300 mx-1"></div>
         
-        <!-- Función corregida: toggleVisibility() y variables showNames / showId -->
         <label class="flex items-center gap-1 text-xs font-semibold cursor-pointer">
           <input type="checkbox" id="toggle-show-name" checked onchange="toggleVisibility('name')" class="rounded text-umgNavy focus:ring-umgNavy"> Nombre
         </label>
@@ -95,26 +102,25 @@
       <!-- LIENZO VISUAL -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3">
         <div id="graph-container-wrap" class="graph-container">
-          <!-- ID graph-canvas que usa graph.js -->
           <div id="graph-canvas" class="graph-canvas-wrap"></div>
           
           <!-- Menú Contextual -->
           <div id="context-menu">
-            <button onclick="ctxRenombrar()" class="text-slate-700 hover:bg-slate-100"><i class="fa-solid fa-pen mr-2 text-blue-500"></i> Renombrar</button>
-            <button onclick="ctxEliminar()" class="text-rose-600 hover:bg-slate-100"><i class="fa-solid fa-trash mr-2"></i> Eliminar</button>
-            <button onclick="ctxEnlazar()" class="text-emerald-600 hover:bg-slate-100"><i class="fa-solid fa-link mr-2"></i> Enlazar</button>
+            <button onclick="ctxRenombrar()" class="text-slate-700"><i class="fa-solid fa-pen mr-2 text-blue-500"></i> Renombrar</button>
+            <button onclick="ctxEliminar()" class="text-rose-600"><i class="fa-solid fa-trash mr-2"></i> Eliminar</button>
+            <button onclick="ctxEnlazar()" class="text-emerald-600"><i class="fa-solid fa-link mr-2"></i> Enlazar</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- PANEL DERECHO: Matriz, Grados y Algoritmos -->
+    <!-- PANEL DERECHO: Matriz y Algoritmos -->
     <aside class="lg:col-span-4 space-y-4">
       
       <!-- MATRIZ Y GRADOS -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 space-y-3">
         <h3 class="text-sm font-bold text-umgNavy border-b pb-2"><i class="fa-solid fa-table text-umgGold mr-1"></i> Matriz de Adyacencia</h3>
-        <div id="matriz-container" class="overflow-x-auto custom-scrollbar text-xs">
+        <div id="matriz-container" class="overflow-x-auto custom-scrollbar text-xs pb-2">
           <p class="text-slate-400 italic text-center">Agrega vértices para ver la matriz.</p>
         </div>
       </div>
@@ -123,38 +129,38 @@
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 space-y-3">
         <div class="flex justify-between items-center border-b pb-2">
           <h3 class="text-sm font-bold text-umgNavy"><i class="fa-solid fa-microchip text-umgGold mr-1"></i> Análisis</h3>
-          <button onclick="limpiarResultados()" class="text-xs text-slate-500 hover:text-rose-600"><i class="fa-solid fa-broom"></i> Limpiar</button>
+          <button onclick="limpiarResultados()" class="text-xs text-slate-500 hover:text-rose-600" title="Limpiar animaciones"><i class="fa-solid fa-broom"></i> Limpiar</button>
         </div>
 
         <!-- EULER -->
         <div class="space-y-2">
           <p class="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">Euler</p>
-          <button onclick="animarDFS()" class="w-full py-2 bg-indigo-600 text-white font-bold text-xs rounded-lg shadow hover:bg-indigo-700 transition">1. Conexidad (DFS)</button>
+          <button onclick="animarDFS()" id="btn-dfs" class="w-full py-2 bg-indigo-600 text-white font-bold text-xs rounded-lg shadow hover:bg-indigo-700 transition">1. Conexidad (DFS)</button>
           <div id="result-dfs" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
           
-          <button onclick="animarEulerCamino()" class="w-full py-2 bg-amber-500 text-white font-bold text-xs rounded-lg shadow hover:bg-amber-600 transition">2. Camino de Euler</button>
+          <button onclick="animarEulerCamino()" id="btn-camino" class="w-full py-2 bg-amber-500 text-white font-bold text-xs rounded-lg shadow hover:bg-amber-600 transition">2. Camino de Euler</button>
           <div id="result-camino" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
           
-          <button onclick="animarEulerCiclo()" class="w-full py-2 bg-purple-600 text-white font-bold text-xs rounded-lg shadow hover:bg-purple-700 transition">3. Ciclo de Euler</button>
+          <button onclick="animarEulerCiclo()" id="btn-ciclo" class="w-full py-2 bg-purple-600 text-white font-bold text-xs rounded-lg shadow hover:bg-purple-700 transition">3. Ciclo de Euler</button>
           <div id="result-ciclo" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
         </div>
 
         <!-- HAMILTON -->
         <div class="mt-4 pt-3 border-t-2 border-dashed border-slate-300 space-y-2">
           <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Hamilton</p>
-          <button onclick="buscarCaminoHamilton()" class="w-full py-2 bg-emerald-500 text-white font-bold text-xs rounded-lg shadow hover:bg-emerald-600 transition">4. Camino de Hamilton</button>
-          <button onclick="buscarCicloHamilton()" class="w-full py-2 bg-teal-600 text-white font-bold text-xs rounded-lg shadow hover:bg-teal-700 transition">5. Ciclo de Hamilton</button>
+          <button onclick="buscarCaminoHamilton()" id="btn-hamilton-camino" class="w-full py-2 bg-emerald-500 text-white font-bold text-xs rounded-lg shadow hover:bg-emerald-600 transition">4. Camino de Hamilton</button>
+          <button onclick="buscarCicloHamilton()" id="btn-hamilton-ciclo" class="w-full py-2 bg-teal-600 text-white font-bold text-xs rounded-lg shadow hover:bg-teal-700 transition">5. Ciclo de Hamilton</button>
           <div id="result-hamilton" class="hidden text-xs p-2 rounded bg-slate-50 border text-left font-sans leading-relaxed text-slate-700"></div>
         </div>
       </div>
     </aside>
   </main>
 
-  <!-- SCRIPTS -->
+  <!-- ORDEN DE CARGA CORRECTO -->
   <script src="js/validations.js"></script>
+  <script src="js/graph.js"></script>
   <script src="js/euler.js"></script>
   <script src="js/hamilton.js"></script>
-  <script src="js/graph.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
