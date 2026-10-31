@@ -2,6 +2,7 @@
 // js/main.js - Lógica Central, Ejemplos y Persistencia
 // ==========================================
 
+// 1. VARIABLES GLOBALES
 let vertices = []; 
 let edges = []; 
 let isDirected = false; 
@@ -14,7 +15,7 @@ let nodoOrigenEnlace = null;
 let savedGraphs = JSON.parse(localStorage.getItem('umg_grafos_history')) || [];
 let currentGraphId = null;
 
-// 1. GENERACIÓN DE CÓDIGO ÚNICO
+// 2. GENERACIÓN DE CÓDIGO ÚNICO
 function generateUniqueCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; 
   let code, attempts = 0;
@@ -26,7 +27,7 @@ function generateUniqueCode() {
   return code;
 }
 
-// 2. UTILIDADES GENERALES
+// 3. UTILIDADES
 function getVertex(name) { return vertices.find(v => v.name === name); }
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
@@ -49,7 +50,7 @@ function onToggleDirected() {
   renderGraph();
 }
 
-// 3. GESTIÓN DE VÉRTICES Y ARISTAS
+// 4. GESTIÓN DE VÉRTICES Y ARISTAS
 function addVertexClick() {
   let i = 1;
   while (getVertex(`V${i}`)) i++;
@@ -83,7 +84,7 @@ function removeEdge(a, b) {
   render();
 }
 
-// 4. MENÚ CONTEXTUAL (CLIC DERECHO)
+// 5. MENÚ CONTEXTUAL (CLIC DERECHO)
 function openContextMenu(x, y, vertexName) {
   ctxTarget = vertexName; 
   const menu = document.getElementById('context-menu');
@@ -137,7 +138,7 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('#context-menu')) closeContextMenu(); 
 });
 
-// 5. RENDERIZADO Y MATRIZ DE ADYACENCIA
+// 6. RENDERIZADO Y MATRIZ
 function render() {
   const orderEl = document.getElementById('sum-order');
   const sizeEl = document.getElementById('sum-size');
@@ -201,7 +202,7 @@ function limpiarAnalisis() {
   }
 }
 
-// 6. PERSISTENCIA
+// 7. PERSISTENCIA
 function guardarGrafoActual() {
   if (vertices.length === 0) return alert("No hay nada que guardar.");
   const nombre = prompt("Nombre del grafo:", `Grafo ${savedGraphs.length + 1}`);
@@ -268,7 +269,7 @@ function crearNuevoGrafo() {
   }
 }
 
-// 7. EJEMPLOS PREDEFINIDOS
+// 8. EJEMPLOS PREDEFINIDOS (CONTEXTOS)
 function cargarEjemplo(tipo) {
   vertices = []; 
   edges = [];
@@ -317,3 +318,9 @@ function cargarEjemplo(tipo) {
   limpiarAnalisis();
   render();
 }
+
+// 9. INICIALIZACIÓN AL CARGAR LA PÁGINA (ESTA ERA LA PIEZA QUE FALTABA)
+window.onload = function() {
+  render();
+  actualizarSelectHistorial();
+};
