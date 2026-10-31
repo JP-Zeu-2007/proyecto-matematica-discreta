@@ -47,6 +47,21 @@ function onToggleDirected() {
   renderGraph();
 }
 
+// Función para minimizar/expandir la matriz
+function toggleMatriz() {
+  const contenido = document.getElementById('contenido-matriz');
+  const icono = document.getElementById('icono-matriz');
+  if (contenido.classList.contains('hidden')) {
+    contenido.classList.remove('hidden');
+    icono.classList.remove('fa-chevron-down');
+    icono.classList.add('fa-chevron-up');
+  } else {
+    contenido.classList.add('hidden');
+    icono.classList.remove('fa-chevron-up');
+    icono.classList.add('fa-chevron-down');
+  }
+}
+
 function addVertexClick() {
   let i = 1;
   while (getVertex(`V${i}`)) i++;
@@ -55,23 +70,14 @@ function addVertexClick() {
   const iconSelect = document.getElementById('vertex-icon-select');
   const selectedIcon = iconSelect ? iconSelect.value : 'circle';
 
-  vertices.push({ 
-    name, 
-    code: generateUniqueCode(), 
-    pinned: false, 
-    used: false, 
-    icon: selectedIcon, 
-    x: undefined, 
-    y: undefined 
-  });
-  
+  vertices.push({ name, code: generateUniqueCode(), pinned: false, used: false, icon: selectedIcon, x: undefined, y: undefined });
   render();
 }
 
-function addEdge(a, b) {
+function addEdge(a, b, weight = null) {
   if (a === b) return;
   if (edges.some(e => (e.a === a && e.b === b) || (!isDirected && e.a === b && e.b === a))) return;
-  edges.push({ a, b, weight: null });
+  edges.push({ a, b, weight: weight });
   render();
 }
 
@@ -80,6 +86,7 @@ function removeEdge(a, b) {
   render();
 }
 
+// --- MENÚ CONTEXTUAL ---
 function openContextMenu(x, y, vertexName) {
   ctxTarget = vertexName; 
   const menu = document.getElementById('context-menu');
@@ -133,6 +140,7 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('#context-menu')) closeContextMenu(); 
 });
 
+// --- RENDERIZADO ---
 function render() {
   const orderEl = document.getElementById('sum-order');
   const sizeEl = document.getElementById('sum-size');
@@ -196,6 +204,7 @@ function limpiarAnalisis() {
   }
 }
 
+// --- HISTORIAL ---
 function toggleHistorial() {
   const panel = document.getElementById('historial-panel');
   if(panel) {
@@ -209,14 +218,7 @@ function guardarGrafoActual() {
   const nombre = prompt("Nombre del grafo:", `Grafo ${savedGraphs.length + 1}`);
   if (!nombre) return;
   
-  const nuevoGrafo = { 
-    id: currentGraphId || Date.now().toString(), 
-    name: nombre, 
-    date: new Date().toISOString(), 
-    vertices: JSON.parse(JSON.stringify(vertices)), 
-    edges: JSON.parse(JSON.stringify(edges)), 
-    isDirected 
-  };
+  const nuevoGrafo = { id: currentGraphId || Date.now().toString(), name: nombre, date: new Date().toISOString(), vertices: JSON.parse(JSON.stringify(vertices)), edges: JSON.parse(JSON.stringify(edges)), isDirected };
   
   const idx = savedGraphs.findIndex(g => g.id === nuevoGrafo.id);
   if (idx !== -1) savedGraphs[idx] = nuevoGrafo; 
@@ -270,55 +272,7 @@ function crearNuevoGrafo() {
   }
 }
 
-function cargarEjemplo(tipo) {
-  vertices = []; 
-  edges = [];
-  
-  if (tipo === 'vuelos') {
-    const cities = ["Guatemala", "Miami", "Bogota", "Mexico", "Madrid", "Lima", "Santiago", "Buenos Aires", "Panama"];
-    cities.forEach(c => vertices.push({ name: c, code: generateUniqueCode(), icon: 'plane', pinned: false, used: false }));
-    const r = (a,b) => edges.push({ a, b, weight: null });
-    r("Guatemala","Miami"); r("Guatemala","Mexico"); r("Guatemala","Bogota"); r("Guatemala","Panama");
-    r("Miami","Madrid"); r("Miami","Bogota"); r("Mexico","Madrid"); r("Mexico","Lima");
-    r("Bogota","Lima"); r("Bogota","Panama"); r("Lima","Santiago"); r("Santiago","Buenos Aires"); r("Panama","Madrid");
-
-  } else if (tipo === 'servidores') {
-    const servers = ["Servidor Central", "Router A", "Router B", "PC Admin", "Base Datos", "Firewall", "Cloud", "Backup"];
-    servers.forEach(s => vertices.push({ name: s, code: generateUniqueCode(), icon: 'server', pinned: false, used: false }));
-    const r = (a,b) => edges.push({ a, b, weight: null });
-    r("Servidor Central","Router A"); r("Servidor Central","Router B"); r("Servidor Central","Firewall");
-    r("Router A","PC Admin"); r("Router B","Base Datos"); r("Firewall","Cloud");
-    r("Base Datos","Backup"); r("Cloud","Backup"); r("PC Admin","Base Datos");
-
-  } else if (tipo === 'ciudades') {
-    const zonas = ["Zona 1", "Zona 4", "Zona 10", "Mixco", "Villa Nueva", "Zona 15", "Zona 16", "Carretera", "Zona 2", "Zona 5"];
-    zonas.forEach(z => vertices.push({ name: z, code: generateUniqueCode(), icon: 'building', pinned: false, used: false }));
-    const r = (a,b) => edges.push({ a, b, weight: null });
-    r("Zona 1","Zona 4"); r("Zona 4","Zona 10"); r("Zona 1","Mixco"); r("Mixco","Villa Nueva");
-    r("Villa Nueva","Zona 10"); r("Zona 10","Zona 15"); r("Zona 15","Zona 16"); r("Zona 16","Carretera");
-    r("Carretera","Zona 2"); r("Zona 2","Zona 5"); r("Zona 5","Zona 1"); r("Zona 4","Zona 15");
-
-  } else if (tipo === 'tuberias') {
-    const plantas = ["Planta Norte", "Bomba1", "Bomba2", "Bomba3", "Tanque1", "Tanque2", "Tanque3", "Filtro", "Desague"];
-    plantas.forEach(p => vertices.push({ name: p, code: generateUniqueCode(), icon: 'water', pinned: false, used: false }));
-    const r = (a,b) => edges.push({ a, b, weight: null });
-    r("Planta Norte","Bomba1"); r("Planta Norte","Bomba2"); r("Bomba1","Tanque1"); r("Bomba2","Tanque2");
-    r("Bomba1","Bomba3"); r("Bomba3","Tanque3"); r("Tanque1","Filtro"); r("Tanque2","Filtro");
-    r("Filtro","Desague"); r("Tanque3","Desague");
-
-  } else if (tipo === 'estrella') {
-    const centro = "Centro";
-    vertices.push({ name: centro, code: generateUniqueCode(), icon: 'star', pinned: false, used: false });
-    for(let i=1; i<=8; i++) {
-      vertices.push({ name: `Hoja ${i}`, code: generateUniqueCode(), icon: 'circle', pinned: false, used: false });
-      edges.push({ a: centro, b: `Hoja ${i}`, weight: null });
-    }
-  }
-  
-  limpiarAnalisis();
-  render();
-}
-
+// --- INICIALIZACIÓN ---
 window.onload = function() {
   render();
   actualizarSelectHistorial();
