@@ -1,7 +1,8 @@
 // ==========================================
-// js/main.js - Lógica Central y Ejemplos Expandidos
+// js/main.js - Lógica Central, Ejemplos y Persistencia
 // ==========================================
 
+// Variables Globales
 let vertices = []; 
 let edges = []; 
 let isDirected = false; 
@@ -9,6 +10,8 @@ let showNames = true;
 let showId = true; 
 let ctxTarget = null; 
 let isAnimating = false;
+let isEnlazando = false;
+let nodoOrigenEnlace = null;
 let savedGraphs = JSON.parse(localStorage.getItem('umg_grafos_history')) || [];
 let currentGraphId = null;
 
@@ -53,7 +56,7 @@ function addVertexClick() {
   while (getVertex(`V${i}`)) i++;
   const name = `V${i}`;
   
-  // Obtener el ícono seleccionado en el menú desplegable
+  // Obtener el ícono seleccionado
   const iconSelect = document.getElementById('vertex-icon-select');
   const selectedIcon = iconSelect ? iconSelect.value : 'circle';
 
@@ -86,9 +89,11 @@ function removeEdge(a, b) {
 function openContextMenu(x, y, vertexName) {
   ctxTarget = vertexName; 
   const menu = document.getElementById('context-menu');
-  menu.style.left = Math.max(5, x) + 'px'; 
-  menu.style.top = Math.max(5, y) + 'px'; 
-  menu.style.display = 'block';
+  if(menu) {
+    menu.style.left = Math.max(5, x) + 'px'; 
+    menu.style.top = Math.max(5, y) + 'px'; 
+    menu.style.display = 'block';
+  }
 }
 
 function closeContextMenu() { 
@@ -134,7 +139,7 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('#context-menu')) closeContextMenu(); 
 });
 
-// 5. RENDERIZADO Y ACTUALIZACIÓN
+// 5. RENDERIZADO Y MATRIZ DE ADYACENCIA
 function render() {
   const orderEl = document.getElementById('sum-order');
   const sizeEl = document.getElementById('sum-size');
@@ -161,7 +166,7 @@ function generarMatriz() {
   // Cabecera
   html += '<tr><th></th>';
   vertices.forEach(v => {
-    // Se agrega el atributo title para que el navegador muestre el nombre completo al pasar el mouse
+    // El atributo title muestra el ID y Nombre completo al pasar el mouse
     html += `<th title="ID: ${v.code} | Nombre: ${v.name}">${v.name.substring(0,3)}.</th>`;
   });
   html += '<th>Grado</th></tr>';
@@ -170,7 +175,6 @@ function generarMatriz() {
   vertices.forEach(v1 => {
     html += `<tr><th title="ID: ${v1.code} | Nombre: ${v1.name}">${v1.name.substring(0,3)}.</th>`;
     vertices.forEach(v2 => {
-      // Contar conexiones (por si hay múltiples)
       let count = edges.filter(e => (e.a === v1.name && e.b === v2.name) || (!isDirected && e.a === v2.name && e.b === v1.name)).length;
       html += `<td class="${count > 0 ? 'font-bold text-umgNavy bg-indigo-50' : 'text-slate-300'}">${count}</td>`;
     });
@@ -202,7 +206,7 @@ function limpiarAnalisis() {
   }
 }
 
-// 6. PERSISTENCIA (LOCALSTORAGE)
+// 6. PERSISTENCIA (GUARDAR Y CARGAR)
 function guardarGrafoActual() {
   if (vertices.length === 0) return alert("No hay nada que guardar.");
   const nombre = prompt("Nombre del grafo:", `Grafo ${savedGraphs.length + 1}`);
@@ -239,7 +243,7 @@ function actualizarSelectHistorial() {
 
   savedGraphs.forEach(g => {
     const btn = document.createElement('button');
-    btn.className = 'px-3 py-1 bg-slate-100 border border-slate-300 rounded text-xs hover:bg-slate-200 text-left w-full sm:w-auto';
+    btn.className = 'px-3 py-1 bg-slate-100 border border-slate-300 rounded text-xs hover:bg-slate-200 text-left w-full sm:w-auto mb-1';
     btn.innerHTML = `<strong>${g.name}</strong><br><span class="text-[10px] text-slate-500">${new Date(g.date).toLocaleDateString()}</span>`;
     btn.onclick = () => {
       vertices = JSON.parse(JSON.stringify(g.vertices));
@@ -269,7 +273,7 @@ function crearNuevoGrafo() {
   }
 }
 
-// 7. EJEMPLOS PREDEFINIDOS (EXPANDIDOS)
+// 7. EJEMPLOS PREDEFINIDOS (CONTEXTOS)
 function cargarEjemplo(tipo) {
   vertices = []; 
   edges = [];
