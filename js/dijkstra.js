@@ -1,5 +1,5 @@
 // ==========================================
-// js/dijkstra.js - Lógica, Ejemplos y Tabla de Rutas
+// js/dijkstra.js - Lógica, Ejemplos y Tabla de Rutas (CORREGIDO)
 // ==========================================
 
 let seleccionandoModo = null;
@@ -17,7 +17,6 @@ function activarSeleccion(modo) {
     document.getElementById('dijkstra-status').innerText = "Haz clic en el grafo para fijar el DESTINO";
   }
 
-  // ESCUCHAR EL CLIC EN EL GRAFO SOLO CUANDO ESTAMOS EN MODO SELECCIÓN
   if (network) {
     network.once("click", function(params) {
       if (params.nodes.length > 0) {
@@ -54,6 +53,7 @@ function calcularTodasLasRutas(origenNombre, destinoNombre) {
   });
   distancias[origenNombre] = 0;
 
+  // 1. Dijkstra (Ruta Óptima)
   while (noVisitados.size > 0) {
     let nodoActual = null;
     noVisitados.forEach(name => {
@@ -82,6 +82,7 @@ function calcularTodasLasRutas(origenNombre, destinoNombre) {
     });
   }
 
+  // 2. Encontrar TODAS las rutas (DFS)
   function explorar(actual, visitados, camino, pesoAcumulado) {
     if (actual === destinoNombre) {
       todasLasRutas.push({ camino: [...camino, actual], peso: pesoAcumulado, saltos: camino.length });
@@ -123,13 +124,14 @@ async function ejecutarRutaDijkstra() {
   if (isAnimating) return;
   
   isAnimating = true;
-  const resDiv = document.getElementById('result-dijkstra');
-  resDiv.classList.remove('hidden');
-  resDiv.className = 'text-xs p-2 rounded border text-sky-700 bg-sky-50 mb-2';
-  resDiv.innerHTML = 'Calculando...';
+  document.getElementById('dijkstra-status').innerText = "Calculando ruta...";
   limpiarAnalisis();
   
   logChange(`▶ Calculando Ruta: ${origen} a ${destino}...`);
+  
+  // Pequeño retardo para que se vea que está calculando
+  await sleep(300);
+  
   const result = calcularTodasLasRutas(origen, destino);
 
   if (result.esAlcanzable) {
@@ -152,13 +154,16 @@ async function ejecutarRutaDijkstra() {
     }
 
     const unidad = currentUnit ? currentUnit : 'km';
-    resDiv.className = 'text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700 mb-2';
-    resDiv.innerHTML = `✅ <b>Ruta Óptima</b><br><span class="text-[10px]">${rutaNombres.join(' ➔ ')}<br><b>Costo Total: ${result.distancias[destino]} ${unidad}</b></span>`;
+    
+    // Solo mostramos el resultado en la tabla, sin usar el div que causaba error
+    document.getElementById('dijkstra-status').innerText = `✅ Ruta Óptima: ${result.distancias[destino]} ${unidad}`;
     
     generarTablaRutas(result.todasLasRutas, result.rutaDijkstra, unidad);
+    logChange(`✅ Ruta encontrada con costo: ${result.distancias[destino]} ${unidad}`);
   } else {
-    resDiv.className = 'text-xs p-2 rounded border text-center font-semibold bg-rose-50 border-rose-200 text-rose-700 mb-2';
-    resDiv.innerHTML = `❌ No hay ruta disponible.`;
+    document.getElementById('dijkstra-status').innerText = `❌ No hay ruta disponible.`;
+    document.getElementById('tabla-rutas').innerHTML = '<p class="text-xs text-rose-500 font-bold text-center">No se encontró ninguna ruta entre estos nodos.</p>';
+    logChange(`❌ No se encontró ruta.`);
   }
   isAnimating = false;
 }
@@ -234,12 +239,10 @@ function limpiarAnalisisDijkstra() {
   document.getElementById('input-destino').value = "";
   seleccionandoModo = null;
   document.getElementById('dijkstra-status').innerText = "Selecciona un Origen y Destino";
-  document.getElementById('result-dijkstra').classList.add('hidden');
   document.getElementById('tabla-rutas').innerHTML = '<p class="text-xs text-slate-400 italic text-center">Calcula una ruta para ver el análisis.</p>';
   limpiarAnalisis();
 }
 
-// CARGAR EJEMPLOS (CON PESOS Y CON ÍCONOS)
 function cargarEjemploDijkstra(tipo) {
   vertices = []; edges = [];
   
