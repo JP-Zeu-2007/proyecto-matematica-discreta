@@ -2,18 +2,42 @@
 // js/dijkstra.js - Lógica, Ejemplos y Tabla de Rutas
 // ==========================================
 
-let dijkstraSource = null;
-let dijkstraTarget = null;
-let seleccionandoModo = null; // 'origen' o 'destino'
+let seleccionandoModo = null;
 
 function activarSeleccion(modo) {
   seleccionandoModo = modo;
+  
   if (modo === 'origen') {
-    document.getElementById('btn-sel-origen').classList.add('animate-pulse', 'bg-sky-500', 'text-white');
-    document.getElementById('btn-sel-destino').classList.remove('animate-pulse', 'bg-rose-500', 'text-white');
+    document.getElementById('btn-sel-origen').classList.add('bg-sky-600', 'text-white', 'animate-pulse');
+    document.getElementById('btn-sel-destino').classList.remove('bg-rose-600', 'text-white', 'animate-pulse');
+    document.getElementById('dijkstra-status').innerText = "Haz clic en el grafo para fijar el ORIGEN";
   } else {
-    document.getElementById('btn-sel-destino').classList.add('animate-pulse', 'bg-rose-500', 'text-white');
-    document.getElementById('btn-sel-origen').classList.remove('animate-pulse', 'bg-sky-500', 'text-white');
+    document.getElementById('btn-sel-destino').classList.add('bg-rose-600', 'text-white', 'animate-pulse');
+    document.getElementById('btn-sel-origen').classList.remove('bg-sky-600', 'text-white', 'animate-pulse');
+    document.getElementById('dijkstra-status').innerText = "Haz clic en el grafo para fijar el DESTINO";
+  }
+
+  // ESCUCHAR EL CLIC EN EL GRAFO SOLO CUANDO ESTAMOS EN MODO SELECCIÓN
+  if (network) {
+    network.once("click", function(params) {
+      if (params.nodes.length > 0) {
+        const clickedNode = params.nodes[0];
+        
+        if (seleccionandoModo === 'origen') {
+          document.getElementById('input-origen').value = clickedNode;
+          document.getElementById('btn-sel-origen').classList.remove('bg-sky-600', 'text-white', 'animate-pulse');
+          network.body.data.nodes.update({ id: clickedNode, color: { background: '#10B981', border: '#047857' } });
+          document.getElementById('dijkstra-status').innerText = "Origen: " + clickedNode;
+        } else if (seleccionandoModo === 'destino') {
+          document.getElementById('input-destino').value = clickedNode;
+          document.getElementById('btn-sel-destino').classList.remove('bg-rose-600', 'text-white', 'animate-pulse');
+          network.body.data.nodes.update({ id: clickedNode, color: { background: '#EF4444', border: '#B91C1C' } });
+          document.getElementById('dijkstra-status').innerText = "Destino: " + clickedNode;
+        }
+        
+        seleccionandoModo = null;
+      }
+    });
   }
 }
 
@@ -81,7 +105,7 @@ function calcularTodasLasRutas(origenNombre, destinoNombre) {
   let actual = destinoNombre;
   while (actual !== null) { rutaMasCorta.unshift(actual); actual = anteriores[actual]; }
 
-  return { distancias, anteriores, rutaDijkstra: rutaMasCorta, esAlcanzable: distancias[destinoNombre] !== Infinity, todasLasRutas };
+  return { distancias, rutaDijkstra: rutaMasCorta, esAlcanzable: distancias[destinoNombre] !== Infinity, todasLasRutas };
 }
 
 async function ejecutarRutaDijkstra() {
@@ -89,7 +113,7 @@ async function ejecutarRutaDijkstra() {
   const destino = document.getElementById('input-destino').value;
 
   if (!origen || !destino) {
-    alert("Selecciona el Nodo de Origen y Destino usando los botones azules y rojos.");
+    alert("Primero selecciona el Nodo de Origen y Destino con los botones azul y rojo.");
     return;
   }
   if (origen === destino) {
@@ -209,11 +233,13 @@ function limpiarAnalisisDijkstra() {
   document.getElementById('input-origen').value = "";
   document.getElementById('input-destino').value = "";
   seleccionandoModo = null;
+  document.getElementById('dijkstra-status').innerText = "Selecciona un Origen y Destino";
   document.getElementById('result-dijkstra').classList.add('hidden');
   document.getElementById('tabla-rutas').innerHTML = '<p class="text-xs text-slate-400 italic text-center">Calcula una ruta para ver el análisis.</p>';
   limpiarAnalisis();
 }
 
+// CARGAR EJEMPLOS (CON PESOS Y CON ÍCONOS)
 function cargarEjemploDijkstra(tipo) {
   vertices = []; edges = [];
   
