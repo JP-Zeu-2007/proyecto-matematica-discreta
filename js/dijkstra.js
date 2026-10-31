@@ -4,8 +4,19 @@
 
 let dijkstraSource = null;
 let dijkstraTarget = null;
+let seleccionandoModo = null; // 'origen' o 'destino'
 
-// Función para calcular la ruta más corta y TODAS las rutas posibles
+function activarSeleccion(modo) {
+  seleccionandoModo = modo;
+  if (modo === 'origen') {
+    document.getElementById('btn-sel-origen').classList.add('animate-pulse', 'bg-sky-500', 'text-white');
+    document.getElementById('btn-sel-destino').classList.remove('animate-pulse', 'bg-rose-500', 'text-white');
+  } else {
+    document.getElementById('btn-sel-destino').classList.add('animate-pulse', 'bg-rose-500', 'text-white');
+    document.getElementById('btn-sel-origen').classList.remove('animate-pulse', 'bg-sky-500', 'text-white');
+  }
+}
+
 function calcularTodasLasRutas(origenNombre, destinoNombre) {
   let distancias = {};
   let anteriores = {};
@@ -19,7 +30,6 @@ function calcularTodasLasRutas(origenNombre, destinoNombre) {
   });
   distancias[origenNombre] = 0;
 
-  // 1. Algoritmo de Dijkstra (Ruta más corta por peso)
   while (noVisitados.size > 0) {
     let nodoActual = null;
     noVisitados.forEach(name => {
@@ -48,24 +58,16 @@ function calcularTodasLasRutas(origenNombre, destinoNombre) {
     });
   }
 
-  // 2. Encontrar TODAS las rutas (DFS)
   function explorar(actual, visitados, camino, pesoAcumulado) {
     if (actual === destinoNombre) {
-      todasLasRutas.push({
-        camino: [...camino, actual],
-        peso: pesoAcumulado,
-        saltos: camino.length
-      });
+      todasLasRutas.push({ camino: [...camino, actual], peso: pesoAcumulado, saltos: camino.length });
       return;
     }
-
     visitados.add(actual);
     const vecinos = edges.filter(e => e.a === actual || e.b === actual);
-    
     for (const arista of vecinos) {
       let vecino = arista.a === actual ? arista.b : arista.a;
       if (isDirected && arista.a !== actual) continue;
-
       if (!visitados.has(vecino)) {
         let pesoArista = arista.weight ? parseFloat(arista.weight) : 1;
         explorar(vecino, visitados, [...camino, actual], pesoAcumulado + pesoArista);
@@ -75,66 +77,36 @@ function calcularTodasLasRutas(origenNombre, destinoNombre) {
   }
   explorar(origenNombre, new Set(), [], 0);
 
-  // Reconstruir ruta más corta de Dijkstra
   let rutaMasCorta = [];
   let actual = destinoNombre;
-  while (actual !== null) {
-    rutaMasCorta.unshift(actual);
-    actual = anteriores[actual];
-  }
+  while (actual !== null) { rutaMasCorta.unshift(actual); actual = anteriores[actual]; }
 
-  return { 
-    distancias, 
-    anteriores, 
-    rutaDijkstra: rutaMasCorta, 
-    esAlcanzable: distancias[destinoNombre] !== Infinity,
-    todasLasRutas
-  };
-}
-
-function inicializarDijkstra() {
-  if (isAnimating || vertices.length === 0) return;
-  
-  document.getElementById('result-dijkstra').classList.add('hidden');
-  document.getElementById('tabla-rutas').innerHTML = '<p class="text-xs text-slate-400 italic text-center">Calcula una ruta para ver el análisis.</p>';
-  limpiarAnalisis();
-  
-  dijkstraSource = null;
-  dijkstraTarget = null;
-  document.getElementById('dijkstra-status').innerText = "Haz clic en el Nodo de ORIGEN";
-  
-  network.on("click", function(params) {
-    if (isTijeraMode) return; 
-    
-    if (params.nodes.length > 0) {
-      const clickedNode = params.nodes[0];
-      
-      if (!dijkstraSource) {
-        dijkstraSource = clickedNode;
-        network.body.data.nodes.update({ id: clickedNode, color: { background: '#10B981', border: '#047857' } });
-        document.getElementById('dijkstra-status').innerText = "Haz clic en el Nodo de DESTINO";
-      } else if (!dijkstraTarget && clickedNode !== dijkstraSource) {
-        dijkstraTarget = clickedNode;
-        network.body.data.nodes.update({ id: clickedNode, color: { background: '#EF4444', border: '#B91C1C' } });
-        document.getElementById('dijkstra-status').innerText = "Calculando ruta...";
-        ejecutarRutaDijkstra();
-      }
-    }
-  });
+  return { distancias, anteriores, rutaDijkstra: rutaMasCorta, esAlcanzable: distancias[destinoNombre] !== Infinity, todasLasRutas };
 }
 
 async function ejecutarRutaDijkstra() {
-  if (!dijkstraSource || !dijkstraTarget || isAnimating) return;
+  const origen = document.getElementById('input-origen').value;
+  const destino = document.getElementById('input-destino').value;
+
+  if (!origen || !destino) {
+    alert("Selecciona el Nodo de Origen y Destino usando los botones azules y rojos.");
+    return;
+  }
+  if (origen === destino) {
+    alert("El origen y destino deben ser diferentes.");
+    return;
+  }
+  if (isAnimating) return;
   
   isAnimating = true;
   const resDiv = document.getElementById('result-dijkstra');
   resDiv.classList.remove('hidden');
   resDiv.className = 'text-xs p-2 rounded border text-sky-700 bg-sky-50 mb-2';
   resDiv.innerHTML = 'Calculando...';
+  limpiarAnalisis();
   
-  logChange(`▶ Calculando Ruta: ${dijkstraSource} a ${dijkstraTarget}...`);
-
-  const result = calcularTodasLasRutas(dijkstraSource, dijkstraTarget);
+  logChange(`▶ Calculando Ruta: ${origen} a ${destino}...`);
+  const result = calcularTodasLasRutas(origen, destino);
 
   if (result.esAlcanzable) {
     const rutaNombres = result.rutaDijkstra;
@@ -143,10 +115,9 @@ async function ejecutarRutaDijkstra() {
 
     for (let i = 0; i < rutaNombres.length; i++) {
       const nodeName = rutaNombres[i];
-      if (nodeName !== dijkstraSource && nodeName !== dijkstraTarget) {
+      if (nodeName !== origen && nodeName !== destino) {
         nodeDataSet.update({ id: nodeName, color: { background: '#0EA5E9' } }); 
       }
-      
       if (i < rutaNombres.length - 1) {
         const currentName = rutaNombres[i];
         const nextName = rutaNombres[i + 1];
@@ -158,55 +129,40 @@ async function ejecutarRutaDijkstra() {
 
     const unidad = currentUnit ? currentUnit : 'km';
     resDiv.className = 'text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700 mb-2';
-    resDiv.innerHTML = `✅ <b>Ruta Óptima (Dijkstra)</b><br><span class="text-[10px]">${rutaNombres.join(' ➔ ')}<br><b>Costo Total: ${result.distancias[dijkstraTarget]} ${unidad}</b></span>`;
-    logChange(`✅ Ruta encontrada. Costo: ${result.distancias[dijkstraTarget]}`);
-
-    // Generar Tabla de Rutas
-    generarTablaRutas(result.todasLasRutas, result.rutaDijkstra, unidad);
+    resDiv.innerHTML = `✅ <b>Ruta Óptima</b><br><span class="text-[10px]">${rutaNombres.join(' ➔ ')}<br><b>Costo Total: ${result.distancias[destino]} ${unidad}</b></span>`;
     
+    generarTablaRutas(result.todasLasRutas, result.rutaDijkstra, unidad);
   } else {
     resDiv.className = 'text-xs p-2 rounded border text-center font-semibold bg-rose-50 border-rose-200 text-rose-700 mb-2';
-    resDiv.innerHTML = `❌ <b>No hay ruta disponible</b>`;
-    logChange(`❌ No se encontró ruta.`);
+    resDiv.innerHTML = `❌ No hay ruta disponible.`;
   }
-
   isAnimating = false;
-  document.getElementById('dijkstra-status').innerText = "Búsqueda finalizada";
 }
 
 function generarTablaRutas(rutas, mejorRutaDijkstra, unidad) {
   const container = document.getElementById('tabla-rutas');
-  
-  if (rutas.length === 0) {
-    container.innerHTML = '<p class="text-xs text-rose-500 font-bold text-center">No se encontraron rutas entre estos nodos.</p>';
-    return;
-  }
+  if (rutas.length === 0) { container.innerHTML = '<p class="text-xs text-rose-500 font-bold text-center">No se encontraron rutas.</p>'; return; }
 
-  // Encontrar el más barato (peso) y el más corto (saltos)
   let masBarato = [...rutas].sort((a, b) => a.peso - b.peso)[0];
   let masCorto = [...rutas].sort((a, b) => a.saltos - b.saltos)[0];
 
-  let html = `
-    <table class="w-full text-xs text-left border-collapse">
+  let html = `<table class="w-full text-xs text-left border-collapse">
       <thead class="bg-slate-200 text-slate-700">
         <tr>
+          <th class="p-2 border w-12 text-center">Ver</th>
           <th class="p-2 border">Ruta</th>
           <th class="p-2 border text-center">Aristas</th>
           <th class="p-2 border text-center">Peso Total</th>
         </tr>
-      </thead>
-      <tbody>
-  `;
+      </thead><tbody>`;
 
-  rutas.forEach((r) => {
+  rutas.forEach((r, idx) => {
     const esMasBarato = (r.camino.join(',') === masBarato.camino.join(','));
     const esMasCorto = (r.camino.join(',') === masCorto.camino.join(','));
     
-    // Resaltar en verde si es el más barato o el más corto
     let rowClass = 'border-b border-slate-200 hover:bg-slate-50';
     if (esMasBarato || esMasCorto) rowClass += ' bg-emerald-100 font-bold';
 
-    // Formatear el camino con pesos
     let caminoTexto = r.camino.map((nodo, i) => {
       if (i === 0) return nodo;
       const prev = r.camino[i-1];
@@ -214,40 +170,52 @@ function generarTablaRutas(rutas, mejorRutaDijkstra, unidad) {
       return `${nodo}(${edge ? edge.weight : 1})`;
     }).join(' ➔ ');
 
-    // Etiquetas
     let tags = '';
     if (esMasBarato) tags += '<span class="bg-emerald-500 text-white text-[9px] px-1 rounded ml-1">Más Barato</span>';
     if (esMasCorto) tags += '<span class="bg-blue-500 text-white text-[9px] px-1 rounded ml-1">Más Corto</span>';
 
+    let colorBoton = idx % 3 === 0 ? 'text-amber-600' : (idx % 3 === 1 ? 'text-rose-600' : 'text-purple-600');
+
     html += `
       <tr class="${rowClass}">
+        <td class="p-2 border text-center">
+          <button onclick='animarRutaEspecifica(${JSON.stringify(r.camino)}, "${colorBoton}")' class="hover:scale-110 transition" title="Ver animación">
+            <i class="fa-solid fa-play ${colorBoton}"></i>
+          </button>
+        </td>
         <td class="p-2 border">${caminoTexto} ${tags}</td>
         <td class="p-2 border text-center">${r.saltos}</td>
         <td class="p-2 border text-center">${r.peso} ${unidad}</td>
-      </tr>
-    `;
+      </tr>`;
   });
 
-  html += `</tbody></table>`;
-  container.innerHTML = html;
+  container.innerHTML = html + `</tbody></table>`;
+}
+
+async function animarRutaEspecifica(camino, color) {
+  if (isAnimating) return;
+  limpiarAnalisis();
+  logChange(`▶ Animando ruta específica (${color})...`);
+  
+  let colorHex = '#F59E0B'; // Amarillo
+  if (color.includes('rose')) colorHex = '#F43F5E'; // Rojo
+  if (color.includes('purple')) colorHex = '#A855F7'; // Morado
+
+  await animarViajero(camino, colorHex);
+  logChange(`✅ Animación completada.`);
 }
 
 function limpiarAnalisisDijkstra() {
-  dijkstraSource = null;
-  dijkstraTarget = null;
-  document.getElementById('dijkstra-status').innerText = "Haz clic en el Nodo de ORIGEN";
+  document.getElementById('input-origen').value = "";
+  document.getElementById('input-destino').value = "";
+  seleccionandoModo = null;
   document.getElementById('result-dijkstra').classList.add('hidden');
   document.getElementById('tabla-rutas').innerHTML = '<p class="text-xs text-slate-400 italic text-center">Calcula una ruta para ver el análisis.</p>';
   limpiarAnalisis();
 }
 
-// ==========================================
-// EJEMPLOS PREDEFINIDOS CON PESOS (Para Dijkstra)
-// ==========================================
-
 function cargarEjemploDijkstra(tipo) {
-  vertices = []; 
-  edges = [];
+  vertices = []; edges = [];
   
   if (tipo === 'volcanes') {
     const volcanes = ["Volcán de Fuego", "Volcán de Agua", "Volcán de Pacaya", "Volcán Acatenango", "Volcán de Atitlán", "Volcán San Pedro", "Volcán Tolimán", "Volcán Tajumulco", "Volcán Tacaná", "Volcán Santa María", "Volcán Santiaguito", "Volcán Cerro Quemado", "Volcán Chicabal", "Volcán Zunil", "Volcán Santo Tomás", "Volcán de Almolonga", "Volcán Cerro de Oro", "Volcán de Ipala", "Volcán Suchitán", "Volcán Tahual", "Volcán de Flores", "Volcán de Moyuta", "Volcán Culma", "Volcán Quetzaltepeque", "Volcán de Cruz Quemada", "Volcán de la Isla", "Volcán del Mico", "Volcán de la Reunión", "Volcán de la Caldera", "Volcán de la Laguna", "Volcán de los Amates", "Volcán Chingo", "Volcán de la Cruz"];
