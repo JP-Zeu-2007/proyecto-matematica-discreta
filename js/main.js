@@ -196,7 +196,6 @@ function limpiarAnalisis() {
   }
 }
 
-// FUNCIÓN PARA EL BOTÓN DE HISTORIAL
 function toggleHistorial() {
   const panel = document.getElementById('historial-panel');
   if(panel) {
