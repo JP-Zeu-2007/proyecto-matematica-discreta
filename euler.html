@@ -71,14 +71,27 @@
     
     <section class="lg:col-span-8 space-y-4">
       
-      <!-- BARRA DE HERRAMIENTAS -->
+      <!-- BARRA DE HERRAMIENTAS CON SELECTOR DE ÍCONO -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3 flex flex-wrap gap-2 items-center">
         
-        <button onclick="addVertexClick()" class="tool-btn bg-umgNavy text-white hover:bg-umgLightNavy" title="Añadir un nuevo vértice">
-          <i class="fa-solid fa-plus"></i> + Vértice
-        </button>
+        <!-- INSERTAR VÉRTICE CON ÍCONO -->
+        <div class="flex items-center bg-umgNavy rounded-lg overflow-hidden border border-umgNavy">
+          <button onclick="addVertexClick()" class="px-3 py-2 text-white font-bold text-xs hover:bg-umgLightNavy transition border-r border-slate-500" title="Añadir vértice">
+            <i class="fa-solid fa-plus"></i> + Vértice
+          </button>
+          <select id="vertex-icon-select" class="bg-umgNavy text-white text-xs px-2 py-2 outline-none cursor-pointer" title="Elegir ícono">
+            <option value="circle">🔵 Círculo</option>
+            <option value="plane">✈️ Avión</option>
+            <option value="server">💻 Servidor</option>
+            <option value="building">🏢 Edificio</option>
+            <option value="house">🏠 Casa</option>
+            <option value="star">⭐ Estrella</option>
+            <option value="water">💧 Agua</option>
+            <option value="user">👤 Usuario</option>
+          </select>
+        </div>
         
-        <button onclick="toggleTijera()" id="btn-tijera" class="tool-btn bg-slate-200 text-slate-700 hover:bg-slate-300" title="Cortar aristas">
+        <button onclick="toggleTijera()" id="btn-tijera" class="tool-btn bg-slate-200 text-slate-700 hover:bg-slate-300">
           <i class="fa-solid fa-scissors"></i> Tijera
         </button>
         
@@ -137,7 +150,6 @@
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 space-y-3">
         <h3 class="text-sm font-bold text-umgNavy border-b pb-2"><i class="fa-solid fa-table text-umgGold mr-1"></i> Matriz de Adyacencia</h3>
         
-        <!-- CONTADORES -->
         <div class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono space-y-1">
           <p class="flex justify-between"><span class="text-slate-600">Orden (Vértices):</span> <span id="sum-order" class="font-bold text-umgNavy">0</span></p>
           <p class="flex justify-between"><span class="text-slate-600">Tamaño (Aristas):</span> <span id="sum-size" class="font-bold text-umgNavy">0</span></p>
