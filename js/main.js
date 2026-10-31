@@ -38,16 +38,6 @@ function logChange(msg) {
   banner.prepend(p);
 }
 
-function showTempAlert(msg) {
-  const banner = document.getElementById('log-banner');
-  if (!banner) return;
-  const p = document.createElement('p'); 
-  p.className = 'text-rose-600 font-bold';
-  p.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>${msg}`;
-  banner.prepend(p); 
-  setTimeout(() => { if (p.parentNode) p.remove(); }, 3500);
-}
-
 function getVertex(name) { return vertices.find(v => v.name === name); }
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
@@ -56,17 +46,13 @@ function computeGrade(name) {
   return edges.filter(e => e.a === name || e.b === name).length;
 }
 
-function getConnections(name) {
-  return edges.filter(e => e.a === name || e.b === name).map(e => e.a === name ? e.b : e.a);
-}
-
 function countTotalEdges() { return edges.length; }
 function sumAllGrades() { return vertices.reduce((acc, v) => acc + computeGrade(v.name), 0); }
 function getOddVertices() { return vertices.filter(v => computeGrade(v.name) % 2 !== 0).map(v => v.name); }
 
-function toggleVisibilidad(tipo) {
-  if (tipo === 'name') showNames = document.getElementById('chk-show-name').checked;
-  if (tipo === 'id') showId = document.getElementById('chk-show-id').checked;
+function toggleVisibility(tipo) {
+  if (tipo === 'name') showNames = document.getElementById('toggle-show-name').checked;
+  if (tipo === 'id') showId = document.getElementById('toggle-show-id').checked;
   renderGraph();
 }
 
@@ -76,18 +62,11 @@ function onToggleDirected() {
   render();
 }
 
-function onToggleWeighted() {
-  isWeighted = document.getElementById('toggle-weighted').checked;
-  document.getElementById('toggle-weight-label').innerText = isWeighted ? 'Con Peso' : 'Sin Peso';
-  document.getElementById('unit-selector-container').classList.toggle('hidden', !isWeighted);
-  limpiarAnalisis(); 
-  render();
-}
-
 // ==========================================
 // HISTORIAL VISUAL
 // ==========================================
 function actualizarSelectHistorial() {
+  // Si no existe el contenedor visual, no hace nada (ya que no lo pusimos en el HTML nuevo)
   const container = document.getElementById('history-list');
   if (!container) return;
   container.innerHTML = '';
@@ -122,37 +101,6 @@ function borrarGrafoHistorial(id, event) {
   logChange("🗑️ Grafo eliminado del historial.");
 }
 
-function guardarGrafoActual() {
-  if (vertices.length === 0) {
-    showTempAlert("No hay nada que guardar. Agrega vértices primero.");
-    return;
-  }
-  const nombre = prompt("Dale un nombre a este grafo (ej. Red de Ciudades):", `Grafo ${savedGraphs.length + 1}`);
-  if (!nombre) return;
-
-  const nuevoGrafo = {
-    id: currentGraphId || Date.now().toString(), 
-    name: nombre,
-    date: new Date().toISOString(),
-    vertices: JSON.parse(JSON.stringify(vertices)),
-    edges: JSON.parse(JSON.stringify(edges)),
-    isDirected: isDirected,
-    isWeighted: isWeighted,
-    unit: currentUnit,
-    customUnit: customUnitText
-  };
-
-  const idx = savedGraphs.findIndex(g => g.id === nuevoGrafo.id);
-  if (idx !== -1) savedGraphs[idx] = nuevoGrafo;
-  else savedGraphs.push(nuevoGrafo);
-
-  currentGraphId = nuevoGrafo.id;
-  localStorage.setItem('umg_grafos_history', JSON.stringify(savedGraphs));
-  actualizarSelectHistorial();
-  logChange(`💾 Grafo <strong>${nombre}</strong> guardado.`);
-  showTempAlert("✅ Grafo guardado correctamente.");
-}
-
 function cargarGrafoHistorial(id) {
   if (!id) return;
   const g = savedGraphs.find(x => x.id === id);
@@ -162,103 +110,23 @@ function cargarGrafoHistorial(id) {
   edges = JSON.parse(JSON.stringify(g.edges));
   isDirected = g.isDirected;
   isWeighted = g.isWeighted;
-  currentUnit = g.unit || 'km';
-  customUnitText = g.customUnit || '';
   currentGraphId = g.id;
 
   const td = document.getElementById('toggle-directed');
   if(td) td.checked = isDirected;
   
-  const tw = document.getElementById('toggle-weighted');
-  if(tw) tw.checked = isWeighted;
-  
-  const twLabel = document.getElementById('toggle-weight-label');
-  if(twLabel) twLabel.innerText = isWeighted ? 'Con Peso' : 'Sin Peso';
-  
-  const usc = document.getElementById('unit-selector-container');
-  if(usc) usc.classList.toggle('hidden', !isWeighted);
-  
-  const us = document.getElementById('unit-select');
-  if(us) us.value = currentUnit;
-
   limpiarAnalisis();
   render();
   logChange(`📂 Grafo <strong>${g.name}</strong> cargado.`);
 }
 
-function crearNuevoGrafo() {
-  if (confirm("¿Crear un nuevo grafo en blanco? (Asegúrate de haber guardado el actual)")) {
-    vertices = [];
-    edges = [];
-    isDirected = false;
-    isWeighted = false;
-    currentGraphId = null;
-    
-    const td = document.getElementById('toggle-directed');
-    if(td) td.checked = false;
-    
-    const tw = document.getElementById('toggle-weighted');
-    if(tw) tw.checked = false;
-    
-    const twl = document.getElementById('toggle-weight-label');
-    if(twl) twl.innerText = 'Sin Peso';
-
-    limpiarAnalisis();
-    render();
-    logChange("✨ Nuevo grafo en blanco creado.");
-  }
-}
-
-function exportarJSON() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(savedGraphs, null, 2));
-  const downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", "historial_grafos_umg.json");
-  document.body.appendChild(downloadAnchorNode);
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
-}
-
-function importarJSON(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if (Array.isArray(imported)) {
-        imported.forEach(newG => {
-          if (!savedGraphs.some(oldG => oldG.id === newG.id)) savedGraphs.push(newG);
-        });
-        localStorage.setItem('umg_grafos_history', JSON.stringify(savedGraphs));
-        actualizarSelectHistorial();
-        alert("✅ Historial importado correctamente.");
-      } else {
-        alert("❌ El archivo JSON no tiene el formato correcto.");
-      }
-    } catch (err) {
-      alert("❌ Error al leer el archivo JSON.");
-    }
-    event.target.value = '';
-  };
-  reader.readAsText(file);
-}
-
 // ==========================================
 // VÉRTICES Y ARISTAS
 // ==========================================
-function addVertex(name = null, isClick = false) {
-  if (isClick) {
-    let i = 1;
-    while (getVertex(`V${i}`)) i++;
-    name = `V${i}`;
-  } else {
-    const input = document.getElementById('new-vertex-name'); 
-    if(!input) return;
-    name = input.value.trim();
-    if (!validarNombreVertice(name)) return; 
-    input.value = ''; 
-  }
+function addVertexClick() {
+  let i = 1;
+  while (getVertex(`V${i}`)) i++;
+  const name = `V${i}`;
   
   vertices.push({ 
     name, 
@@ -300,6 +168,15 @@ function removeEdge(a, b) {
   render();
 }
 
+function limpiarTodo() {
+  if(confirm("¿Seguro que deseas borrar todo el grafo actual?")) {
+    vertices = [];
+    edges = [];
+    render();
+    limpiarAnalisis();
+  }
+}
+
 // ==========================================
 // MENÚ CONTEXTUAL
 // ==========================================
@@ -327,7 +204,7 @@ document.addEventListener('click', (e) => {
 });
 
 // ==========================================
-// RENDERIZADO DEL PANEL DERECHO (MATRIZ COMPACTA)
+// RENDERIZADO DEL PANEL (MATRIZ)
 // ==========================================
 function render() {
   let evenVerts = [], oddVerts = [];
@@ -338,68 +215,60 @@ function render() {
     if (isEven) evenVerts.push(v.name); else oddVerts.push(v.name);
   });
 
-  // 1. Contadores Superiores
-  document.getElementById('sum-order').innerText = vertices.length;
-  document.getElementById('sum-size').innerText = countTotalEdges();
-
-  // 2. Matriz de Adyacencia COMPACTA
+  // Matriz de Adyacencia
   let matrizHTML = '';
+  const containerMatriz = document.getElementById('matriz-container');
   
-  if (vertices.length > 0) {
-    matrizHTML += `<div class="w-full overflow-x-auto custom-scrollbar pb-1">`;
-    matrizHTML += `<table class="w-full text-[9px] font-mono border-collapse text-center">`;
-    
-    // Encabezados
-    matrizHTML += `<thead><tr><th class="p-0.5"></th>`;
-    vertices.forEach(v => {
-      matrizHTML += `<th class="p-0.5 font-bold text-umgNavy">${v.name}</th>`;
-    });
-    matrizHTML += `<th class="p-0.5 font-bold text-umgGold border-l border-slate-300">V</th>`;
-    matrizHTML += `</tr></thead><tbody>`;
+  if (containerMatriz) {
+    if (vertices.length > 0) {
+      matrizHTML += `<table class="w-full text-[9px] font-mono border-collapse text-center">`;
+      matrizHTML += `<thead><tr><th class="p-1"></th>`;
+      vertices.forEach(v => { matrizHTML += `<th class="p-1 font-bold text-umgNavy">${v.name}</th>`; });
+      matrizHTML += `<th class="p-1 font-bold text-umgGold border-l border-slate-300">V</th>`;
+      matrizHTML += `</tr></thead><tbody>`;
 
-    // Filas
-    vertices.forEach(vRow => {
-      matrizHTML += `<tr>`;
-      // Nombre a la izquierda
-      matrizHTML += `<td class="p-0.5 text-right font-bold text-umgNavy pr-1">${vRow.name}</td>`;
-      
-      vertices.forEach(vCol => {
-        // Verificar conexión
-        let isConnected = edges.some(e => 
-          (e.a === vRow.name && e.b === vCol.name) || 
-          (!isDirected && e.a === vCol.name && e.b === vRow.name)
-        );
-        
-        // Colores: 1 negro, 0 gris
-        let bgColor = isConnected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400';
-        let val = isConnected ? '1' : '0';
-        
-        // Celdas cuadradas
-        matrizHTML += `<td class="p-0 border border-slate-300 ${bgColor}" style="width: 16px; height: 16px;">${val}</td>`;
+      vertices.forEach(vRow => {
+        matrizHTML += `<tr>`;
+        matrizHTML += `<td class="p-1 text-right font-bold text-umgNavy pr-2 border-r border-slate-200">${vRow.name}</td>`;
+        vertices.forEach(vCol => {
+          let isConnected = edges.some(e => 
+            (e.a === vRow.name && e.b === vCol.name) || 
+            (!isDirected && e.a === vCol.name && e.b === vRow.name)
+          );
+          let bgColor = isConnected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400';
+          let val = isConnected ? '1' : '0';
+          matrizHTML += `<td class="border border-slate-200 ${bgColor}" style="width: 20px; height: 20px;">${val}</td>`;
+        });
+        matrizHTML += `<td class="p-1 font-bold text-emerald-700 border-l border-slate-200">${computeGrade(vRow.name)}</td>`;
+        matrizHTML += `</tr>`;
       });
-
-      // Grado a la derecha
-      const grade = computeGrade(vRow.name);
-      matrizHTML += `<td class="p-0.5 font-bold text-emerald-700 border-l border-slate-300">${grade}</td>`;
+      matrizHTML += `</tbody></table>`;
       
-      matrizHTML += `</tr>`;
-    });
-
-    matrizHTML += `</tbody></table></div>`;
-    matrizHTML += `<hr class="my-2 border-slate-200">`;
-  } else {
-    matrizHTML = `<p class="text-slate-400 italic text-center py-2">Aún sin vértices para calcular matriz.</p>`;
+      containerMatriz.innerHTML = matrizHTML;
+    } else {
+      containerMatriz.innerHTML = `<p class="text-slate-400 italic text-center">Agrega vértices para ver la matriz.</p>`;
+    }
   }
 
-  document.getElementById('grades-list').innerHTML = matrizHTML;
-
-  // 3. Resumen Pares/Impares y Suma Total
-  document.getElementById('summary-even').innerText = evenVerts.join(', ') || 'Ninguno';
-  document.getElementById('summary-odd').innerText = oddVerts.join(', ') || 'Ninguno';
-  document.getElementById('sum-total').innerText = sumAllGrades();
-
-  // 4. Renderizar el grafo
   renderGraph();
+}
+
+function limpiarResultados() {
+  ['result-dfs', 'result-camino', 'result-ciclo', 'result-hamilton'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('hidden');
+  });
+  limpiarAnalisis();
+}
+
+function limpiarAnalisis() {
+  if (isAnimating) return;
+  if (network) {
+    const edgeDataSet = network.body.data.edges; 
+    const nodeDataSet = network.body.data.nodes;
+    edges.forEach((e, idx) => edgeDataSet.update({ id: `e_${idx}`, color: { color: '#94A3B8' }, width: 2 }));
+    vertices.forEach(v => nodeDataSet.update({ id: v.name, color: { background: v.used ? '#10B981' : '#002B49' } }));
+  }
 }
 
 function setBtnState(btnId, active) {
@@ -417,28 +286,7 @@ function showResult(resId, html, type) {
   el.innerHTML = html;
 }
 
-function limpiarAnalisis() {
-  if (isAnimating) return;
-  ['result-dfs', 'result-camino', 'result-ciclo'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.classList.add('hidden');
-  });
-  if (network) {
-    const edgeDataSet = network.body.data.edges; 
-    const nodeDataSet = network.body.data.nodes;
-    edges.forEach((e, idx) => edgeDataSet.update({ id: `e_${idx}`, color: { color: '#94A3B8' }, width: 2 }));
-    vertices.forEach(v => nodeDataSet.update({ id: v.name, color: { background: v.used ? '#10B981' : '#002B49' } }));
-  }
-}
-
-// ==========================================
-// CARGA INICIAL
-// ==========================================
+// Inicio
 window.onload = function() {
-  actualizarSelectHistorial();
-  if (savedGraphs.length > 0) {
-    cargarGrafoHistorial(savedGraphs[savedGraphs.length - 1].id);
-  } else {
-    render();
-  }
+  render();
 };
