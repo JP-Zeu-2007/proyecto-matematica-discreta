@@ -169,6 +169,22 @@
         
         <div id="result-dijkstra" class="hidden text-xs p-2 rounded border text-center"></div>
 
+        <!-- NUEVA TABLA DE ITERACIONES -->
+        <div id="dijkstra-tabla" class="hidden mt-3 overflow-x-auto custom-scrollbar bg-white rounded-lg border border-slate-200">
+          <table class="w-full text-[10px] text-center border-collapse">
+            <thead class="bg-umgNavy text-white font-bold">
+              <tr>
+                <th class="p-1 border border-slate-600">Iter.</th>
+                <th class="p-1 border border-slate-600">Nodo</th>
+                <th class="p-1 border border-slate-600">Distancia</th>
+                <th class="p-1 border border-slate-600">Predecesor</th>
+                <th class="p-1 border border-slate-600">Visitado</th>
+              </tr>
+            </thead>
+            <tbody id="dijkstra-tabla-body" class="text-slate-700 font-mono"></tbody>
+          </table>
+        </div>
+
         <div class="mt-2">
           <h4 class="text-xs font-bold text-umgNavy mb-2">Log de Eventos</h4>
           <div id="log-banner" class="text-[10px] space-y-1 max-h-24 overflow-y-auto custom-scrollbar bg-slate-50 p-2 rounded-lg border border-slate-200 font-mono">
