@@ -11,7 +11,7 @@ body {
 
 /* 2. Contenedor del Grafo (Vis.js) */
 .graph-container {
-  height: 420px;
+  height: 520px;
   width: 100%;
   border-radius: 0.75rem;
   border: 1px solid #E2E8F0;
@@ -46,62 +46,49 @@ body {
   background: #94A3B8;
 }
 
-/* 4. Menú Contextual (Clic Derecho) */
-.context-menu {
+/* 4. Menú Contextual (Clic Derecho) CORREGIDO */
+#context-menu {
+  display: none;
   position: absolute;
-  z-index: 9999;
+  z-index: 9999; /* Asegura que esté por encima del canvas de Vis.js */
   background: white;
   border: 1px solid #CBD5E1;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
   padding: 4px;
-  display: none; /* Oculto por defecto */
-  min-width: 170px;
+  min-width: 160px;
 }
 
-.context-menu button {
+#context-menu button {
   display: flex;
   align-items: center;
-  gap: 8px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 8px 12px;
   font-size: 12px;
+  font-weight: 600;
   text-align: left;
   border-radius: 6px;
-  transition: all 0.15s;
+  transition: background 0.2s;
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #1e293b;
 }
 
-.context-menu button:hover {
+#context-menu button:hover {
   background: #F1F5F9;
 }
 
-/* Colores de los botones del menú contextual */
-.ctx-pinned {
-  color: #DC2626;
-}
-.ctx-pinned:hover {
-  background: #FEE2E2 !important;
-}
+/* Colores de las acciones del menú */
+.ctx-pinned { color: #DC2626; }
+.ctx-pinned:hover { background: #FEE2E2 !important; }
 
-.ctx-used {
-  color: #059669;
-}
-.ctx-used:hover {
-  background: #D1FAE5 !important;
-}
+.ctx-used { color: #059669; }
+.ctx-used:hover { background: #D1FAE5 !important; }
 
-.ctx-delete {
-  color: #B91C1C;
-}
-.ctx-delete:hover {
-  background: #FEE2E2 !important;
-}
+.ctx-delete { color: #B91C1C; }
+.ctx-delete:hover { background: #FEE2E2 !important; }
 
-/* 5. Animaciones y Efectos */
+/* 5. Animaciones y Efectos (Portada y otros) */
 @keyframes pulse-glow {
   0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
   70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
@@ -112,9 +99,20 @@ body {
   animation: pulse-glow 2s infinite;
 }
 
-/* 6. Estados de los Nodos en el Grafo (opcional, para ajustes visuales) */
-.vis-network:focus {
-  outline: none;
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+/* 6. Efecto para los botones de la Portada */
+.portada-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.portada-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* 7. Responsive para móviles */
