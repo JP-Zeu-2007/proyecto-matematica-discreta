@@ -108,13 +108,47 @@ function render() {
   document.getElementById('sum-order').innerText = vertices.length;
   document.getElementById('sum-size').innerText = edges.length;
   document.getElementById('sum-total').innerText = sumAllGrades();
+  
+  generarMatriz();
   renderGraph();
+}
+
+function generarMatriz() {
+  const container = document.getElementById('matriz-container');
+  if(vertices.length === 0) {
+    container.innerHTML = '<p class="text-xs text-slate-400 italic text-center">Agrega vértices para ver la matriz.</p>';
+    return;
+  }
+
+  let html = '<table class="matrix-table">';
+  // Cabecera
+  html += '<tr><th></th>';
+  vertices.forEach(v => html += `<th title="${v.name}">${v.name.substring(0,3)}</th>`);
+  html += '<th>Grado</th></tr>';
+
+  // Filas
+  vertices.forEach(v1 => {
+    html += `<tr><th title="${v1.name}">${v1.name.substring(0,3)}</th>`;
+    vertices.forEach(v2 => {
+      // Contar conexiones (por si hay múltiples)
+      let count = edges.filter(e => (e.a === v1.name && e.b === v2.name) || (!isDirected && e.a === v2.name && e.b === v1.name)).length;
+      html += `<td class="${count > 0 ? 'font-bold text-umgNavy bg-indigo-50' : 'text-slate-300'}">${count}</td>`;
+    });
+    const g = computeGrade(v1.name);
+    const color = g % 2 === 0 ? 'text-emerald-600' : 'text-rose-600';
+    html += `<td class="font-bold ${color}">${g}</td></tr>`;
+  });
+
+  html += '</table>';
+  container.innerHTML = html;
 }
 
 function limpiarAnalisis() {
   if (isAnimating) return;
-  const res = document.getElementById('result-container');
-  if(res) res.classList.add('hidden');
+  ['result-dfs', 'result-camino', 'result-ciclo', 'result-hamilton-camino', 'result-hamilton-ciclo'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('hidden');
+  });
   
   if (typeof network !== 'undefined' && network) {
     const edgeDataSet = network.body.data.edges; 
