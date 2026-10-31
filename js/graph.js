@@ -35,8 +35,8 @@ function renderGraph() {
       borderWidth: v.used ? 3 : 2,
       shapeProperties: { borderDashes: v.used ? [6, 4] : false },
       font: { color: '#ffffff', size: 11, face: 'Inter' },
-      physics: !v.pinned, // Si está fijado, desactiva la física
-      x: v.x, y: v.y // Mantener posición si está fijado
+      physics: !v.pinned,
+      x: v.x, y: v.y
     };
   });
 
@@ -45,7 +45,7 @@ function renderGraph() {
     id: `e_${idx}`,
     from: e.a,
     to: e.b,
-    arrows: isDirected ? { to: { enabled: true, scaleFactor: 1.2 } } : '', // Flechas si es dirigido
+    arrows: isDirected ? { to: { enabled: true, scaleFactor: 1.2 } } : '',
     color: { color: '#94A3B8', highlight: '#0EA5E9' },
     width: 2,
     selectionWidth: 3
@@ -61,7 +61,7 @@ function renderGraph() {
     },
     interaction: { 
       hover: true, 
-      dragNodes: true, // Permite arrastrar nodos
+      dragNodes: true,
       dragView: true,
       tooltipDelay: 200
     }
@@ -74,29 +74,25 @@ function renderGraph() {
   // EVENTOS DEL LIENZO
   // ==========================================
 
-  // 1. CLIC EN EL LIENZO (Tijera o Enlazando)
+  // 1. CLIC NORMAL (Tijera o Enlazando)
   network.on("click", function(params) {
-    // Si estamos en modo tijera
     if (isTijeraMode) {
       if (params.edges.length > 0) {
         const edgeId = params.edges[0];
         const idx = parseInt(edgeId.replace('e_', ''));
         const arista = edges[idx];
         removeEdge(arista.a, arista.b);
-        logChange(`✂️ Arista cortada: ${arista.a} - ${arista.b}`);
       }
       return;
     }
 
-    // Si estamos en modo enlazando
     if (isEnlazando && params.nodes.length > 0) {
       const target = params.nodes[0];
       if (target !== nodoOrigenEnlace) {
         addEdge(nodoOrigenEnlace, target);
         isEnlazando = false;
         nodoOrigenEnlace = null;
-        document.getElementById('graph-canvas').style.cursor = 'default';
-        logChange(`🔗 Enlace creado.`);
+        container.style.cursor = 'default';
       }
     }
   });
@@ -108,29 +104,36 @@ function renderGraph() {
       const idx = parseInt(edgeId.replace('e_', ''));
       const arista = edges[idx];
       
-      // Invertir la arista
       const temp = arista.a;
       arista.a = arista.b;
       arista.b = temp;
       
       limpiarAnalisis();
       render();
-      logChange(`🔄 Dirección invertida: ${arista.b} → ${arista.a}`);
     }
   });
 
-  // 3. CLIC DERECHO (Menú Contextual)
+  // 3. CLIC DERECHO (MENÚ CONTEXTUAL) - CORREGIDO
   network.on("oncontext", function (params) {
-    if (params.event) params.event.preventDefault();
+    if (params.event) params.event.preventDefault(); // Evita el menú del navegador
+    
     if (params.nodes.length > 0) {
+      // Si se hizo clic sobre un nodo
       const rect = container.getBoundingClientRect();
-      openContextMenu(
-        params.event.clientX - rect.left,
-        params.event.clientY - rect.top,
-        params.nodes[0]
-      );
+      
+      // Calculamos la posición relativa exacta dentro del contenedor
+      const x = params.event.clientX - rect.left;
+      const y = params.event.clientY - rect.top;
+      
+      // Llamamos a la función que dibuja el menú (en main.js)
+      if (typeof openContextMenu === 'function') {
+        openContextMenu(x, y, params.nodes[0]);
+      }
     } else {
-      closeContextMenu();
+      // Si se hace clic en el vacío, cerramos el menú
+      if (typeof closeContextMenu === 'function') {
+        closeContextMenu();
+      }
     }
   });
 
@@ -152,9 +155,8 @@ function renderGraph() {
 }
 
 // ==========================================
-// FUNCIONES DE LAS HERRAMIENTAS
+// HERRAMIENTAS (Tijera e inserción)
 // ==========================================
-
 function toggleTijera() {
   isTijeraMode = !isTijeraMode;
   isEnlazando = false;
@@ -167,17 +169,14 @@ function toggleTijera() {
     btn.classList.add('bg-rose-500', 'text-white');
     btn.classList.remove('bg-slate-200', 'text-slate-700');
     canvas.style.cursor = 'crosshair';
-    logChange("✂️ Modo Tijera ACTIVADO. Haz clic en una línea para cortarla.");
   } else {
     btn.classList.remove('bg-rose-500', 'text-white');
     btn.classList.add('bg-slate-200', 'text-slate-700');
     canvas.style.cursor = 'default';
-    logChange("Modo Tijera desactivado.");
   }
 }
 
 function addVertexClick() {
-  // Insertar un vértice en el centro de la vista con un nombre genérico
   let i = 1;
   while (getVertex(`V${i}`)) i++;
   const name = `V${i}`;
@@ -187,16 +186,16 @@ function addVertexClick() {
     code: generateUniqueCode(), 
     pinned: false, 
     used: false,
-    x: undefined, // Física libre
+    x: undefined, 
     y: undefined
   });
   
-  logChange(`+ Vértice <strong>${name}</strong> agregado.`);
+  limpiarAnalisis();
   render();
 }
 
 // ==========================================
-// MENÚ CONTEXTUAL
+// ACCIONES DEL MENÚ CONTEXTUAL
 // ==========================================
 function ctxEliminar() {
   removeVertex(ctxTarget);
@@ -208,7 +207,6 @@ function ctxRenombrar() {
   const nuevoNombre = prompt("Nuevo nombre para el vértice:", v.name);
   if (nuevoNombre && nuevoNombre !== v.name) {
     if (!getVertex(nuevoNombre)) {
-      // Actualizar aristas
       edges.forEach(e => {
         if (e.a === v.name) e.a = nuevoNombre;
         if (e.b === v.name) e.b = nuevoNombre;
@@ -216,7 +214,6 @@ function ctxRenombrar() {
       v.name = nuevoNombre;
       limpiarAnalisis();
       render();
-      logChange(`Vértice renombrado a <strong>${nuevoNombre}</strong>.`);
     } else {
       alert("Ese nombre ya existe.");
     }
@@ -228,6 +225,5 @@ function ctxEnlazar() {
   isEnlazando = true;
   nodoOrigenEnlace = ctxTarget;
   document.getElementById('graph-canvas').style.cursor = 'crosshair';
-  logChange(`🔗 Selecciona el vértice de destino para enlazar desde <strong>${ctxTarget}</strong>...`);
   closeContextMenu();
 }
