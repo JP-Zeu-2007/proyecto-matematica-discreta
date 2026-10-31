@@ -25,26 +25,6 @@
       }
     }
   </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    
-    .graph-container { 
-      height: 520px; 
-      width: 100%; 
-      border-radius: 0.75rem; 
-      border: 1px solid #E2E8F0; 
-      background-color: #F8FAFC; 
-      position: relative; 
-      overflow: hidden; 
-    }
-    .graph-canvas-wrap { position: relative; width: 100%; height: 100%; }
-    .tool-btn { padding: 6px 12px; font-size: 12px; border-radius: 6px; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-    
-    #context-menu { display: none; position: absolute; z-index: 50; background: white; border: 1px solid #E2E8F0; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); padding: 4px; min-width: 150px; }
-    #context-menu button { width: 100%; text-align: left; padding: 8px 12px; font-size: 12px; border-radius: 0.375rem; transition: background 0.2s; }
-    #context-menu button:hover { background: #F1F5F9; }
-  </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
@@ -71,15 +51,25 @@
     
     <section class="lg:col-span-8 space-y-4">
       
-      <!-- BARRA DE HERRAMIENTAS CON SELECTOR DE ÍCONO -->
+      <!-- BARRA DE HERRAMIENTAS -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3 flex flex-wrap gap-2 items-center">
         
+        <!-- SELECTOR DE VIAJERO (NUEVO) -->
+        <div class="flex items-center bg-indigo-600 rounded-lg overflow-hidden border border-indigo-700">
+          <span class="px-2 py-2 text-white text-xs font-bold border-r border-indigo-500"><i class="fa-solid fa-person-walking"></i> Avatar:</span>
+          <select id="viajero-select" class="bg-indigo-600 text-white text-xs px-2 py-2 outline-none cursor-pointer">
+            <option value="user">👤 Persona</option>
+            <option value="car">🚗 Carro</option>
+            <option value="plane">✈️ Avión</option>
+          </select>
+        </div>
+
         <!-- INSERTAR VÉRTICE CON ÍCONO -->
         <div class="flex items-center bg-umgNavy rounded-lg overflow-hidden border border-umgNavy">
-          <button onclick="addVertexClick()" class="px-3 py-2 text-white font-bold text-xs hover:bg-umgLightNavy transition border-r border-slate-500" title="Añadir vértice">
-            <i class="fa-solid fa-plus"></i> + Vértice
+          <button onclick="addVertexClick()" class="px-3 py-2 text-white font-bold text-xs hover:bg-umgLightNavy transition border-r border-slate-500">
+            <i class="fa-solid fa-plus"></i> Vértice
           </button>
-          <select id="vertex-icon-select" class="bg-umgNavy text-white text-xs px-2 py-2 outline-none cursor-pointer" title="Elegir ícono">
+          <select id="vertex-icon-select" class="bg-umgNavy text-white text-xs px-2 py-2 outline-none cursor-pointer">
             <option value="circle">🔵 Círculo</option>
             <option value="plane">✈️ Avión</option>
             <option value="server">💻 Servidor</option>
@@ -90,66 +80,50 @@
             <option value="user">👤 Usuario</option>
           </select>
         </div>
-        
-        <button onclick="toggleTijera()" id="btn-tijera" class="tool-btn bg-slate-200 text-slate-700 hover:bg-slate-300">
-          <i class="fa-solid fa-scissors"></i> Tijera
-        </button>
-        
+
+        <!-- EJEMPLOS PREDEFINIDOS -->
+        <select onchange="cargarEjemplo(this.value); this.value='';" class="text-xs p-2 bg-slate-200 rounded-lg font-bold text-slate-700 outline-none">
+          <option value="">-- Cargar Ejemplo --</option>
+          <option value="vuelos">✈️ Rutas de Vuelo (9 Nodos)</option>
+          <option value="servidores">💻 Red de Servidores (8 Nodos)</option>
+          <option value="ciudades">🏢 Red de Ciudades (10 Nodos)</option>
+          <option value="tuberias">💧 Red de Tuberías (9 Nodos)</option>
+          <option value="estrella">⭐ Grafo Estrella (9 Nodos)</option>
+        </select>
+
         <div class="h-6 w-px bg-slate-300 mx-1"></div>
         
-        <label class="flex items-center gap-1 text-xs font-semibold cursor-pointer">
-          <input type="checkbox" id="toggle-show-name" checked onchange="toggleVisibility('name')" class="rounded text-umgNavy focus:ring-umgNavy"> Nombre
-        </label>
-        <label class="flex items-center gap-1 text-xs font-semibold cursor-pointer">
-          <input type="checkbox" id="toggle-show-id" checked onchange="toggleVisibility('id')" class="rounded text-umgNavy focus:ring-umgNavy"> ID
-        </label>
+        <button onclick="guardarGrafoActual()" class="px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+        <button onclick="toggleHistorial()" class="px-3 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition"><i class="fa-solid fa-folder-open"></i> Cargar</button>
         
-        <div class="h-6 w-px bg-slate-300 mx-1"></div>
-        
-        <!-- BOTONES DE GESTIÓN -->
-        <button onclick="crearNuevoGrafo()" class="tool-btn bg-orange-500 text-white hover:bg-orange-600" title="Crear un lienzo en blanco">
-          <i class="fa-solid fa-file"></i> Nuevo
-        </button>
-        <button onclick="guardarGrafoActual()" class="tool-btn bg-blue-600 text-white hover:bg-blue-700" title="Guardar grafo actual">
-          <i class="fa-solid fa-floppy-disk"></i> Guardar
-        </button>
-        <button onclick="toggleHistorial()" class="tool-btn bg-emerald-600 text-white hover:bg-emerald-700" title="Ver grafos guardados">
-          <i class="fa-solid fa-folder-open"></i> Cargar
-        </button>
-        
-        <button onclick="limpiarTodo()" class="tool-btn bg-rose-100 text-rose-700 hover:bg-rose-200 ml-auto">
-          <i class="fa-solid fa-trash"></i> Limpiar
-        </button>
+        <button onclick="crearNuevoGrafo()" class="px-3 py-2 bg-rose-100 text-rose-700 text-xs font-bold rounded-lg hover:bg-rose-200 ml-auto"><i class="fa-solid fa-broom"></i> Limpiar</button>
       </div>
 
       <!-- LISTA DE HISTORIAL -->
-      <div id="historial-panel" class="hidden bg-white rounded-2xl shadow-md border border-slate-200 p-4 transition-all">
+      <div id="historial-panel" class="hidden bg-white rounded-2xl shadow-md border border-slate-200 p-4">
         <h3 class="text-sm font-bold text-umgNavy mb-3"><i class="fa-solid fa-clock-rotate-left text-umgGold mr-1"></i> Grafos Guardados</h3>
-        <div id="history-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar">
-          <!-- JS inyectará la lista aquí -->
-        </div>
+        <div id="history-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar"></div>
       </div>
 
       <!-- LIENZO VISUAL -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3">
-        <div id="graph-container-wrap" class="graph-container">
+        <div id="graph-container-wrap" class="graph-container relative">
           <div id="graph-canvas" class="graph-canvas-wrap"></div>
           
-          <div id="context-menu">
-            <button onclick="ctxRenombrar()" class="text-slate-700"><i class="fa-solid fa-pen mr-2 text-blue-500"></i> Renombrar</button>
-            <button onclick="ctxEliminar()" class="text-rose-600"><i class="fa-solid fa-trash mr-2"></i> Eliminar</button>
-            <button onclick="ctxEnlazar()" class="text-emerald-600"><i class="fa-solid fa-link mr-2"></i> Enlazar</button>
+          <!-- MENÚ CONTEXTUAL -->
+          <div id="context-menu" class="hidden absolute z-50 bg-white border border-slate-200 rounded shadow-lg p-1 min-w-[150px]">
+            <button onclick="ctxRenombrar()" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 rounded text-slate-700"><i class="fa-solid fa-pen mr-2 text-blue-500"></i> Renombrar</button>
+            <button onclick="ctxEnlazar()" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 rounded text-emerald-600"><i class="fa-solid fa-link mr-2"></i> Enlazar</button>
+            <button onclick="ctxEliminar()" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 rounded text-rose-600"><i class="fa-solid fa-trash mr-2"></i> Eliminar</button>
           </div>
         </div>
       </div>
     </section>
 
     <aside class="lg:col-span-4 space-y-4">
-      
       <!-- MATRIZ Y GRADOS -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 space-y-3">
-        <h3 class="text-sm font-bold text-umgNavy border-b pb-2"><i class="fa-solid fa-table text-umgGold mr-1"></i> Matriz de Adyacencia</h3>
-        
+        <h3 class="text-sm font-bold text-umgNavy border-b pb-2"><i class="fa-solid fa-table text-umgGold mr-1"></i> Resumen</h3>
         <div class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono space-y-1">
           <p class="flex justify-between"><span class="text-slate-600">Orden (Vértices):</span> <span id="sum-order" class="font-bold text-umgNavy">0</span></p>
           <p class="flex justify-between"><span class="text-slate-600">Tamaño (Aristas):</span> <span id="sum-size" class="font-bold text-umgNavy">0</span></p>
@@ -158,21 +132,16 @@
             <span id="sum-total" class="font-bold text-emerald-700">0</span>
           </p>
         </div>
-
-        <div id="matriz-container" class="overflow-x-auto custom-scrollbar text-xs pb-2">
-          <p class="text-slate-400 italic text-center">Agrega vértices para ver la matriz.</p>
-        </div>
       </div>
 
-      <!-- ANÁLISIS DE ALGORITMOS -->
+      <!-- ANÁLISIS -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 space-y-3">
         <div class="flex justify-between items-center border-b pb-2">
           <h3 class="text-sm font-bold text-umgNavy"><i class="fa-solid fa-microchip text-umgGold mr-1"></i> Análisis</h3>
-          <button onclick="limpiarResultados()" class="text-xs text-slate-500 hover:text-rose-600" title="Limpiar animaciones"><i class="fa-solid fa-broom"></i> Limpiar</button>
+          <button onclick="limpiarAnalisis()" class="text-xs text-slate-500 hover:text-rose-600"><i class="fa-solid fa-broom"></i> Limpiar</button>
         </div>
-
         <div class="space-y-2">
-          <p class="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">Euler</p>
+          <p class="text-[10px] font-bold text-indigo-600 uppercase">Euler</p>
           <button onclick="animarDFS()" id="btn-dfs" class="w-full py-2 bg-indigo-600 text-white font-bold text-xs rounded-lg shadow hover:bg-indigo-700 transition">1. Conexidad (DFS)</button>
           <div id="result-dfs" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
           
@@ -182,9 +151,8 @@
           <button onclick="animarEulerCiclo()" id="btn-ciclo" class="w-full py-2 bg-purple-600 text-white font-bold text-xs rounded-lg shadow hover:bg-purple-700 transition">3. Ciclo de Euler</button>
           <div id="result-ciclo" class="hidden text-xs p-2 rounded bg-slate-50 border text-center"></div>
         </div>
-
         <div class="mt-4 pt-3 border-t-2 border-dashed border-slate-300 space-y-2">
-          <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Hamilton</p>
+          <p class="text-[10px] font-bold text-emerald-600 uppercase">Hamilton</p>
           <button onclick="buscarCaminoHamilton()" id="btn-hamilton-camino" class="w-full py-2 bg-emerald-500 text-white font-bold text-xs rounded-lg shadow hover:bg-emerald-600 transition">4. Camino de Hamilton</button>
           <button onclick="buscarCicloHamilton()" id="btn-hamilton-ciclo" class="w-full py-2 bg-teal-600 text-white font-bold text-xs rounded-lg shadow hover:bg-teal-700 transition">5. Ciclo de Hamilton</button>
           <div id="result-hamilton" class="hidden text-xs p-2 rounded bg-slate-50 border text-left font-sans leading-relaxed text-slate-700"></div>
@@ -198,14 +166,10 @@
   <script src="js/euler.js"></script>
   <script src="js/hamilton.js"></script>
   <script src="js/main.js"></script>
-  
   <script>
     function toggleHistorial() {
-      const panel = document.getElementById('historial-panel');
-      panel.classList.toggle('hidden');
-      if (!panel.classList.contains('hidden')) {
-        actualizarSelectHistorial();
-      }
+      document.getElementById('historial-panel').classList.toggle('hidden');
+      if (!document.getElementById('historial-panel').classList.contains('hidden')) actualizarSelectHistorial();
     }
   </script>
 </body>
