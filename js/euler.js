@@ -7,16 +7,21 @@
 async function animarDFS() {
   if (isAnimating || vertices.length === 0) return;
   isAnimating = true;
-  document.getElementById('btn-dfs').disabled = true;
+  const btn = document.getElementById('btn-dfs');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analizando...';
+  
   limpiarAnalisis();
+  const resDiv = document.getElementById('result-dfs');
+  resDiv.classList.remove('hidden');
+  resDiv.className = 'text-xs p-2 rounded border text-indigo-700 bg-indigo-50 mb-2';
+  resDiv.innerHTML = 'Ejecutando DFS...';
   
   const edgeDataSet = network.body.data.edges;
   const nodeDataSet = network.body.data.nodes;
   let visited = new Set();
   let stack = [vertices[0].name];
   let recorrido = [];
-  const resDiv = document.getElementById('result-container');
-  resDiv.classList.remove('hidden');
 
   while (stack.length > 0) {
     let current = stack.pop();
@@ -40,102 +45,117 @@ async function animarDFS() {
   }
 
   const isConnected = visited.size === vertices.length;
+  
   if (isConnected) {
     recorrido.forEach(id => edgeDataSet.update({ id, color: { color: '#10B981' }, width: 4 }));
     vertices.forEach(v => nodeDataSet.update({ id: v.name, color: { background: '#059669' } }));
-    resDiv.className = 'mt-2 text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700';
-    resDiv.innerHTML = '✅ Grafo CONEXO. Listo para Euler/Hamilton.';
+    resDiv.className = 'text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700 mb-2';
+    resDiv.innerHTML = '✅ Grafo CONEXO.';
   } else {
     recorrido.forEach(id => edgeDataSet.update({ id, color: { color: '#EF4444' }, width: 4 }));
     vertices.forEach(v => {
       if (visited.has(v.name)) nodeDataSet.update({ id: v.name, color: { background: '#EF4444' } });
       else nodeDataSet.update({ id: v.name, color: { background: '#7F1D1D' } });
     });
-    resDiv.className = 'mt-2 text-xs p-2 rounded border text-center font-semibold bg-rose-50 border-rose-200 text-rose-700';
+    resDiv.className = 'text-xs p-2 rounded border text-center font-semibold bg-rose-50 border-rose-200 text-rose-700 mb-2';
     resDiv.innerHTML = '❌ Grafo DESCONEXO.<br>No existe Euler ni Hamilton.';
   }
   
   isAnimating = false;
-  document.getElementById('btn-dfs').disabled = false;
+  btn.disabled = false;
+  btn.innerHTML = '1. Conexidad (DFS)';
 }
 
 // 2. ANIMACIÓN CAMINO DE EULER (Amarillo)
 async function animarEulerCamino() {
   if (isAnimating || vertices.length === 0) return;
   const odd = getOddVertices();
-  const resDiv = document.getElementById('result-container');
+  const resDiv = document.getElementById('result-camino');
   resDiv.classList.remove('hidden');
   
   if (odd.length !== 0 && odd.length !== 2) {
-    resDiv.className = 'mt-2 text-xs p-2 rounded border text-rose-700 bg-rose-50';
+    resDiv.className = 'text-xs p-2 rounded border text-rose-700 bg-rose-50 mb-2';
     resDiv.innerHTML = `❌ No hay Camino de Euler.<br><span class="text-[10px]">Hay ${odd.length} vértices impares (debe haber 0 o 2).</span>`;
     return;
   }
   
   let path = findEulerianPath(odd.length === 2 ? odd[0] : vertices[0].name);
   if (!path) {
-    resDiv.className = 'mt-2 text-xs p-2 rounded border text-rose-700 bg-rose-50';
+    resDiv.className = 'text-xs p-2 rounded border text-rose-700 bg-rose-50 mb-2';
     resDiv.innerHTML = '❌ Error: Grafo desconectado.';
     return;
   }
 
   isAnimating = true;
-  document.getElementById('btn-camino').disabled = true;
+  const btn = document.getElementById('btn-camino');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Viajando...';
+  
   limpiarAnalisis();
   resDiv.classList.remove('hidden');
+  resDiv.className = 'text-xs p-2 rounded border text-indigo-700 bg-indigo-50 mb-2';
+  resDiv.innerHTML = 'Calculando ruta...';
   
-  // Llamamos al viajero (Amarillo)
+  // Animación del viajero (Color Amarillo #F59E0B)
   await animarViajero(path, '#F59E0B');
   
-  resDiv.className = 'mt-2 text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700';
+  resDiv.className = 'text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700 mb-2';
   resDiv.innerHTML = `✅ Camino de Euler encontrado.<br><span class="text-[10px]">Recorrido: ${path.join(' → ')}</span>`;
+  
   isAnimating = false;
-  document.getElementById('btn-camino').disabled = false;
+  btn.disabled = false;
+  btn.innerHTML = '2. Camino de Euler';
 }
 
-// 3. ANIMACIÓN CICLO DE EULER (Morado con cierre)
+// 3. ANIMACIÓN CICLO DE EULER (Morado)
 async function animarEulerCiclo() {
   if (isAnimating || vertices.length === 0) return;
   const odd = getOddVertices();
-  const resDiv = document.getElementById('result-container');
+  const resDiv = document.getElementById('result-ciclo');
   resDiv.classList.remove('hidden');
   
   if (odd.length !== 0) {
-    resDiv.className = 'mt-2 text-xs p-2 rounded border text-rose-700 bg-rose-50';
+    resDiv.className = 'text-xs p-2 rounded border text-rose-700 bg-rose-50 mb-2';
     resDiv.innerHTML = `❌ No hay Ciclo de Euler.<br><span class="text-[10px]">Hay ${odd.length} vértices impares (debe haber 0).</span>`;
     return;
   }
 
   let path = findEulerianPath(vertices[0].name);
   if (!path || path[0] !== path[path.length - 1]) {
-    resDiv.className = 'mt-2 text-xs p-2 rounded border text-rose-700 bg-rose-50';
+    resDiv.className = 'text-xs p-2 rounded border text-rose-700 bg-rose-50 mb-2';
     resDiv.innerHTML = '❌ Error: Grafo desconectado.';
     return;
   }
 
   isAnimating = true;
-  document.getElementById('btn-ciclo').disabled = true;
+  const btn = document.getElementById('btn-ciclo');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Viajando...';
+  
   limpiarAnalisis();
   resDiv.classList.remove('hidden');
-
-  // Llamamos al viajero (Morado)
+  resDiv.className = 'text-xs p-2 rounded border text-purple-700 bg-purple-50 mb-2';
+  resDiv.innerHTML = 'Calculando ruta...';
+  
+  // Animación del viajero (Color Morado #A855F7)
   await animarViajero(path, '#A855F7');
 
-  // Efecto de cierre de ciclo
+  // Efecto visual de cierre de ciclo
   const startNode = path[0];
   await sleep(400);
   network.body.data.nodes.update({ id: startNode, size: 45, color: { background: '#D946EF', border: '#FDF4FF' } });
   await sleep(400);
   network.body.data.nodes.update({ id: startNode, size: 26, color: { background: '#A855F7', border: '#10B981' } });
   
-  resDiv.className = 'mt-2 text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700';
+  resDiv.className = 'text-xs p-2 rounded border text-center font-semibold bg-emerald-50 border-emerald-200 text-emerald-700 mb-2';
   resDiv.innerHTML = `✅ <b>¡Ciclo Cerrado!</b><br><span class="text-[10px]">Inicia y termina en ${startNode}.<br>Ruta: ${path.join(' → ')}</span>`;
   
   isAnimating = false;
-  document.getElementById('btn-ciclo').disabled = false;
+  btn.disabled = false;
+  btn.innerHTML = '3. Ciclo de Euler';
 }
 
-// 4. ALGORITMO DE HIERHOLZER (Cálculo puro)
+// 4. ALGORITMO DE HIERHOLZER (Cálculo puro de la ruta)
 function findEulerianPath(startNode) {
   let tempEdges = edges.map((e, idx) => ({ ...e, id: `e_${idx}` }));
   let stack = [startNode];
