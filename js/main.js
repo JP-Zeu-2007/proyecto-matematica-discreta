@@ -38,6 +38,16 @@ function logChange(msg) {
   banner.prepend(p);
 }
 
+function showTempAlert(msg) {
+  const banner = document.getElementById('log-banner');
+  if (!banner) return;
+  const p = document.createElement('p'); 
+  p.className = 'text-rose-600 font-bold';
+  p.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>${msg}`;
+  banner.prepend(p); 
+  setTimeout(() => { if (p.parentNode) p.remove(); }, 3500);
+}
+
 function getVertex(name) { return vertices.find(v => v.name === name); }
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
@@ -66,7 +76,6 @@ function onToggleDirected() {
 // HISTORIAL VISUAL
 // ==========================================
 function actualizarSelectHistorial() {
-  // Si no existe el contenedor visual, no hace nada (ya que no lo pusimos en el HTML nuevo)
   const container = document.getElementById('history-list');
   if (!container) return;
   container.innerHTML = '';
@@ -101,6 +110,40 @@ function borrarGrafoHistorial(id, event) {
   logChange("🗑️ Grafo eliminado del historial.");
 }
 
+function guardarGrafoActual() {
+  if (vertices.length === 0) {
+    alert("No hay nada que guardar. Agrega vértices primero.");
+    return;
+  }
+  const nombre = prompt("Dale un nombre a este grafo (ej. Red de Ciudades):", `Grafo ${savedGraphs.length + 1}`);
+  if (!nombre) return;
+
+  const nuevoGrafo = {
+    id: currentGraphId || Date.now().toString(), 
+    name: nombre,
+    date: new Date().toISOString(),
+    vertices: JSON.parse(JSON.stringify(vertices)),
+    edges: JSON.parse(JSON.stringify(edges)),
+    isDirected: isDirected,
+    isWeighted: isWeighted,
+    unit: currentUnit,
+    customUnit: customUnitText
+  };
+
+  const idx = savedGraphs.findIndex(g => g.id === nuevoGrafo.id);
+  if (idx !== -1) savedGraphs[idx] = nuevoGrafo;
+  else savedGraphs.push(nuevoGrafo);
+
+  currentGraphId = nuevoGrafo.id;
+  localStorage.setItem('umg_grafos_history', JSON.stringify(savedGraphs));
+  
+  if (document.getElementById('historial-panel').classList.contains('hidden')) {
+      document.getElementById('historial-panel').classList.remove('hidden');
+  }
+  actualizarSelectHistorial();
+  logChange(`💾 Grafo <strong>${nombre}</strong> guardado.`);
+}
+
 function cargarGrafoHistorial(id) {
   if (!id) return;
   const g = savedGraphs.find(x => x.id === id);
@@ -110,6 +153,8 @@ function cargarGrafoHistorial(id) {
   edges = JSON.parse(JSON.stringify(g.edges));
   isDirected = g.isDirected;
   isWeighted = g.isWeighted;
+  currentUnit = g.unit || 'km';
+  customUnitText = g.customUnit || '';
   currentGraphId = g.id;
 
   const td = document.getElementById('toggle-directed');
@@ -204,18 +249,19 @@ document.addEventListener('click', (e) => {
 });
 
 // ==========================================
-// RENDERIZADO DEL PANEL (MATRIZ)
+// RENDERIZADO DEL PANEL (MATRIZ Y CONTADORES)
 // ==========================================
 function render() {
-  let evenVerts = [], oddVerts = [];
+  // 1. ACTUALIZAR LOS CONTADORES
+  const sumOrderEl = document.getElementById('sum-order');
+  const sumSizeEl = document.getElementById('sum-size');
+  const sumTotalEl = document.getElementById('sum-total');
+  
+  if (sumOrderEl) sumOrderEl.innerText = vertices.length;
+  if (sumSizeEl) sumSizeEl.innerText = countTotalEdges();
+  if (sumTotalEl) sumTotalEl.innerText = sumAllGrades();
 
-  vertices.forEach(v => {
-    const grade = computeGrade(v.name); 
-    const isEven = grade % 2 === 0;
-    if (isEven) evenVerts.push(v.name); else oddVerts.push(v.name);
-  });
-
-  // Matriz de Adyacencia
+  // 2. MATRIZ DE ADYACENCIA
   let matrizHTML = '';
   const containerMatriz = document.getElementById('matriz-container');
   
@@ -250,6 +296,7 @@ function render() {
     }
   }
 
+  // 3. Renderizar el grafo
   renderGraph();
 }
 
