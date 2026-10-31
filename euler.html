@@ -77,6 +77,8 @@
       
       <!-- BARRA DE HERRAMIENTAS -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3 flex flex-wrap gap-2 items-center">
+        
+        <!-- Botones de Creación -->
         <button onclick="addVertexClick()" class="tool-btn bg-umgNavy text-white hover:bg-umgLightNavy">
           <i class="fa-solid fa-plus"></i> + Vértice
         </button>
@@ -87,6 +89,7 @@
         
         <div class="h-6 w-px bg-slate-300 mx-1"></div>
         
+        <!-- Opciones de Visibilidad -->
         <label class="flex items-center gap-1 text-xs font-semibold cursor-pointer">
           <input type="checkbox" id="toggle-show-name" checked onchange="toggleVisibility('name')" class="rounded text-umgNavy focus:ring-umgNavy"> Nombre
         </label>
@@ -94,9 +97,27 @@
           <input type="checkbox" id="toggle-show-id" checked onchange="toggleVisibility('id')" class="rounded text-umgNavy focus:ring-umgNavy"> ID
         </label>
         
-        <button onclick="limpiarTodo()" class="tool-btn bg-rose-100 text-rose-700 hover:bg-rose-200 ml-auto">
-          <i class="fa-solid fa-trash"></i> Limpiar Todo
+        <div class="h-6 w-px bg-slate-300 mx-1"></div>
+        
+        <!-- Botones de Historial -->
+        <button onclick="guardarGrafoActual()" class="tool-btn bg-blue-600 text-white hover:bg-blue-700">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
         </button>
+        <button onclick="toggleHistorial()" class="tool-btn bg-emerald-600 text-white hover:bg-emerald-700">
+          <i class="fa-solid fa-folder-open"></i> Cargar
+        </button>
+        
+        <button onclick="limpiarTodo()" class="tool-btn bg-rose-100 text-rose-700 hover:bg-rose-200 ml-auto">
+          <i class="fa-solid fa-trash"></i> Limpiar
+        </button>
+      </div>
+
+      <!-- LISTA DE HISTORIAL (Oculta por defecto) -->
+      <div id="historial-panel" class="hidden bg-white rounded-2xl shadow-md border border-slate-200 p-4 transition-all">
+        <h3 class="text-sm font-bold text-umgNavy mb-3"><i class="fa-solid fa-clock-rotate-left text-umgGold mr-1"></i> Grafos Guardados</h3>
+        <div id="history-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar">
+          <!-- JS inyectará la lista aquí -->
+        </div>
       </div>
 
       <!-- LIENZO VISUAL -->
@@ -156,11 +177,22 @@
     </aside>
   </main>
 
-  <!-- ORDEN DE CARGA CORRECTO -->
+  <!-- ORDEN DE CARGA -->
   <script src="js/validations.js"></script>
   <script src="js/graph.js"></script>
   <script src="js/euler.js"></script>
   <script src="js/hamilton.js"></script>
   <script src="js/main.js"></script>
+  
+  <script>
+    // Función rápida para mostrar/ocultar el panel de historial
+    function toggleHistorial() {
+      const panel = document.getElementById('historial-panel');
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) {
+        actualizarSelectHistorial();
+      }
+    }
+  </script>
 </body>
 </html>
