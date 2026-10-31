@@ -1,5 +1,6 @@
 // ==========================================
 // MÓDULO DE HAMILTON - INTEGRANTE 2 (LUIS OMAR)
+// Adaptado a la nueva arquitectura del lienzo
 // ==========================================
 
 function limpiarHamilton() {
@@ -8,38 +9,34 @@ function limpiarHamilton() {
   resDiv.classList.add('hidden');
   resDiv.innerHTML = '';
   
-  if (window.network) {
-    const edgeDataSet = window.network.body.data.edges;
-    const nodeDataSet = window.network.body.data.nodes;
-    if (window.edges) {
-      window.edges.forEach((e, idx) => edgeDataSet.update({ id: e.id || `e_${idx}`, color: { color: '#94A3B8' }, width: 1 }));
-    }
-    if (window.vertices) {
-      window.vertices.forEach(v => nodeDataSet.update({ id: v.id, color: { background: '#002B49', border: '#D4AF37' } }));
-    }
+  if (network) {
+    const edgeDataSet = network.body.data.edges;
+    const nodeDataSet = network.body.data.nodes;
+    edges.forEach((e, idx) => edgeDataSet.update({ id: `e_${idx}`, color: { color: '#94A3B8' }, width: 2 }));
+    vertices.forEach(v => nodeDataSet.update({ id: v.name, color: { background: v.used ? '#10B981' : '#002B49' } }));
   }
 }
 
 function isGraphConnectedHamilton() {
-  if (!window.vertices || window.vertices.length === 0) return false;
+  if (!vertices || vertices.length === 0) return false;
   let visited = new Set(); 
-  let stack = [window.vertices[0].id];
+  let stack = [vertices[0].name];
   
   while (stack.length > 0) {
     let curr = stack.pop();
     if (!visited.has(curr)) {
       visited.add(curr);
-      window.edges.forEach(e => {
-        if (e.from === curr && !visited.has(e.to)) stack.push(e.to);
-        if (e.to === curr && !visited.has(e.from)) stack.push(e.from);
+      edges.forEach(e => {
+        if (e.a === curr && !visited.has(e.b)) stack.push(e.b);
+        if (e.b === curr && !visited.has(e.a)) stack.push(e.a);
       });
     }
   }
-  return visited.size === window.vertices.length;
+  return visited.size === vertices.length;
 }
 
-function computeGradeHamilton(id) {
-  return window.edges.filter(e => e.from === id || e.to === id).length;
+function computeGradeHamilton(name) {
+  return edges.filter(e => e.a === name || e.b === name).length;
 }
 
 function findHamiltonian(nodes, adj) {
@@ -74,23 +71,22 @@ function findHamiltonian(nodes, adj) {
 }
 
 async function animarRecorridoHamilton(path, colorHex) {
-  window.isAnimating = true;
-  const edgeDataSet = window.network.body.data.edges; 
-  const nodeDataSet = window.network.body.data.nodes;
+  isAnimating = true;
+  const edgeDataSet = network.body.data.edges; 
+  const nodeDataSet = network.body.data.nodes;
   
   for (let i = 0; i < path.length; i++) {
     nodeDataSet.update({ id: path[i], color: { background: colorHex, border: '#ffffff' } });
     if (i < path.length - 1) {
       const a = path[i], b = path[i+1];
-      const edgeIdx = window.edges.findIndex(e => (e.from === a && e.to === b) || (e.from === b && e.to === a));
+      const edgeIdx = edges.findIndex(e => (e.a === a && e.b === b) || (e.a === b && e.b === a));
       if (edgeIdx !== -1) {
-        const edgeId = window.edges[edgeIdx].id || `e_${edgeIdx}`;
-        edgeDataSet.update({ id: edgeId, color: { color: colorHex }, width: 4 });
+        edgeDataSet.update({ id: `e_${edgeIdx}`, color: { color: colorHex }, width: 4 });
       }
     }
-    await new Promise(resolve => setTimeout(resolve, 400));
+    await sleep(400);
   }
-  window.isAnimating = false;
+  isAnimating = false;
 }
 
 function mostrarResultadoHamilton(html, exito) {
@@ -101,32 +97,28 @@ function mostrarResultadoHamilton(html, exito) {
 }
 
 async function buscarCaminoHamilton() {
-  if (window.isAnimating || !window.vertices || window.vertices.length === 0) return;
+  if (isAnimating || !vertices || vertices.length === 0) return;
   limpiarHamilton();
   
-  if (window.vertices.length < 3) return mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo tiene menos de 3 nodos.", false);
+  if (vertices.length < 3) return mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo tiene menos de 3 nodos.", false);
   if (!isGraphConnectedHamilton()) return mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo está <b>desconectado</b>.", false);
   
-  let grados1 = window.vertices.filter(v => computeGradeHamilton(v.id) === 1).length;
+  let grados1 = vertices.filter(v => computeGradeHamilton(v.name) === 1).length;
   if (grados1 > 2) return mostrarResultadoHamilton(`<b>⚠️ Análisis Matemático:</b><br>Hay <b>${grados1} nodos con grado 1 (hojas)</b>. Máximo permitido: 2.`, false);
 
   let adj = {}; 
-  window.vertices.forEach(v => adj[v.id] = []);
-  window.edges.forEach(e => { adj[e.from].push(e.to); adj[e.to].push(e.from); });
+  vertices.forEach(v => adj[v.name] = []);
+  edges.forEach(e => { adj[e.a].push(e.b); adj[e.b].push(e.a); });
 
   const startTime = performance.now();
-  let res = findHamiltonian(window.vertices.map(v => v.id), adj);
+  let res = findHamiltonian(vertices.map(v => v.name), adj);
   const endTime = performance.now();
   const timeMs = (endTime - startTime).toFixed(2);
   
-  // Obtenemos los nombres reales para mostrarlos
-  const getName = (id) => window.vertices.find(v => v.id === id)?.name || id;
-
   if (res.path) {
     let esCiclo = res.cycle ? "<br><i class='text-emerald-600 text-[10px]'>Nota: También forma un Ciclo.</i>" : "";
-    let pathNames = res.path.map(getName).join(' → ');
     mostrarResultadoHamilton(`<b>✅ Camino Encontrado</b><br><br>
-      <span class="font-mono text-sm bg-white p-1 rounded border inline-block mb-2">${pathNames}</span><br>
+      <span class="font-mono text-sm bg-white p-1 rounded border inline-block mb-2">${res.path.join(' → ')}</span><br>
       ${esCiclo}<br>
       <span class="text-[10px] text-slate-600"><b>⏱️ Tiempo:</b> ${timeMs} ms | <b>🔄 Intentos:</b> ${res.intentos}</span>`, true);
     await animarRecorridoHamilton(res.path, '#10B981');
@@ -138,30 +130,27 @@ async function buscarCaminoHamilton() {
 }
 
 async function buscarCicloHamilton() {
-  if (window.isAnimating || !window.vertices || window.vertices.length === 0) return;
+  if (isAnimating || !vertices || vertices.length === 0) return;
   limpiarHamilton();
 
-  if (window.vertices.length < 3) return mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo tiene menos de 3 nodos.", false);
+  if (vertices.length < 3) return mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo tiene menos de 3 nodos.", false);
   if (!isGraphConnectedHamilton()) return mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo está <b>desconectado</b>.", false);
 
-  let grados1 = window.vertices.filter(v => computeGradeHamilton(v.id) === 1).length;
+  let grados1 = vertices.filter(v => computeGradeHamilton(v.name) === 1).length;
   if (grados1 > 0) return mostrarResultadoHamilton(`<b>⚠️ Análisis Matemático:</b><br>Hay un nodo con grado 1. Imposible cerrar ciclo.`, false);
 
   let adj = {}; 
-  window.vertices.forEach(v => adj[v.id] = []);
-  window.edges.forEach(e => { adj[e.from].push(e.to); adj[e.to].push(e.from); });
+  vertices.forEach(v => adj[v.name] = []);
+  edges.forEach(e => { adj[e.a].push(e.b); adj[e.b].push(e.a); });
 
   const startTime = performance.now();
-  let res = findHamiltonian(window.vertices.map(v => v.id), adj);
+  let res = findHamiltonian(vertices.map(v => v.name), adj);
   const endTime = performance.now();
   const timeMs = (endTime - startTime).toFixed(2);
 
-  const getName = (id) => window.vertices.find(v => v.id === id)?.name || id;
-
   if (res.cycle) {
-    let cycleNames = res.cycle.map(getName).join(' → ');
     mostrarResultadoHamilton(`<b>✅ Ciclo Encontrado</b><br><br>
-      <span class="font-mono text-sm bg-white p-1 rounded border inline-block mb-2">${cycleNames}</span><br>
+      <span class="font-mono text-sm bg-white p-1 rounded border inline-block mb-2">${res.cycle.join(' → ')}</span><br>
       <span class="text-[10px] text-slate-600"><b>⏱️ Tiempo:</b> ${timeMs} ms | <b>🔄 Intentos:</b> ${res.intentos}</span>`, true);
     await animarRecorridoHamilton(res.cycle, '#0D9488');
   } else {
@@ -169,4 +158,4 @@ async function buscarCicloHamilton() {
       Exploró ${res.intentos} combinaciones sin éxito.<br>
       <span class="text-[10px] text-slate-600"><b>⏱️ Tiempo:</b> ${timeMs} ms</span>`, false);
   }
-}// ARCHIVO EN ESPERA PARA SER EDITADO POR EL INTEGRANTE 2 (DESARROLLADOR HAMILTON)
+}
