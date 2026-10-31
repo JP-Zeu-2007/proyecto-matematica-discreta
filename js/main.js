@@ -2,7 +2,6 @@
 // js/main.js - Lógica Central, Ejemplos y Persistencia
 // ==========================================
 
-// Variables Globales
 let vertices = []; 
 let edges = []; 
 let isDirected = false; 
@@ -56,7 +55,6 @@ function addVertexClick() {
   while (getVertex(`V${i}`)) i++;
   const name = `V${i}`;
   
-  // Obtener el ícono seleccionado
   const iconSelect = document.getElementById('vertex-icon-select');
   const selectedIcon = iconSelect ? iconSelect.value : 'circle';
 
@@ -163,15 +161,12 @@ function generarMatriz() {
   }
 
   let html = '<table class="matrix-table">';
-  // Cabecera
   html += '<tr><th></th>';
   vertices.forEach(v => {
-    // El atributo title muestra el ID y Nombre completo al pasar el mouse
     html += `<th title="ID: ${v.code} | Nombre: ${v.name}">${v.name.substring(0,3)}.</th>`;
   });
   html += '<th>Grado</th></tr>';
 
-  // Filas
   vertices.forEach(v1 => {
     html += `<tr><th title="ID: ${v1.code} | Nombre: ${v1.name}">${v1.name.substring(0,3)}.</th>`;
     vertices.forEach(v2 => {
@@ -206,7 +201,7 @@ function limpiarAnalisis() {
   }
 }
 
-// 6. PERSISTENCIA (GUARDAR Y CARGAR)
+// 6. PERSISTENCIA
 function guardarGrafoActual() {
   if (vertices.length === 0) return alert("No hay nada que guardar.");
   const nombre = prompt("Nombre del grafo:", `Grafo ${savedGraphs.length + 1}`);
@@ -273,7 +268,7 @@ function crearNuevoGrafo() {
   }
 }
 
-// 7. EJEMPLOS PREDEFINIDOS (CONTEXTOS)
+// 7. EJEMPLOS PREDEFINIDOS
 function cargarEjemplo(tipo) {
   vertices = []; 
   edges = [];
