@@ -155,6 +155,61 @@ async function animarEulerCiclo() {
   btn.innerHTML = '3. Ciclo de Euler';
 }
 
+// 5. EJEMPLOS PRECARGADOS
+// Cada ejemplo muestra un caso distinto de Euler/Hamilton para poder comparar
+const EJEMPLOS_EULER = {
+  // K5: todos los grados son 4 (pares) -> Ciclo de Euler y Ciclo de Hamilton
+  vuelos: {
+    icon: 'plane',
+    nodos: ['GUA', 'MEX', 'MIA', 'BOG', 'SAL'],
+    aristas: [['GUA', 'MEX'], ['MEX', 'MIA'], ['MIA', 'BOG'], ['BOG', 'SAL'], ['SAL', 'GUA'],
+              ['GUA', 'MIA'], ['MIA', 'SAL'], ['SAL', 'MEX'], ['MEX', 'BOG'], ['BOG', 'GUA']]
+  },
+  // "Casita": 2 vértices impares -> Camino de Euler (no ciclo) y Ciclo de Hamilton
+  servidores: {
+    icon: 'server',
+    nodos: ['S1', 'S2', 'S3', 'S4', 'S5'],
+    aristas: [['S1', 'S2'], ['S2', 'S3'], ['S3', 'S4'], ['S4', 'S1'], ['S1', 'S5'], ['S2', 'S5']]
+  },
+  // Hexágono con 2 diagonales: 4 vértices impares -> sin Euler, pero con Ciclo de Hamilton
+  ciudades: {
+    icon: 'building',
+    nodos: ['Guatemala', 'Antigua', 'Chimaltenango', 'Xela', 'Escuintla', 'Cobán'],
+    aristas: [['Guatemala', 'Antigua'], ['Antigua', 'Chimaltenango'], ['Chimaltenango', 'Xela'], ['Xela', 'Escuintla'],
+              ['Escuintla', 'Cobán'], ['Cobán', 'Guatemala'], ['Guatemala', 'Xela'], ['Antigua', 'Escuintla']]
+  },
+  // Línea recta: Camino de Euler y Camino de Hamilton, pero ningún ciclo
+  tuberias: {
+    icon: 'water',
+    nodos: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+    aristas: [['T1', 'T2'], ['T2', 'T3'], ['T3', 'T4'], ['T4', 'T5'], ['T5', 'T6']]
+  },
+  // Estrella: 5 hojas -> ni Euler ni Hamilton
+  estrella: {
+    icon: 'star',
+    nodos: ['Centro', 'P1', 'P2', 'P3', 'P4', 'P5'],
+    aristas: [['Centro', 'P1'], ['Centro', 'P2'], ['Centro', 'P3'], ['Centro', 'P4'], ['Centro', 'P5']]
+  }
+};
+
+function cargarEjemplo(clave) {
+  const ej = EJEMPLOS_EULER[clave];
+  if (!ej || isAnimating) return;
+
+  vertices = ej.nodos.map(n => ({ name: n, code: generateUniqueCode(), pinned: false, used: false, icon: ej.icon, x: undefined, y: undefined }));
+  edges = ej.aristas.map(([a, b]) => ({ a, b, weight: null }));
+  currentGraphId = null;
+
+  // Los ejemplos son grafos no dirigidos
+  isDirected = false;
+  const toggle = document.getElementById('toggle-directed');
+  if (toggle) toggle.checked = false;
+
+  limpiarAnalisis();
+  if (typeof limpiarHamilton === 'function') limpiarHamilton();
+  render();
+}
+
 // 4. ALGORITMO DE HIERHOLZER (Cálculo puro de la ruta)
 function findEulerianPath(startNode) {
   let tempEdges = edges.map((e, idx) => ({ ...e, id: `e_${idx}` }));

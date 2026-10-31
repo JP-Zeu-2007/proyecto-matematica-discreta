@@ -1,5 +1,6 @@
 // ==========================================
 // js/graph.js - Renderizado, Íconos, Tijera y Edición de Pesos
+// Usado por euler.html (Euler/Hamilton). Dijkstra usa su propia copia: graph-dijkstra.js
 // ==========================================
 
 let network = null; 
@@ -53,8 +54,9 @@ function renderGraph() {
       };
       nodeConfig.shape = 'icon';
       nodeConfig.icon = { 
-        face: 'FontAwesome', 
-        code: iconMap[v.icon] || '\uf111', 
+        face: '"Font Awesome 6 Free"',
+        weight: '900',
+        code: iconMap[v.icon] || '\uf111',
         size: 40, 
         color: v.used ? '#10B981' : '#002B49' 
       };
@@ -101,7 +103,13 @@ function renderGraph() {
       if(arista) removeEdge(arista.a, arista.b);
     } else if (typeof isEnlazando !== 'undefined' && isEnlazando && params.nodes.length > 0) {
       if (params.nodes[0] !== nodoOrigenEnlace) {
-        addEdge(nodoOrigenEnlace, params.nodes[0]);
+        let peso = null;
+        if (typeof isWeighted !== 'undefined' && isWeighted) {
+          let unidad = (typeof currentUnit !== 'undefined') ? currentUnit : '';
+          let entrada = prompt(`Peso de la arista ${nodoOrigenEnlace} -> ${params.nodes[0]} (en ${unidad}):`, "10");
+          if (entrada !== null && entrada.trim() !== '' && !isNaN(parseFloat(entrada))) peso = parseFloat(entrada);
+        }
+        addEdge(nodoOrigenEnlace, params.nodes[0], peso);
         isEnlazando = false; nodoOrigenEnlace = null; container.style.cursor = 'default';
       }
     } else if (typeof seleccionandoModo !== 'undefined' && seleccionandoModo !== null && params.nodes.length > 0) {
@@ -134,11 +142,15 @@ function renderGraph() {
 
   network.on("oncontext", function (params) {
     if (params.event) params.event.preventDefault();
-    if (params.nodes.length > 0) {
+    // En "oncontext" vis-network no llena params.nodes/edges con lo que está bajo el cursor,
+    // así que hay que buscarlo por la posición del puntero.
+    const nodoClic = network.getNodeAt(params.pointer.DOM);
+    const aristaClic = nodoClic === undefined ? network.getEdgeAt(params.pointer.DOM) : undefined;
+    if (nodoClic !== undefined) {
       const rect = container.getBoundingClientRect();
-      openContextMenu(params.event.clientX - rect.left, params.event.clientY - rect.top, params.nodes[0]);
-    } else if (params.edges.length > 0) {
-      const edgeIdx = parseInt(params.edges[0].replace('e_', ''));
+      openContextMenu(params.event.clientX - rect.left, params.event.clientY - rect.top, nodoClic);
+    } else if (aristaClic !== undefined) {
+      const edgeIdx = parseInt(aristaClic.replace('e_', ''));
       const arista = edges[edgeIdx];
       if(arista) {
         let unidad = (typeof currentUnit !== 'undefined') ? currentUnit : '';
@@ -170,7 +182,7 @@ async function animarViajero(ruta, colorRuta) {
   
   network.body.data.nodes.add({
     id: viajeroId, shape: 'icon',
-    icon: { face: 'FontAwesome', code: iconMap[tipoViajero] || '\uf007', size: 35, color: '#F59E0B' },
+    icon: { face: '"Font Awesome 6 Free"', weight: '900', code: iconMap[tipoViajero] || '\uf007', size: 35, color: '#F59E0B' },
     physics: false, fixed: true
   });
 

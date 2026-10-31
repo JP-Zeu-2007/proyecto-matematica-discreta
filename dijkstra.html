@@ -109,6 +109,7 @@
             <button onclick="ctxEliminar()" class="text-rose-600"><i class="fa-solid fa-trash mr-2"></i> Eliminar</button>
           </div>
         </div>
+        <p class="text-[11px] text-slate-500 mt-2"><i class="fa-solid fa-circle-info text-sky-600 mr-1"></i> <b>+ Vértice</b> agrega un nodo · <b>Clic derecho en un nodo → Enlazar</b> y luego clic en otro nodo para crear la arista · <b>Clic derecho en una arista</b> para cambiar su peso.</p>
       </div>
 
       <!-- TABLA DE TODAS LAS RUTAS POSIBLES -->
@@ -195,8 +196,20 @@
     </aside>
   </main>
 
+  <!-- CUADRO DE DIÁLOGO (reemplaza prompt/alert/confirm, que algunos navegadores bloquean) -->
+  <div id="dialogo" class="hidden fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4">
+    <form id="dialogo-form" class="bg-white rounded-2xl shadow-xl border border-slate-200 p-5 w-full max-w-sm space-y-3">
+      <p id="dialogo-mensaje" class="text-sm text-slate-700 whitespace-pre-line"></p>
+      <input id="dialogo-input" type="text" class="w-full text-sm p-2 border border-slate-300 rounded-lg outline-none focus:border-sky-500">
+      <div class="flex justify-end gap-2">
+        <button type="button" id="dialogo-cancelar" class="px-4 py-2 text-xs font-bold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300">Cancelar</button>
+        <button type="submit" id="dialogo-aceptar" class="px-4 py-2 text-xs font-bold rounded-lg bg-sky-600 text-white hover:bg-sky-700">Aceptar</button>
+      </div>
+    </form>
+  </div>
+
   <script src="js/validations.js"></script>
-  <script src="js/graph.js"></script>
+  <script src="js/graph-dijkstra.js"></script>
   <script src="js/main.js"></script>
   <script src="js/dijkstra.js"></script>
 </body>
