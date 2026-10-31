@@ -38,16 +38,6 @@ function logChange(msg) {
   banner.prepend(p);
 }
 
-function showTempAlert(msg) {
-  const banner = document.getElementById('log-banner');
-  if (!banner) return;
-  const p = document.createElement('p'); 
-  p.className = 'text-rose-600 font-bold';
-  p.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>${msg}`;
-  banner.prepend(p); 
-  setTimeout(() => { if (p.parentNode) p.remove(); }, 3500);
-}
-
 function getVertex(name) { return vertices.find(v => v.name === name); }
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
@@ -58,18 +48,11 @@ function computeGrade(name) {
 
 function countTotalEdges() { return edges.length; }
 function sumAllGrades() { return vertices.reduce((acc, v) => acc + computeGrade(v.name), 0); }
-function getOddVertices() { return vertices.filter(v => computeGrade(v.name) % 2 !== 0).map(v => v.name); }
 
 function toggleVisibility(tipo) {
   if (tipo === 'name') showNames = document.getElementById('toggle-show-name').checked;
   if (tipo === 'id') showId = document.getElementById('toggle-show-id').checked;
   renderGraph();
-}
-
-function onToggleDirected() {
-  isDirected = document.getElementById('toggle-directed').checked;
-  limpiarAnalisis(); 
-  render();
 }
 
 // ==========================================
@@ -107,7 +90,6 @@ function borrarGrafoHistorial(id, event) {
   localStorage.setItem('umg_grafos_history', JSON.stringify(savedGraphs));
   if (currentGraphId === id) currentGraphId = null;
   actualizarSelectHistorial();
-  logChange("🗑️ Grafo eliminado del historial.");
 }
 
 function guardarGrafoActual() {
@@ -137,11 +119,12 @@ function guardarGrafoActual() {
   currentGraphId = nuevoGrafo.id;
   localStorage.setItem('umg_grafos_history', JSON.stringify(savedGraphs));
   
-  if (document.getElementById('historial-panel').classList.contains('hidden')) {
-      document.getElementById('historial-panel').classList.remove('hidden');
-  }
+  // Abrir el panel automáticamente al guardar
+  const panel = document.getElementById('historial-panel');
+  if (panel && panel.classList.contains('hidden')) panel.classList.remove('hidden');
   actualizarSelectHistorial();
-  logChange(`💾 Grafo <strong>${nombre}</strong> guardado.`);
+  
+  alert(`¡Grafo "${nombre}" guardado exitosamente!`);
 }
 
 function cargarGrafoHistorial(id) {
@@ -162,7 +145,17 @@ function cargarGrafoHistorial(id) {
   
   limpiarAnalisis();
   render();
-  logChange(`📂 Grafo <strong>${g.name}</strong> cargado.`);
+}
+
+function crearNuevoGrafo() {
+  if (vertices.length > 0) {
+    if (!confirm("¿Crear un nuevo grafo en blanco? (Perderás los cambios no guardados)")) return;
+  }
+  vertices = [];
+  edges = [];
+  currentGraphId = null;
+  render();
+  limpiarAnalisis();
 }
 
 // ==========================================
@@ -173,16 +166,7 @@ function addVertexClick() {
   while (getVertex(`V${i}`)) i++;
   const name = `V${i}`;
   
-  vertices.push({ 
-    name, 
-    code: generateUniqueCode(), 
-    pinned: false, 
-    used: false,
-    x: undefined, 
-    y: undefined
-  });
-  
-  logChange(`+ Vértice <strong>${name}</strong> agregado.`); 
+  vertices.push({ name, code: generateUniqueCode(), pinned: false, used: false });
   limpiarAnalisis(); 
   render();
 }
@@ -191,24 +175,21 @@ function removeVertex(name) {
   if (!getVertex(name)) return;
   edges = edges.filter(e => e.a !== name && e.b !== name);
   vertices = vertices.filter(x => x.name !== name);
-  logChange(`🗑️ Eliminado vértice <strong>${name}</strong>.`); 
   limpiarAnalisis(); 
   render();
 }
 
-function addEdge(a, b, weight = null) {
-  if (!validarLazo(a, b)) return;
-  if (!validarAristaDuplicada(a, b)) return;
+function addEdge(a, b) {
+  if (a === b) return alert('No se permiten lazos.');
+  if (edges.some(e => (e.a === a && e.b === b) || (!isDirected && e.a === b && e.b === a))) return alert('Esa arista ya existe.');
   
-  edges.push({ a, b, weight: isWeighted ? weight : null }); 
-  logChange(`🔗 Arista: <strong>${a}${isDirected ? '→' : '↔'}${b}</strong>.`); 
+  edges.push({ a, b, weight: null }); 
   limpiarAnalisis(); 
   render();
 }
 
 function removeEdge(a, b) {
   edges = edges.filter(e => !((e.a === a && e.b === b) || (!isDirected && e.a === b && e.b === a)));
-  logChange(`✂️ Arista eliminada.`); 
   limpiarAnalisis(); 
   render();
 }
@@ -223,36 +204,10 @@ function limpiarTodo() {
 }
 
 // ==========================================
-// MENÚ CONTEXTUAL
-// ==========================================
-function openContextMenu(x, y, vertexName) {
-  ctxTarget = vertexName; 
-  const menu = document.getElementById('context-menu'), wrap = document.getElementById('graph-container-wrap');
-  
-  let left = x, top = y;
-  if (left + 170 > wrap.clientWidth) left = wrap.clientWidth - 175;
-  if (top + 140 > wrap.clientHeight) top = wrap.clientHeight - 145;
-  
-  menu.style.left = Math.max(5, left) + 'px'; 
-  menu.style.top = Math.max(5, top) + 'px'; 
-  menu.style.display = 'block';
-}
-
-function closeContextMenu() { 
-  const menu = document.getElementById('context-menu');
-  if(menu) menu.style.display = 'none'; 
-  ctxTarget = null; 
-}
-
-document.addEventListener('click', (e) => { 
-  if (!e.target.closest('#context-menu')) closeContextMenu(); 
-});
-
-// ==========================================
 // RENDERIZADO DEL PANEL (MATRIZ Y CONTADORES)
 // ==========================================
 function render() {
-  // 1. ACTUALIZAR LOS CONTADORES
+  // 1. ACTUALIZAR LOS CONTADORES SIEMPRE
   const sumOrderEl = document.getElementById('sum-order');
   const sumSizeEl = document.getElementById('sum-size');
   const sumTotalEl = document.getElementById('sum-total');
@@ -316,21 +271,6 @@ function limpiarAnalisis() {
     edges.forEach((e, idx) => edgeDataSet.update({ id: `e_${idx}`, color: { color: '#94A3B8' }, width: 2 }));
     vertices.forEach(v => nodeDataSet.update({ id: v.name, color: { background: v.used ? '#10B981' : '#002B49' } }));
   }
-}
-
-function setBtnState(btnId, active) {
-  const btn = document.getElementById(btnId);
-  if(!btn) return;
-  btn.disabled = active;
-  btn.classList.toggle('opacity-50', active);
-}
-
-function showResult(resId, html, type) {
-  const el = document.getElementById(resId);
-  if(!el) return;
-  el.classList.remove('hidden');
-  el.className = `text-xs p-2 rounded border text-center font-semibold ${type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-700'}`;
-  el.innerHTML = html;
 }
 
 // Inicio
