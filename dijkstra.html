@@ -51,6 +51,15 @@
       <!-- BARRA DE HERRAMIENTAS -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3 flex flex-wrap gap-2 items-center">
         
+        <div class="flex items-center bg-indigo-600 rounded-lg overflow-hidden border border-indigo-700">
+          <span class="px-2 py-2 text-white text-xs font-bold"><i class="fa-solid fa-person-walking"></i> Avatar:</span>
+          <select id="viajero-select" class="bg-indigo-600 text-white text-xs px-2 py-2 outline-none cursor-pointer">
+            <option value="user">👤 Persona</option>
+            <option value="car">🚗 Carro</option>
+            <option value="plane">✈️ Avión</option>
+          </select>
+        </div>
+
         <div class="flex items-center bg-umgNavy rounded-lg overflow-hidden border border-umgNavy">
           <button onclick="addVertexClick()" class="px-3 py-2 text-white font-bold text-xs hover:bg-umgLightNavy border-r border-slate-500"><i class="fa-solid fa-plus"></i> Vértice</button>
           <select id="vertex-icon-select" class="bg-umgNavy text-white text-xs px-2 py-2 outline-none cursor-pointer">
@@ -84,6 +93,8 @@
           <option value="">-- Cargar Ejemplo --</option>
           <option value="volcanes">🌋 Red de Volcanes</option>
           <option value="vuelos">✈️ Rutas de Vuelo</option>
+          <option value="servidores">💻 Red de Servidores</option>
+          <option value="ciudades">🏢 Red de Ciudades</option>
         </select>
 
         <button onclick="crearNuevoGrafo()" class="px-3 py-2 bg-rose-100 text-rose-700 text-xs font-bold rounded-lg hover:bg-rose-200 ml-auto"><i class="fa-solid fa-broom"></i> Limpiar</button>
@@ -134,17 +145,21 @@
           <button onclick="limpiarAnalisisDijkstra()" class="text-xs text-slate-500 hover:text-rose-600"><i class="fa-solid fa-broom"></i> Limpiar</button>
         </div>
         
-        <!-- CAMPOS DE SELECCIÓN DE ORIGEN Y DESTINO -->
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-2 text-center mb-2">
+          <p class="text-[11px] font-bold text-sky-800" id="dijkstra-status">Selecciona un Origen y Destino</p>
+        </div>
+
+        <!-- CAMPOS DE SELECCIÓN -->
         <div class="space-y-2 mb-3">
           <div class="flex gap-2">
             <input type="text" id="input-origen" placeholder="Nodo de Origen" readonly class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-slate-50 outline-none">
-            <button onclick="activarSeleccion('origen')" id="btn-sel-origen" class="px-3 bg-sky-100 text-sky-700 border border-sky-300 rounded-lg hover:bg-sky-200 transition" title="Haz clic y luego selecciona un nodo en el grafo">
+            <button onclick="activarSeleccion('origen')" id="btn-sel-origen" class="px-3 bg-sky-100 text-sky-700 border border-sky-300 rounded-lg hover:bg-sky-200 transition font-bold" title="Seleccionar en el grafo">
               <i class="fa-solid fa-caret-down"></i>
             </button>
           </div>
           <div class="flex gap-2">
             <input type="text" id="input-destino" placeholder="Nodo de Destino" readonly class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-slate-50 outline-none">
-            <button onclick="activarSeleccion('destino')" id="btn-sel-destino" class="px-3 bg-rose-100 text-rose-700 border border-rose-300 rounded-lg hover:bg-rose-200 transition" title="Haz clic y luego selecciona un nodo en el grafo">
+            <button onclick="activarSeleccion('destino')" id="btn-sel-destino" class="px-3 bg-rose-100 text-rose-700 border border-rose-300 rounded-lg hover:bg-rose-200 transition font-bold" title="Seleccionar en el grafo">
               <i class="fa-solid fa-caret-down"></i>
             </button>
           </div>
