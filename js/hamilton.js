@@ -3,25 +3,16 @@
 // Adaptado a la nueva arquitectura por Integrante 1
 // ==========================================
 
+// Limpia los resultados anteriores
 function limpiarHamilton() {
   const resDivCamino = document.getElementById('result-hamilton-camino');
   const resDivCiclo = document.getElementById('result-hamilton-ciclo');
   
   if (resDivCamino) { resDivCamino.classList.add('hidden'); resDivCamino.innerHTML = ''; }
   if (resDivCiclo) { resDivCiclo.classList.add('hidden'); resDivCiclo.innerHTML = ''; }
-  
-  if (network) {
-    const edgeDataSet = network.body.data.edges;
-    const nodeDataSet = network.body.data.nodes;
-    edges.forEach((e, idx) => edgeDataSet.update({ id: `e_${idx}`, color: { color: '#94A3B8' }, width: 2 }));
-    vertices.forEach(v => {
-      let bColor = (computeGrade(v.name) % 2 === 0) ? '#D4AF37' : '#DC2626';
-      if(v.icon !== 'circle') nodeDataSet.update({ id: v.name, color: { background: '#F8FAFC', border: bColor } });
-      else nodeDataSet.update({ id: v.name, color: { background: '#002B49', border: bColor } });
-    });
-  }
 }
 
+// Verifica si el grafo está conectado antes de buscar
 function isGraphConnectedHamilton() {
   if (!vertices || vertices.length === 0) return false;
   let visited = new Set(); 
@@ -40,10 +31,12 @@ function isGraphConnectedHamilton() {
   return visited.size === vertices.length;
 }
 
+// Calcula el grado para las validaciones previas
 function computeGradeHamilton(name) {
   return edges.filter(e => e.a === name || e.b === name).length;
 }
 
+// Algoritmo de Backtracking
 function findHamiltonian(nodes, adj) {
   let n = nodes.length;
   let result = { path: null, cycle: null, intentos: 0 };
@@ -75,42 +68,7 @@ function findHamiltonian(nodes, adj) {
   return result;
 }
 
-// Animación usando el Viajero para consistencia visual
-async function animarRecorridoHamilton(path, colorHex) {
-  const viajeroSelect = document.getElementById('viajero-select');
-  const tipoViajero = viajeroSelect ? viajeroSelect.value : 'user';
-  const iconMap = { 'user': '\uf007', 'plane': '\uf072', 'car': '\uf1b9' };
-  const viajeroId = 'EL_VIAJERO_HAMILTON';
-  
-  if(network) {
-    network.body.data.nodes.add({
-      id: viajeroId, shape: 'icon',
-      icon: { face: 'FontAwesome', code: iconMap[tipoViajero], size: 35, color: '#F59E0B' },
-      physics: false, fixed: true
-    });
-  }
-
-  const edgeDataSet = network.body.data.edges; 
-  const nodeDataSet = network.body.data.nodes;
-  
-  for (let i = 0; i < path.length; i++) {
-    const pos = network.getPositions([path[i]])[path[i]];
-    if(pos) network.moveNode(viajeroId, pos.x, pos.y);
-    
-    nodeDataSet.update({ id: path[i], color: { background: colorHex, border: '#ffffff' } });
-    
-    if (i < path.length - 1) {
-      const a = path[i], b = path[i+1];
-      const edgeIdx = edges.findIndex(e => (e.a === a && e.b === b) || (e.a === b && e.b === a));
-      if (edgeIdx !== -1) edgeDataSet.update({ id: `e_${edgeIdx}`, color: { color: colorHex }, width: 4 });
-    }
-    await sleep(600);
-  }
-  
-  await sleep(400);
-  network.body.data.nodes.remove(viajeroId);
-}
-
+// Muestra el resultado en el contenedor correcto
 function mostrarResultadoHamilton(html, exito, tipo) {
   const resDiv = document.getElementById(tipo === 'ciclo' ? 'result-hamilton-ciclo' : 'result-hamilton-camino');
   if(!resDiv) return;
@@ -120,6 +78,7 @@ function mostrarResultadoHamilton(html, exito, tipo) {
   resDiv.innerHTML = html;
 }
 
+// Botón 4: Camino de Hamilton
 async function buscarCaminoHamilton() {
   if (isAnimating || !vertices || vertices.length === 0) return;
   
@@ -129,11 +88,13 @@ async function buscarCaminoHamilton() {
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando...';
   
   limpiarHamilton();
+  if(typeof limpiarAnalisis === 'function') limpiarAnalisis();
   
   if (vertices.length < 3) {
     mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo tiene menos de 3 nodos.", false, 'camino');
     isAnimating = false; btn.disabled = false; btn.innerHTML = '4. Camino de Hamilton'; return;
   }
+  
   if (!isGraphConnectedHamilton()) {
     mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo está <b>desconectado</b>.", false, 'camino');
     isAnimating = false; btn.disabled = false; btn.innerHTML = '4. Camino de Hamilton'; return;
@@ -160,7 +121,10 @@ async function buscarCaminoHamilton() {
       <span class="font-mono text-sm bg-white p-1 rounded border inline-block mb-2">${res.path.join(' → ')}</span><br>
       ${esCiclo}<br>
       <span class="text-[10px] text-slate-600"><b>⏱️ Tiempo:</b> ${timeMs} ms | <b>🔄 Intentos:</b> ${res.intentos}</span>`, true, 'camino');
-    await animarRecorridoHamilton(res.path, '#10B981');
+    
+    // Animación
+    await animarViajero(res.path, '#10B981');
+    
   } else {
     mostrarResultadoHamilton(`<b>❌ No existe Camino</b><br><br>
       Exploró ${res.intentos} combinaciones sin éxito.<br>
@@ -172,6 +136,7 @@ async function buscarCaminoHamilton() {
   btn.innerHTML = '4. Camino de Hamilton';
 }
 
+// Botón 5: Ciclo de Hamilton
 async function buscarCicloHamilton() {
   if (isAnimating || !vertices || vertices.length === 0) return;
   
@@ -181,11 +146,13 @@ async function buscarCicloHamilton() {
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando...';
   
   limpiarHamilton();
+  if(typeof limpiarAnalisis === 'function') limpiarAnalisis();
 
   if (vertices.length < 3) {
     mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo tiene menos de 3 nodos.", false, 'ciclo');
     isAnimating = false; btn.disabled = false; btn.innerHTML = '5. Ciclo de Hamilton'; return;
   }
+  
   if (!isGraphConnectedHamilton()) {
     mostrarResultadoHamilton("<b>⚠️ Análisis Matemático:</b><br>El grafo está <b>desconectado</b>.", false, 'ciclo');
     isAnimating = false; btn.disabled = false; btn.innerHTML = '5. Ciclo de Hamilton'; return;
@@ -210,7 +177,10 @@ async function buscarCicloHamilton() {
     mostrarResultadoHamilton(`<b>✅ Ciclo Encontrado</b><br><br>
       <span class="font-mono text-sm bg-white p-1 rounded border inline-block mb-2">${res.cycle.join(' → ')}</span><br>
       <span class="text-[10px] text-slate-600"><b>⏱️ Tiempo:</b> ${timeMs} ms | <b>🔄 Intentos:</b> ${res.intentos}</span>`, true, 'ciclo');
-    await animarRecorridoHamilton(res.cycle, '#0D9488');
+    
+    // Animación
+    await animarViajero(res.cycle, '#0D9488');
+    
   } else {
     mostrarResultadoHamilton(`<b>❌ No existe Ciclo</b><br><br>
       Exploró ${res.intentos} combinaciones sin éxito.<br>
