@@ -32,6 +32,7 @@ function computeGrade(name) {
 }
 
 function sumAllGrades() { return vertices.reduce((acc, v) => acc + computeGrade(v.name), 0); }
+function getOddVertices() { return vertices.filter(v => computeGrade(v.name) % 2 !== 0).map(v => v.name); }
 
 function toggleVisibility(tipo) {
   if (tipo === 'name') showNames = document.getElementById('toggle-show-name').checked;
@@ -39,84 +40,154 @@ function toggleVisibility(tipo) {
   renderGraph();
 }
 
-// ==========================================
-// VÉRTICES (Con soporte para íconos)
-// ==========================================
 function addVertexClick() {
   let i = 1;
   while (getVertex(`V${i}`)) i++;
   const name = `V${i}`;
-  
-  // Obtener el ícono del selector (por defecto 'circle')
   const iconSelect = document.getElementById('vertex-icon-select');
   const selectedIcon = iconSelect ? iconSelect.value : 'circle';
 
-  vertices.push({ 
-    name, 
-    code: generateUniqueCode(), 
-    pinned: false, 
-    used: false,
-    icon: selectedIcon, // <-- NUEVO: Guardamos el ícono
-    x: undefined, 
-    y: undefined
-  });
-  
+  vertices.push({ name, code: generateUniqueCode(), pinned: false, used: false, icon: selectedIcon, x: undefined, y: undefined });
   render();
 }
 
-// ==========================================
-// EJEMPLOS EXPANDIDOS (8 a 12 nodos)
-// ==========================================
+function addEdge(a, b) {
+  if (a === b) return;
+  if (edges.some(e => (e.a === a && e.b === b) || (!isDirected && e.a === b && e.b === a))) return;
+  edges.push({ a, b, weight: null });
+  render();
+}
+
+function removeEdge(a, b) {
+  edges = edges.filter(e => !((e.a === a && e.b === b) || (!isDirected && e.a === b && e.b === a)));
+  render();
+}
+
+function openContextMenu(x, y, vertexName) {
+  ctxTarget = vertexName; 
+  const menu = document.getElementById('context-menu');
+  menu.style.left = Math.max(5, x) + 'px'; 
+  menu.style.top = Math.max(5, y) + 'px'; 
+  menu.classList.remove('hidden');
+}
+
+function closeContextMenu() { 
+  document.getElementById('context-menu').classList.add('hidden'); 
+  ctxTarget = null; 
+}
+
+function ctxRenombrar() {
+  if (!ctxTarget) return;
+  const nuevoNombre = prompt("Nuevo nombre para el vértice:", ctxTarget);
+  if (nuevoNombre && nuevoNombre.trim() !== '') {
+    const v = getVertex(ctxTarget);
+    // Renombrar en vértices
+    v.name = nuevoNombre.trim();
+    // Renombrar en aristas
+    edges.forEach(e => {
+      if (e.a === ctxTarget) e.a = v.name;
+      if (e.b === ctxTarget) e.b = v.name;
+    });
+    render();
+  }
+  closeContextMenu();
+}
+
+function ctxEnlazar() {
+  if (!ctxTarget) return;
+  isEnlazando = true;
+  nodoOrigenEnlace = ctxTarget;
+  document.getElementById('graph-canvas').style.cursor = 'crosshair';
+  closeContextMenu();
+}
+
+function ctxEliminar() {
+  if (!ctxTarget) return;
+  vertices = vertices.filter(v => v.name !== ctxTarget);
+  edges = edges.filter(e => e.a !== ctxTarget && e.b !== ctxTarget);
+  render();
+  closeContextMenu();
+}
+
+document.addEventListener('click', (e) => { 
+  if (!e.target.closest('#context-menu')) closeContextMenu(); 
+});
+
+function render() {
+  document.getElementById('sum-order').innerText = vertices.length;
+  document.getElementById('sum-size').innerText = edges.length;
+  document.getElementById('sum-total').innerText = sumAllGrades();
+  renderGraph();
+}
+
+function limpiarAnalisis() {
+  if (isAnimating) return;
+  ['result-dfs', 'result-camino', 'result-ciclo', 'result-hamilton'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('hidden');
+  });
+  if (network) {
+    const edgeDataSet = network.body.data.edges; 
+    const nodeDataSet = network.body.data.nodes;
+    edges.forEach((e, idx) => edgeDataSet.update({ id: `e_${idx}`, color: { color: '#94A3B8' }, width: 2 }));
+    vertices.forEach(v => nodeDataSet.update({ id: v.name, color: { background: '#002B49', border: (computeGrade(v.name)%2===0)?'#D4AF37':'#DC2626' } }));
+  }
+}
+
+// --- PERSISTENCIA ---
+function guardarGrafoActual() {
+  if (vertices.length === 0) { alert("No hay nada que guardar."); return; }
+  const nombre = prompt("Nombre del grafo:", `Grafo ${savedGraphs.length + 1}`);
+  if (!nombre) return;
+
+  const nuevoGrafo = {
+    id: currentGraphId || Date.now().toString(), 
+    name: nombre, date: new Date().toISOString(),
+    vertices: JSON.parse(JSON.stringify(vertices)), edges: JSON.parse(JSON.stringify(edges)),
+    isDirected: isDirected
+  };
+
+  const idx = savedGraphs.findIndex(g => g.id === nuevoGrafo.id);
+  if (idx !== -1) savedGraphs[idx] = nuevoGrafo; else savedGraphs.push(nuevoGrafo);
+  currentGraphId = nuevoGrafo.id;
+  localStorage.setItem('umg_grafos_history', JSON.stringify(savedGraphs));
+  actualizarSelectHistorial();
+  alert("✅ Guardado.");
+}
+
+function actualizarSelectHistorial() {
+  const list = document.getElementById('history-list');
+  if(!list) return;
+  list.innerHTML = '';
+  savedGraphs.forEach(g => {
+    const btn = document.createElement('button');
+    btn.className = 'px-3 py-1 bg-slate-100 border border-slate-300 rounded text-xs hover:bg-slate-200 text-left';
+    btn.innerHTML = `<strong>${g.name}</strong><br><span class="text-[10px] text-slate-500">${new Date(g.date).toLocaleDateString()}</span>`;
+    btn.onclick = () => {
+      vertices = JSON.parse(JSON.stringify(g.vertices));
+      edges = JSON.parse(JSON.stringify(g.edges));
+      currentGraphId = g.id;
+      document.getElementById('historial-panel').classList.add('hidden');
+      render();
+    };
+    list.appendChild(btn);
+  });
+}
+
+function crearNuevoGrafo() {
+  if (confirm("¿Limpiar el lienzo actual?")) {
+    vertices = []; edges = []; currentGraphId = null; limpiarAnalisis(); render();
+  }
+}
+
+// --- EJEMPLOS ---
 function cargarEjemplo(tipo) {
-  vertices = [];
-  edges = [];
+  vertices = []; edges = [];
   
   if (tipo === 'vuelos') {
-    // 9 Nodos - Ícono de Avión
     const cities = ["Guatemala", "Miami", "Bogota", "Mexico", "Madrid", "Lima", "Santiago", "Buenos Aires", "Panama"];
     cities.forEach(c => vertices.push({ name: c, code: generateUniqueCode(), icon: 'plane', pinned: false, used: false }));
-    const r = (a,b) => edges.push({ a, b, weight: Math.floor(Math.random()*2000)+500 });
+    const r = (a,b) => edges.push({ a, b, weight: null });
     r("Guatemala","Miami"); r("Guatemala","Mexico"); r("Guatemala","Bogota"); r("Guatemala","Panama");
     r("Miami","Madrid"); r("Miami","Bogota"); r("Mexico","Madrid"); r("Mexico","Lima");
-    r("Bogota","Lima"); r("Bogota","Panama"); r("Lima","Santiago"); r("Santiago","Buenos Aires"); r("Panama","Madrid");
-
-  } else if (tipo === 'servidores') {
-    // 8 Nodos - Ícono de Servidor
-    const servers = ["Servidor Central", "Router A", "Router B", "PC Admin", "Base Datos", "Firewall", "Cloud", "Backup"];
-    servers.forEach(s => vertices.push({ name: s, code: generateUniqueCode(), icon: 'server', pinned: false, used: false }));
-    const r = (a,b) => edges.push({ a, b, weight: null });
-    r("Servidor Central","Router A"); r("Servidor Central","Router B"); r("Servidor Central","Firewall");
-    r("Router A","PC Admin"); r("Router B","Base Datos"); r("Firewall","Cloud");
-    r("Base Datos","Backup"); r("Cloud","Backup"); r("PC Admin","Base Datos");
-
-  } else if (tipo === 'ciudades') {
-    // 10 Nodos - Ícono de Edificio
-    const zonas = ["Zona 1", "Zona 4", "Zona 10", "Mixco", "Villa Nueva", "Zona 15", "Zona 16", "Carretera", "Zona 2", "Zona 5"];
-    zonas.forEach(z => vertices.push({ name: z, code: generateUniqueCode(), icon: 'building', pinned: false, used: false }));
-    const r = (a,b) => edges.push({ a, b, weight: Math.floor(Math.random()*50)+5 });
-    r("Zona 1","Zona 4"); r("Zona 4","Zona 10"); r("Zona 1","Mixco"); r("Mixco","Villa Nueva");
-    r("Villa Nueva","Zona 10"); r("Zona 10","Zona 15"); r("Zona 15","Zona 16"); r("Zona 16","Carretera");
-    r("Carretera","Zona 2"); r("Zona 2","Zona 5"); r("Zona 5","Zona 1"); r("Zona 4","Zona 15");
-
-  } else if (tipo === 'tuberias') {
-    // 9 Nodos - Ícono de Gota (Agua)
-    const plantas = ["Planta Norte", "Bomba1", "Bomba2", "Bomba3", "Tanque1", "Tanque2", "Tanque3", "Filtro", "Desague"];
-    plantas.forEach(p => vertices.push({ name: p, code: generateUniqueCode(), icon: 'water', pinned: false, used: false }));
-    const r = (a,b) => edges.push({ a, b, weight: Math.floor(Math.random()*500)+100 });
-    r("Planta Norte","Bomba1"); r("Planta Norte","Bomba2"); r("Bomba1","Tanque1"); r("Bomba2","Tanque2");
-    r("Bomba1","Bomba3"); r("Bomba3","Tanque3"); r("Tanque1","Filtro"); r("Tanque2","Filtro");
-    r("Filtro","Desague"); r("Tanque3","Desague");
-
-  } else if (tipo === 'estrella') {
-    // 9 Nodos (Prueba de fallo)
-    const centro = "Centro";
-    vertices.push({ name: centro, code: generateUniqueCode(), icon: 'star', pinned: false, used: false });
-    for(let i=1; i<=8; i++) {
-      vertices.push({ name: `Hoja ${i}`, code: generateUniqueCode(), icon: 'circle', pinned: false, used: false });
-      edges.push({ a: centro, b: `Hoja ${i}`, weight: null });
-    }
-  }
-  
-  limpiarAnalisis();
-  render();
-}
+    r("Bogota","Lima"); r("Bogota","Panama"); r("Lima","Santiago"); r("Santiago","Buenos Aires"); r("Panama","
