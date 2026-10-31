@@ -51,23 +51,13 @@
       <!-- BARRA DE HERRAMIENTAS -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3 flex flex-wrap gap-2 items-center">
         
-        <div class="flex items-center bg-indigo-600 rounded-lg overflow-hidden border border-indigo-700">
-          <span class="px-2 py-2 text-white text-xs font-bold"><i class="fa-solid fa-person-walking"></i> Avatar:</span>
-          <select id="viajero-select" class="bg-indigo-600 text-white text-xs px-2 py-2 outline-none cursor-pointer">
-            <option value="user">👤 Persona</option>
-            <option value="car">🚗 Carro</option>
-            <option value="plane">✈️ Avión</option>
-          </select>
-        </div>
-
         <div class="flex items-center bg-umgNavy rounded-lg overflow-hidden border border-umgNavy">
           <button onclick="addVertexClick()" class="px-3 py-2 text-white font-bold text-xs hover:bg-umgLightNavy border-r border-slate-500"><i class="fa-solid fa-plus"></i> Vértice</button>
           <select id="vertex-icon-select" class="bg-umgNavy text-white text-xs px-2 py-2 outline-none cursor-pointer">
             <option value="circle">🔵 Círculo</option>
             <option value="plane">✈️ Avión</option>
             <option value="building">🏢 Edificio</option>
-            <option value="house">🏠 Casa</option>
-            <option value="star">⭐ Estrella</option>
+            <option value="mountain">🌋 Montaña</option>
           </select>
         </div>
 
@@ -84,7 +74,6 @@
           <option value="m">Metros (m)</option>
           <option value="Q">Quetzales (Q)</option>
           <option value="$">Dólares ($)</option>
-          <option value="L">Litros (L)</option>
         </select>
 
         <button onclick="toggleTijera()" id="btn-tijera" class="px-3 py-2 bg-slate-200 text-slate-700 font-bold text-xs rounded-lg hover:bg-rose-200 transition">
@@ -95,18 +84,9 @@
           <option value="">-- Cargar Ejemplo --</option>
           <option value="volcanes">🌋 Red de Volcanes</option>
           <option value="vuelos">✈️ Rutas de Vuelo</option>
-          <option value="servidores">💻 Red de Servidores</option>
-          <option value="ciudades">🏢 Red de Ciudades</option>
         </select>
 
-        <button onclick="guardarGrafoActual()" class="px-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
-        <button onclick="toggleHistorial()" class="px-3 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700"><i class="fa-solid fa-folder-open"></i> Cargar</button>
         <button onclick="crearNuevoGrafo()" class="px-3 py-2 bg-rose-100 text-rose-700 text-xs font-bold rounded-lg hover:bg-rose-200 ml-auto"><i class="fa-solid fa-broom"></i> Limpiar</button>
-      </div>
-
-      <div id="historial-panel" class="hidden bg-white rounded-2xl shadow-md border border-slate-200 p-4">
-        <h3 class="text-sm font-bold text-umgNavy mb-3"><i class="fa-solid fa-clock-rotate-left text-umgGold mr-1"></i> Grafos Guardados</h3>
-        <div id="history-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar"></div>
       </div>
 
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-3">
@@ -121,8 +101,8 @@
       </div>
 
       <!-- TABLA DE TODAS LAS RUTAS POSIBLES -->
-      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 mt-4">
-        <h3 class="text-sm font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-list-ol text-umgGold mr-1"></i> Todas las Rutas Posibles (Análisis)</h3>
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4">
+        <h3 class="text-sm font-bold text-umgNavy mb-3 border-b pb-2"><i class="fa-solid fa-list-ol text-umgGold mr-1"></i> Todas las Rutas Posibles</h3>
         <div id="tabla-rutas" class="overflow-x-auto custom-scrollbar">
           <p class="text-xs text-slate-400 italic text-center">Calcula una ruta en el panel derecho para ver el análisis.</p>
         </div>
@@ -131,7 +111,6 @@
 
     <aside class="lg:col-span-4 space-y-4">
       
-      <!-- RESUMEN Y MATRIZ CON BOTÓN DE MINIMIZAR -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 space-y-3">
         <div class="flex justify-between items-center border-b pb-2 cursor-pointer" onclick="toggleMatriz()">
           <h3 class="text-sm font-bold text-umgNavy"><i class="fa-solid fa-table text-umgGold mr-1"></i> Resumen y Matriz</h3>
@@ -144,29 +123,40 @@
             <p class="flex justify-between"><span>Tamaño (Aristas):</span> <span id="sum-size" class="font-bold text-umgNavy">0</span></p>
             <p class="flex justify-between border-t pt-1 mt-1"><span>Σ (Suma Grados):</span> <span id="sum-total" class="font-bold text-emerald-700">0</span></p>
           </div>
-          <div id="matriz-container" class="overflow-x-auto custom-scrollbar pb-2">
-            <p class="text-xs text-slate-400 italic text-center">Agrega vértices para ver la matriz.</p>
-          </div>
+          <div id="matriz-container" class="overflow-x-auto custom-scrollbar pb-2"></div>
         </div>
       </div>
 
+      <!-- PANEL DE DIJKSTRA -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 space-y-3">
         <div class="flex justify-between items-center border-b pb-2">
-          <h3 class="text-sm font-bold text-umgNavy"><i class="fa-solid fa-route text-sky-600 mr-1"></i> Dijkstra</h3>
+          <h3 class="text-sm font-bold text-umgNavy"><i class="fa-solid fa-route text-sky-600 mr-1"></i> Ruta Más Corta</h3>
           <button onclick="limpiarAnalisisDijkstra()" class="text-xs text-slate-500 hover:text-rose-600"><i class="fa-solid fa-broom"></i> Limpiar</button>
         </div>
         
-        <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 text-center mb-2">
-          <p class="text-xs font-bold text-sky-800" id="dijkstra-status">Haz clic en el Nodo de ORIGEN</p>
+        <!-- CAMPOS DE SELECCIÓN DE ORIGEN Y DESTINO -->
+        <div class="space-y-2 mb-3">
+          <div class="flex gap-2">
+            <input type="text" id="input-origen" placeholder="Nodo de Origen" readonly class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-slate-50 outline-none">
+            <button onclick="activarSeleccion('origen')" id="btn-sel-origen" class="px-3 bg-sky-100 text-sky-700 border border-sky-300 rounded-lg hover:bg-sky-200 transition" title="Haz clic y luego selecciona un nodo en el grafo">
+              <i class="fa-solid fa-caret-down"></i>
+            </button>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="input-destino" placeholder="Nodo de Destino" readonly class="flex-1 text-xs p-2 border border-slate-300 rounded-lg bg-slate-50 outline-none">
+            <button onclick="activarSeleccion('destino')" id="btn-sel-destino" class="px-3 bg-rose-100 text-rose-700 border border-rose-300 rounded-lg hover:bg-rose-200 transition" title="Haz clic y luego selecciona un nodo en el grafo">
+              <i class="fa-solid fa-caret-down"></i>
+            </button>
+          </div>
         </div>
 
-        <button onclick="inicializarDijkstra()" id="btn-dijkstra" class="w-full py-2 bg-sky-600 text-white font-bold text-xs rounded-lg shadow hover:bg-sky-700 transition">Iniciar Búsqueda de Ruta</button>
+        <button onclick="ejecutarRutaDijkstra()" id="btn-dijkstra" class="w-full py-2 bg-sky-600 text-white font-bold text-xs rounded-lg shadow hover:bg-sky-700 transition">Calcular Ruta</button>
         
-        <div id="result-dijkstra" class="hidden text-xs p-2 rounded border text-center mb-2"></div>
+        <div id="result-dijkstra" class="hidden text-xs p-2 rounded border text-center"></div>
 
         <div class="mt-2">
           <h4 class="text-xs font-bold text-umgNavy mb-2">Log de Eventos</h4>
-          <div id="log-banner" class="text-[10px] space-y-1 max-h-32 overflow-y-auto custom-scrollbar bg-slate-50 p-2 rounded-lg border border-slate-200 font-mono">
+          <div id="log-banner" class="text-[10px] space-y-1 max-h-24 overflow-y-auto custom-scrollbar bg-slate-50 p-2 rounded-lg border border-slate-200 font-mono">
             <p class="text-slate-400 italic">Esperando acción...</p>
           </div>
         </div>
