@@ -141,6 +141,17 @@
       <!-- MATRIZ Y GRADOS -->
       <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-4 space-y-3">
         <h3 class="text-sm font-bold text-umgNavy border-b pb-2"><i class="fa-solid fa-table text-umgGold mr-1"></i> Matriz de Adyacencia</h3>
+        
+        <!-- RESUMEN ARRIBA DE LA MATRIZ -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono space-y-1">
+          <p class="flex justify-between"><span class="text-slate-600">Orden (Vértices):</span> <span id="sum-order" class="font-bold text-umgNavy">0</span></p>
+          <p class="flex justify-between"><span class="text-slate-600">Tamaño (Aristas):</span> <span id="sum-size" class="font-bold text-umgNavy">0</span></p>
+          <p class="flex justify-between border-t border-dashed border-slate-300 pt-1 mt-1">
+            <span class="text-slate-600 font-bold">Σ (Suma de Grados):</span> 
+            <span id="sum-total" class="font-bold text-emerald-700">0</span>
+          </p>
+        </div>
+
         <div id="matriz-container" class="overflow-x-auto custom-scrollbar text-xs pb-2">
           <p class="text-slate-400 italic text-center">Agrega vértices para ver la matriz.</p>
         </div>
