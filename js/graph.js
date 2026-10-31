@@ -1,5 +1,5 @@
 // ==========================================
-// js/graph.js - Renderizado con Íconos, Tijera y Viajero
+// js/graph.js - Renderizado, Íconos, Tijera y Edición de Pesos
 // ==========================================
 
 let network = null; 
@@ -53,7 +53,7 @@ function renderGraph() {
       const iconMap = { 
         'plane': '\uf072', 'server': '\uf233', 'building': '\uf1ad', 
         'house': '\uf015', 'star': '\uf005', 'user': '\uf007', 'water': '\uf043',
-        'mountain': '\uf6fc' // <-- ÍCONO DE MONTAÑA
+        'mountain': '\uf6fc' // ÍCONO DE MONTAÑA
       };
       nodeConfig.shape = 'icon';
       nodeConfig.icon = { 
@@ -62,7 +62,6 @@ function renderGraph() {
         size: 40, 
         color: v.used ? '#10B981' : '#002B49' 
       };
-      // Ajustar texto para que no choque con el ícono
       nodeConfig.font = { color: '#1E293B', size: 10, face: 'Inter', vadjust: 45, strokeWidth: 3, strokeColor: '#F8FAFC' };
     } else {
       nodeConfig.shape = 'circle';
@@ -71,15 +70,25 @@ function renderGraph() {
     return nodeConfig;
   });
 
-  // 2. Configurar las Aristas
-  const visEdges = edges.map((e, idx) => ({
-    id: `e_${idx}`, 
-    from: e.a, 
-    to: e.b,
-    arrows: isDirected ? { to: { enabled: true, scaleFactor: 1.2 } } : '',
-    color: { color: '#94A3B8', highlight: '#0EA5E9' }, 
-    width: 2
-  }));
+  // 2. Configurar las Aristas (y mostrar el peso si lo tienen)
+  const visEdges = edges.map((e, idx) => {
+    let edgeLabel = '';
+    // Si el grafo es ponderado y la arista tiene peso, mostrar el texto
+    if (typeof isWeighted !== 'undefined' && isWeighted && e.weight !== null && e.weight !== undefined) {
+      edgeLabel = `${e.weight} ${typeof currentUnit !== 'undefined' ? currentUnit : ''}`;
+    }
+    
+    return {
+      id: `e_${idx}`, 
+      from: e.a, 
+      to: e.b,
+      label: edgeLabel,
+      font: { size: 10, align: 'top', color: '#1E293B', strokeWidth: 2, strokeColor: '#F8FAFC' },
+      arrows: isDirected ? { to: { enabled: true, scaleFactor: 1.2 } } : '',
+      color: { color: '#94A3B8', highlight: '#0EA5E9' }, 
+      width: 2
+    };
+  });
 
   const data = { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) };
   const options = { 
@@ -122,18 +131,32 @@ function renderGraph() {
     }
   });
 
-  // Clic derecho (Para abrir el menú: Renombrar, Enlazar, Eliminar)
+  // Clic derecho (Para abrir el menú en nodos o pedir peso en aristas)
   network.on("oncontext", function (params) {
     if (params.event) params.event.preventDefault();
+    
     if (params.nodes.length > 0) {
+      // Si es un nodo, abrir menú contextual (Renombrar, Enlazar, Eliminar)
       const rect = container.getBoundingClientRect();
       openContextMenu(params.event.clientX - rect.left, params.event.clientY - rect.top, params.nodes[0]);
+    } else if (params.edges.length > 0) {
+      // Si es una arista, pedir el peso
+      const edgeIdx = parseInt(params.edges[0].replace('e_', ''));
+      const arista = edges[edgeIdx];
+      if(arista) {
+        let unidad = (typeof currentUnit !== 'undefined') ? currentUnit : '';
+        let peso = prompt(`Ingresa el peso para la arista ${arista.a} -> ${arista.b} (en ${unidad}):`, arista.weight || "10");
+        if(peso !== null && peso.trim() !== '') {
+          arista.weight = parseFloat(peso);
+          render();
+        }
+      }
     } else { 
       closeContextMenu(); 
     }
   });
   
-  // Guardar posición de los nodos al arrastrarlos (para que no salten)
+  // Guardar posición de los nodos al arrastrarlos
   network.on("dragEnd", function(params) {
     if (params.nodes.length > 0) {
       const pos = network.getPositions([params.nodes[0]])[params.nodes[0]];
